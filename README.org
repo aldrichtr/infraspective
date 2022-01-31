@@ -1,0 +1,38 @@
+#+TITLE: infraspective module readme
+#+INDEX: Projects!Tools
+#+AUTHOR: Timothy Aldrich <mailto:timothy.r.aldrich@gmail.com>
+#+STARTUP: overview hidestars
+#+FILETAGS: PowerShell compliance Pester
+
+  | Status:   | Under Development (Pre-release) |
+  | Location: | [[https://github.com/aldrichtr/infraspective][github]]                  |
+  | Version:  | 0.0.1                           |
+
+* Synopsis
+  ~infraspective~ is a PowerShell module for testing (auditing, validating) infrastructure using the
+[[https://pester.dev][Pester Testing Module]] .
+
+* Description
+  ~infraspective~ reads tests (written in [[https://www.agilealliance.org/glossary/bdd/][BDD style]] , like Pester) and produces output that reports on compliance of your
+  infrastructure to those tests.
+
+* Example
+  #+begin_src powershell
+    Import-Module infraspective
+    Set-Alias infspec Invoke-Infraspective
+    infspec .\cis-controls-windows-server-2019.ps1
+  #+end_src
+
+  #+begin_example
+    
+  #+end_example
+* Notes
+  There are several tools out there that do compliance testing for your infrastructure, such as [[https://docs.chef.io/inspec][chef inspec]] or
+  [[https://docs.cfengine.com/docs/3.18][cfengine]] .  Other tools (particularly automation tools) offer some infrastructure testing capabilities such as 
+  ansible, puppet, terraform and Desired State Configuration (DSC), although their focus is on _applying_ controls
+  to the infrastructure rather than reporting.
+
+  Other projects have a similar idea; Operation Validation Framework and PoshSpec are two examples.  However, these
+  appear to be abandoned projects.
+  
+

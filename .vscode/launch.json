@@ -1,0 +1,11 @@
+{
+    "configurations": [
+    {
+        "name": "PowerShell Interactive Session",
+        "type": "PowerShell",
+        "request": "launch",
+        "cwd": "${workspaceRoot}",
+        "script": "${workspaceRoot}\\debugHarness.ps1"
+    }
+    ]
+}

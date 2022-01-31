@@ -1,0 +1,3 @@
+# Don't check in the staging or publishing directories
+out/
+stage/

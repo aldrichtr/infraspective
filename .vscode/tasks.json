@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build the module",
+            "type": "shell",
+            "command": "Invoke-Build Build"
+        },
+        {
+            "label": "Run tests",
+            "type":"shell",
+            "command": "Invoke-Build Test",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Clean generated files",
+            "type": "shell",
+            "command":"Invoke-Build Clean"
+        }
+    ]
+}
