@@ -50,7 +50,6 @@ function Invoke-InfspecChecklist {
 
     }
     process {
-        Write-Debug "[$((Get-Date).TimeofDay) PROCESS  ] Starting $($myinvocation.mycommand)"
         try {
             <#
              Making a design decision here, using the ternary operator '?' rather than a big if / else

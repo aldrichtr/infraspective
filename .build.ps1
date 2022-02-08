@@ -10,14 +10,25 @@ param(
     # functions
     [Parameter()]
     [string]
-    $ModuleName = 'BuildTool',
+    $ModuleName = 'infraspective',
 
     [Parameter()]
     [string]
-    $BuildTools = "$BuildRoot\BuildTool"
+    $BuildTools = "$BuildRoot\build",
+
+    [Parameter()]
+    [Hashtable]
+    $Source = @{
+            Path            = "$BuildRoot\source\$ModuleName"
+            Module          = "$BuildRoot\source\$ModuleName\$ModuleName.psm1"
+            Manifest        = "$BuildRoot\source\$ModuleName\$ModuleName.psd1"
+            Types           = @('enum', 'classes', 'private', 'public')
+            CustomLoadOrder = '$BuildRoot\$ModuleName\LoadOrder.txt'
+        }
 )
 
 . "$BuildTools\BuildTool.ps1"
 
-# define your tasks here
-
+task Test {
+    Import-Module $Source.Manifest -Force
+}, run_unit_tests

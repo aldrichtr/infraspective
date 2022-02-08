@@ -1,10 +1,10 @@
 
 function Invoke-Infraspective {
     <#
-    .SYNOPSIS
-
+.SYNOPSIS
+    Perform an audit on the specified hosts
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         # Path to the Infraspective Checklists folder
         [Parameter(

@@ -7,20 +7,26 @@ function Invoke-PoshspecExpression {
     Invoke-PoshspecExpression -InputObject (
         [pscustomobject]@{
             Name = "File 'C:\Temp' Should -Exist"
-            Expression = "'C:\Temp' | Should -Exist" 
+            Expression = "'C:\Temp' | Should -Exist"
         }
-    )
+        )
+.NOTES
+    This function was originally part of the [poshspec](https://github.com/Ticketmaster/poshspec) module.  It has
+    been updated to conform with Pester v5 which added a "Discover" and "Run" phase that changed the way variables
+    are used.
     #>
     [CmdletBinding()]
     param(
         # Poshspec Param Object
-        [Parameter(Mandatory, Position=0)]
+        [Parameter(Mandatory, Position = 0)]
         [PSCustomObject]
         $InputObject
     )
 
     Write-Verbose -Message "Invoking 'it' block with expression: $($InputObject.Expression)"
-    It $InputObject.Name -TestCases @( @{command = $InputObject.Expression} ){
+    It $InputObject.Name -TestCases @(
+        @{command = $InputObject.Expression }
+    ) {
         Invoke-Expression $command
     }
 }
