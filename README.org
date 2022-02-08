@@ -5,7 +5,7 @@
 #+FILETAGS: PowerShell compliance Pester
 
   | Status:   | Under Development (Pre-release) |
-  | Location: | [[https://github.com/aldrichtr/infraspective][github]]                  |
+  | Location: | [[https://github.com/aldrichtr/infraspective][github]]                          |
   | Version:  | 0.0.1                           |
 
 * Synopsis
@@ -13,26 +13,76 @@
 [[https://pester.dev][Pester Testing Module]] .
 
 * Description
-  ~infraspective~ reads tests (written in [[https://www.agilealliance.org/glossary/bdd/][BDD style]] , like Pester) and produces output that reports on compliance of your
-  infrastructure to those tests.
+  ~infraspective~ reads tests (written in [[https://www.agilealliance.org/glossary/bdd/][BDD style]] , like Pester) and produces output that reports on compliance
+  of your infrastructure to those tests.
 
+  Originally, [[https://github.com/PowerShell/Operation-Validation-Framework][Operation Validation Framework]] used Pester tests organized in particular directories in your module.
+  [[https://github.com/TicketMaster/poshspec][poshspec]] added a DSL for making those tests more expressive.  =infraspective= picks up where they left off, using
+  modern Pester (there were some [[https://pester.dev/docs/migrations/breaking-changes-in-v5][breaking changes]] from v4 to v5) and adds in some concepts from other tools to
+  create a Policy as Code tool.
+
+  Starting with a test like:
+  #+begin_src powershell
+    Describe "Services" {
+        It "DNS Service should be running" {
+            $dns_service = Get-Service -Name 'DNS'
+            $dns_service.Status | Should -Be Running
+        }
+    }
+  #+end_src
+
+  poshspec gave us the ability to write this like:
+
+  #+begin_src powershell
+    Describe "Services" {
+        Service DNS Status { Should -Be Running }
+        # i fixed it up for v5 a little
+    }
+  #+end_src
+
+  Adding some metadata (and some industry terms to the DSL) we have a =Control=
+
+  #+begin_src powershell
+   Control "xccdf_control_123" -Resource "Windows" -Impact 1 -Reference 'CVE:123' {
+        Describe "cis control 123" {
+            It "Should have DNS service running" {
+                Service DNS Status { Should -Be Running }
+            }
+        }
+    }
+  #+end_src
+
+  Next, one or more Controls together create a =Checklist=
+
+  #+begin_src powershell
+    Checklist "Security Audit" -Version "1.0.0" {
+        Control "xccdf_control_123" -Resource "Windows" -Impact 1 -Reference 'CVE:123' {
+            Describe "cis control 123" {
+                It "Should have DNS service running" {
+                    Service DNS Status { Should -Be Running }
+                }
+            }
+        }
+
+        Control "xccdf_control_124" -Resource "Windows" -Impact 1 -Reference 'CVE:124' {
+            Describe "cis control 124" {
+                It "Should have DNS service running" {
+                    Service DNS Status { Should -Be Running }
+                }
+            }
+        
+    }
+  #+end_src
+
+
+  By convention, =Checklists= are stored in files name *.Audit.ps1 , and they can be run by calling
+  =Invoke-Infraspective <directory>=
+  
 * Example
   #+begin_src powershell
     Import-Module infraspective
     Set-Alias infspec Invoke-Infraspective
-    infspec .\cis-controls-windows-server-2019.ps1
+    infspec <path/to/files>
   #+end_src
-
-  #+begin_example
-    
-  #+end_example
-* Notes
-  There are several tools out there that do compliance testing for your infrastructure, such as [[https://docs.chef.io/inspec][chef inspec]] or
-  [[https://docs.cfengine.com/docs/3.18][cfengine]] .  Other tools (particularly automation tools) offer some infrastructure testing capabilities such as 
-  ansible, puppet, terraform and Desired State Configuration (DSC), although their focus is on _applying_ controls
-  to the infrastructure rather than reporting.
-
-  Other projects have a similar idea; Operation Validation Framework and PoshSpec are two examples.  However, these
-  appear to be abandoned projects.
   
 
