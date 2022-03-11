@@ -23,7 +23,7 @@ function Invoke-PoshspecExpression {
         $InputObject
     )
 
-    Write-Verbose -Message "Invoking 'it' block with expression: $($InputObject.Expression)"
+    Write-Debug "Invoking 'it' block with expression: $($InputObject.Expression)"
     It $InputObject.Name -TestCases @(
         @{command = $InputObject.Expression }
     ) {

@@ -1,3 +1,4 @@
+
 function Expand-PoshspecTestExpression
 {
   [CmdletBinding()]
@@ -10,7 +11,9 @@ function Expand-PoshspecTestExpression
     [string]
     $PropertyExpression
   )
-
-  $cmd = [scriptblock]::Create('(' + $ObjectExpression + ')' + '.' + $PropertyExpression)
-  Write-Output $cmd.ToString()
+    Write-Debug "Expanding  ObjectExpression $ObjectExpression PropertyExpression $PropertyExpression"
+    
+    $cmd = [scriptblock]::Create('(' + $ObjectExpression + ')' + '.' + $PropertyExpression)
+    Write-Debug "To $($cmd.ToString())"
+    Write-Output $cmd.ToString()
 }
