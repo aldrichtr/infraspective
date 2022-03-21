@@ -51,7 +51,8 @@
         }
         'Console' = @{
             Level = 'DEBUG'
-            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
+#            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
+            Format = '[%{timestamp}] %{level} %{caller} - %{message}'
             ColorMapping = @{
                 'DEBUG'   = 'White'
                 'INFO'    = 'Gray'
