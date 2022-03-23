@@ -34,9 +34,10 @@ function Invoke-InfspecChecklist {
         $config = Import-Configuration
         Write-Log -Level INFO -Message "Evaluating checklist '$Name v$($Version.ToString())"
         $chk = [PSCustomObject]@{
+            PSTypeName = 'Infraspective.Checklist.ResultInfo'
             Name    = $Name
             Version = $Version
-            Result  = @()
+            Controls = @()
         }
 
         <#
@@ -57,7 +58,7 @@ function Invoke-InfspecChecklist {
             $functionsToDefine = $PSBoundParameters['Session'] ? $Session.Functions : @{}
             $variablesToDefine = $PSBoundParameters['Session'] ? $Session.Variables : @()
             $invocationArgs    = $PSBoundParameters['Session'] ? $Session.Arguments : @()
-            $chk.Result = $Body.InvokeWithContext( $functionsToDefine, $variablesToDefine, $invocationArgs )
+            $chk.Controls = $Body.InvokeWithContext( $functionsToDefine, $variablesToDefine, $invocationArgs )
 
         } catch {
             Write-Log -Level ERROR -Message "There was an error with checklist '$Name-$($Version.ToString())'`n$_"
