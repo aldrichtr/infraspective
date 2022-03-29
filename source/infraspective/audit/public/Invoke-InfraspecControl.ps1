@@ -27,6 +27,7 @@ Function Invoke-InfraspecControl {
     }
     ```
     #>
+    [OutputType('Infraspective.Control.ResultInfo')]
     [CmdletBinding()]
     param(
         # The unique ID for this control
@@ -66,14 +67,6 @@ Function Invoke-InfraspecControl {
         [scriptblock]$Test
     )
     begin {
-        $config = New-PesterConfiguration @{
-            Run = @{
-                PassThru = $true
-            }
-            Output = @{
-                Verbosity = 'None'
-            }
-        }
     }
     process {
         $container = New-PesterContainer -ScriptBlock $Test
