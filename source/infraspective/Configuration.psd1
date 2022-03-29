@@ -40,7 +40,7 @@
 
 @{
     Logging   = @{
-        'File' = @{
+        File = @{
             PrintBody = $false
             Append    = $true
             Encoding  = 'UTF-8'
@@ -49,7 +49,7 @@
             # Path supports templating like $Logging.Format
             Path      = "${env:Temp}\infraspective-%{+%Y%m%d}.log"
         }
-        'Console' = @{
+        Console = @{
             Level = 'DEBUG'
 #            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
             Format = '[%{timestamp}] %{level} %{caller} - %{message}'
