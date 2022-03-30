@@ -27,6 +27,7 @@ Function Invoke-InfraspecControl {
     }
     ```
     #>
+    [OutputType('Infraspective.Control.ResultInfo')]
     [CmdletBinding()]
     param(
         # The unique ID for this control
@@ -66,18 +67,34 @@ Function Invoke-InfraspecControl {
         [scriptblock]$Test
     )
     begin {
-        $config = New-PesterConfiguration @{
-            Run = @{
-                PassThru = $true
-            }
-            Output = @{
-                Verbosity = 'None'
-            }
-        }
     }
     process {
         $container = New-PesterContainer -ScriptBlock $Test
-        $result = Invoke-Pester -Container $container -Output 'None' -PassThru
+
+        $pester_result = Invoke-Pester -Container $container -Output 'None' -PassThru
+
+
+        <#------------------------------------------------------------------
+          TODO: Can I just splat the PSBoundParameters here?
+        ------------------------------------------------------------------#>
+        $result = [PSCustomObject]@{
+            PSTypeName   = 'Infraspective.Control.ResultInfo'
+            Result       = $pester_result.Result
+            FailedCount  = $pester_result.FailedCount
+            PassedCount  = $pester_result.PassedCount
+            SkippedCount = $pester_result.SkippedCount
+            NotRunCount  = $pester_result.NotRunCount
+            TotalCount   = $pester_result.TotalCount
+            Duration     = $pester_result.Duration
+            Tests        = $pester_result.Tests
+            Name         = $Name
+            Title        = $Title
+            Description  = $Description
+            Impact       = $Impact
+            Tags         = $Tags
+            Reference    = $Reference
+            Resource     = $Resource
+        }
     }
     end {
         $result
