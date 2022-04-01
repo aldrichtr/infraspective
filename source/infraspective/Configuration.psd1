@@ -61,7 +61,7 @@
             }
         }
     }
-    Checklist = @{
+    Audit = @{
         Filter = "*.Audit.ps1"
     }
 }
