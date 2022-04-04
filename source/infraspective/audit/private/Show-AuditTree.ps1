@@ -3,11 +3,15 @@ function Show-AuditTree {
     <#
     .SYNOPSIS
         Pretty print an Audit AST
+    .DESCRIPTION
+        An Audit AST is a representation of the "Parent-Child" relationship of Checklists, Controls, etc.
+        Show-AuditTree prints a graphical representation as an indented list
     #>
     [CmdletBinding()]
     param(
         # The tree to print
         [Parameter(
+            ValueFromPipeline
         )]
         [Object]$Tree,
 
@@ -22,14 +26,18 @@ function Show-AuditTree {
         } else {
             $currentLevel = 0
         }
+        $leader = "|  "
     }
     process {
-        $indent = ('  ' * $currentLevel)
-        $name = $Tree.Name ? $Tree.Name : "Name: (none)"
-        $title = $Tree.Title ? $Tree.Title : "Title: (none)"
-        Write-Output ("{0,-4}- {1,-24} {2,-32} {3}" -f $indent, $name, $title, $Tree.psobject.TypeNames[0])
+        $indent = ($leader * $currentLevel)
+
+        $name = $Tree.Name ? $Tree.Name : "none"
+        $title = $Tree.Title ? $Tree.Title : "none"
+        $out = ("+- [{0}] : {1} ({2})" -f ($Tree.psobject.TypeNames[0] -replace 'Infraspective\.', ''), $name, $title)
+        Write-Output "$indent$out"
 
         $currentLevel++
+
         foreach ($c in $Tree.Children) {
             Show-AuditTree $c -Level $currentLevel
         }
