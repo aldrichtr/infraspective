@@ -9,7 +9,7 @@
         {
             "label": "Run tests",
             "type":"shell",
-            "command": "Invoke-Build Test",
+            "command": "Invoke-Build Test -TestTag ${input:TestTag}",
             "group": {
                 "kind": "test",
                 "isDefault": true
@@ -19,6 +19,13 @@
             "label": "Clean generated files",
             "type": "shell",
             "command":"Invoke-Build Clean"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "TestTag",
+            "description": "Pester test tags to include",
+            "type": "promptString"
         }
     ]
 }
