@@ -33,6 +33,11 @@ Function Invoke-InfraspecControl {
         [Parameter(Mandatory = $true, Position = 0)]
         [string]$Name,
 
+        # The tests associated with this control
+        [Parameter(Position = 1)]
+        [ValidateNotNull()]
+        [scriptblock]$Body,
+
         # The criticality, if this control fails
         [Parameter(
             ValueFromPipeline
@@ -58,20 +63,14 @@ Function Invoke-InfraspecControl {
 
         # An optional description of the test
         [Parameter()]
-        [string[]]$Description,
-
-        # The tests associated with this control
-        [Parameter(Position = 1)]
-        [ValidateNotNull()]
-        [scriptblock]$Body
+        [string[]]$Description
     )
     begin {
         $config = $AuditState.Configuration
         $isDiscovery = $AuditState.Discovery
 
-        Write-Log -Level INFO -Message "Evaluating control '$Name : $Title'"
         if ($isDiscovery) {
-            Write-Log -Level INFO -Message "Discovering"
+            Write-Log -Level INFO -Message "Discovered control '$Name : $Title'"
             $ctl = [PSCustomObject]@{
                 PSTypeName = 'Infraspective.Control'
                 Name       = $Name
@@ -83,7 +82,7 @@ Function Invoke-InfraspecControl {
                 Children   = [System.Collections.Stack]@()
             }
         } else {
-            Write-Log -Level INFO -Message "Running"
+            Write-Log -Level INFO -Message "Running control '$Name : $Title'"
             $ctl = [PSCustomObject]@{
                 PSTypeName   = 'Infraspective.Control.ResultInfo'
                 Result       = $null
@@ -102,17 +101,23 @@ Function Invoke-InfraspecControl {
                 Reference    = $Reference
                 Resource     = $Resource
             }
-            $container = New-PesterContainer -ScriptBlock $Test
+            try {
+                $PesterContainer = New-PesterContainer -ScriptBlock $Body
+            } catch {
+                Write-Log -Level ERROR -Message "Failed to create Pester Container with scriptblock`n--`n$Body`n--`n$_"
+            }
         }
 
     }
     process {
+        Write-Log -Level DEBUG -Message "Discovery : $isDiscovery"
         if ($isDiscovery) {
             $ctl.Block = $Body
         } else {
-            Invoke-Pester -Container $container -Output 'None' -PassThru | Foreach-Object {
+            Write-Log -Level DEBUG -Message "Invoking Pester on tests"
+            Invoke-Pester -Container $PesterContainer -Output 'None' -PassThru | Foreach-Object {
                 $pester_result = $_
-
+                Write-Log -Level INFO -Message "Control $Name test result: $($pester_result.Result)"
                 $ctl.Result       = $pester_result.Result
                 $ctl.FailedCount  = $pester_result.FailedCount
                 $ctl.PassedCount  = $pester_result.PassedCount
