@@ -8,6 +8,8 @@
   | Location: | [[https://github.com/aldrichtr/infraspective][github]]                          |
   | Version:  | 0.0.1                           |
 
+  [[https://github.com/aldrichtr/infraspective/actions][file:https://github.com/aldrichtr/infraspective/workflows/Build%20pipeline/badge.svg]]
+
 * Synopsis
   ~infraspective~ is a PowerShell module for testing (auditing, validating) infrastructure using the
 [[https://pester.dev][Pester Testing Module]] .
@@ -70,19 +72,17 @@
                     Service DNS Status { Should -Be Running }
                 }
             }
-        
+
     }
   #+end_src
 
 
   By convention, =Checklists= are stored in files name *.Audit.ps1 , and they can be run by calling
   =Invoke-Infraspective <directory>=
-  
+
 * Example
   #+begin_src powershell
     Import-Module infraspective
     Set-Alias infspec Invoke-Infraspective
     infspec <path/to/files>
   #+end_src
-  
-
