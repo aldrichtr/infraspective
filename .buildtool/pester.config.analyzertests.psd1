@@ -32,7 +32,7 @@
 
         # Default = $false
         # Description = 'Return result object to the pipeline after finishing the test run.'
-        PassThru               = $false
+        PassThru               = $true
 
         # Default = $false
         # Description = 'Runs the discovery phase but skips run. Use it with PassThru to get object populated with all tests.'
@@ -111,15 +111,15 @@
     TestResult   = @{
         # Default = $false
         # Description = 'Enable TestResult.'
-        Enabled        = $false
+        Enabled        = $true
 
-        # Default = 'NanalyzeXml'
-        # Description = 'Format to use for test result report. Possible values: NanalyzeXml, Nanalyze2.5 or JanalyzeXml'
-        OutputFormat   = 'NanalyzeXml'
+        # Default = 'NUnitXml'
+        # Description = 'Format to use for test result report. Possible values: NUnitXml, NUnit2.5 or JUnitXml'
+        OutputFormat   = 'NUnitXml'
 
         # Default = 'testResults.xml'
         # Description = 'Path relative to the current directory where test result report is saved.'
-        OutputPath     = 'testResults.xml'
+        OutputPath     = 'out/analyzer_test_results.nunit.xml'
 
         # Default = 'UTF8'
         # Description = 'Encoding of the output file.'
@@ -127,7 +127,7 @@
 
         # Default = 'Pester'
         # Description = 'Set the name assigned to the root ''test-suite'' element.'
-        TestSuiteName  = 'Pester'
+        TestSuiteName  = 'Code Analysis'
 
     }
 
@@ -173,7 +173,7 @@
     Output       = @{
         # Default = 'Normal'
         # Description = 'The verbosity of output, options are None, Normal, Detailed and Diagnostic.'
-        Verbosity           = 'Normal'
+        Verbosity           = 'Detailed'
 
         # Default = 'Filtered'
         # Description = 'The verbosity of stacktrace output, options are None, FirstLine, Filtered and Full.'
@@ -181,7 +181,7 @@
 
         # Default = 'Auto'
         # Description = 'The CI format of error output in build logs, options are None, Auto, AzureDevops and GithubActions.'
-        CIFormat            = 'Auto'
+        CIFormat            = 'GithubActions'
     }
 
     TestDrive    = @{
@@ -196,4 +196,3 @@
         Enabled = $true
     }
 }
-
