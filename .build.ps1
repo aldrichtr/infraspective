@@ -108,6 +108,22 @@ task Configure {
     }
 }
 
+task CodeCoverage {
+    $config = Get-BuildConfiguration
+    $pester_config_file = $config.Tests.Config.Coverage
+
+    if (-not(Test-Path $pester_config_file)) {
+        Write-Build Red "Could not find Code Coverage configuration at Tests.Config.Coverage -> $pester_config_file"
+    } else {
+        $PesterConfig = New-PesterConfiguration -Hashtable (Import-Psd $pester_config_file)
+
+        $mod = Join-Path -Path $config.Project.Path -ChildPath $config.Project.Modules.Root.Module
+        Import-Module $mod -Force
+        $PesterResult = Invoke-Pester -Configuration $PesterConfig # passthru must be set to $true
+        Export-Clixml -InputObject $PesterResult -Path 'out/pester_invocation_results-codecoverage.xml'
+    }
+}
+
 task Review {
     $pConfig = New-PesterConfiguration
     $pConfig.Run.Path = "$BuildRoot\tests"
