@@ -40,6 +40,7 @@
 
 @{
     Logging   = @{
+        <#
         File = @{
             PrintBody = $false
             Append    = $true
@@ -49,13 +50,14 @@
             # Path supports templating like $Logging.Format
             Path      = "${env:Temp}\infraspective-%{+%Y%m%d}.log"
         }
+        #>
         Console = @{
-            Level = 'DEBUG'
+            Level = 'INFO'
 #            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
-            Format = '[%{timestamp}] %{level} %{caller} - %{message}'
+            Format = '[%{timestamp}] [%{level}] %{filename}:%{lineno} - %{message}'
             ColorMapping = @{
                 'DEBUG'   = 'White'
-                'INFO'    = 'Gray'
+                'INFO'    = 'DarkBlue'
                 'WARNING' = 'Yellow'
                 'ERROR'   = 'Red'
             }
