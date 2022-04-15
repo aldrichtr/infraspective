@@ -27,12 +27,16 @@ Function Invoke-InfraspecControl {
     }
     ```
     #>
-    [OutputType('Infraspective.Control.ResultInfo')]
     [CmdletBinding()]
     param(
         # The unique ID for this control
         [Parameter(Mandatory = $true, Position = 0)]
         [string]$Name,
+
+        # The tests associated with this control
+        [Parameter(Position = 1)]
+        [ValidateNotNull()]
+        [scriptblock]$Body,
 
         # The criticality, if this control fails
         [Parameter(
@@ -59,44 +63,74 @@ Function Invoke-InfraspecControl {
 
         # An optional description of the test
         [Parameter()]
-        [string[]]$Description,
-
-        # The tests associated with this control
-        [Parameter(Position = 1)]
-        [ValidateNotNull()]
-        [scriptblock]$Test
+        [string[]]$Description
     )
     begin {
+        $config = $AuditState.Configuration
+        $isDiscovery = $AuditState.Discovery
+
+        if ($isDiscovery) {
+            Write-Log -Level INFO -Message "Discovered control '$Name : $Title'"
+            $ctl = [PSCustomObject]@{
+                PSTypeName = 'Infraspective.Control'
+                Name       = $Name
+                Title      = $Title
+                Version    = $Version
+                Profiles   = @()
+                Container  = $null
+                Block      = $null
+                Children   = [System.Collections.Stack]@()
+            }
+        } else {
+            Write-Log -Level INFO -Message "Running control '$Name : $Title'"
+            $ctl = [PSCustomObject]@{
+                PSTypeName   = 'Infraspective.Control.ResultInfo'
+                Result       = $null
+                FailedCount  = 0
+                PassedCount  = 0
+                SkippedCount = 0
+                NotRunCount  = 0
+                TotalCount   = 0
+                Duration     = 0
+                Tests        = @()
+                Name         = $Name
+                Title        = $Title
+                Description  = $Description
+                Impact       = $Impact
+                Tags         = $Tags
+                Reference    = $Reference
+                Resource     = $Resource
+            }
+            try {
+                $PesterContainer = New-PesterContainer -ScriptBlock $Body
+            } catch {
+                Write-Log -Level ERROR -Message "Failed to create Pester Container with scriptblock`n--`n$Body`n--`n$_"
+            }
+        }
+
     }
     process {
-        $container = New-PesterContainer -ScriptBlock $Test
+        Write-Log -Level DEBUG -Message "Discovery : $isDiscovery"
+        if ($isDiscovery) {
+            $ctl.Block = $Body
+        } else {
+            Write-Log -Level DEBUG -Message "Invoking Pester on tests"
+            Invoke-Pester -Container $PesterContainer -Output 'None' -PassThru | Foreach-Object {
+                $pester_result = $_
+                Write-Log -Level INFO -Message "Control $Name test result: $($pester_result.Result)"
+                $ctl.Result       = $pester_result.Result
+                $ctl.FailedCount  = $pester_result.FailedCount
+                $ctl.PassedCount  = $pester_result.PassedCount
+                $ctl.SkippedCount = $pester_result.SkippedCount
+                $ctl.NotRunCount  = $pester_result.NotRunCount
+                $ctl.TotalCount   = $pester_result.TotalCount
+                $ctl.Duration     = $pester_result.Duration
+                $ctl.Tests        = $pester_result.Tests
 
-        $pester_result = Invoke-Pester -Container $container -Output 'None' -PassThru
-
-
-        <#------------------------------------------------------------------
-          TODO: Can I just splat the PSBoundParameters here?
-        ------------------------------------------------------------------#>
-        $result = [PSCustomObject]@{
-            PSTypeName   = 'Infraspective.Control.ResultInfo'
-            Result       = $pester_result.Result
-            FailedCount  = $pester_result.FailedCount
-            PassedCount  = $pester_result.PassedCount
-            SkippedCount = $pester_result.SkippedCount
-            NotRunCount  = $pester_result.NotRunCount
-            TotalCount   = $pester_result.TotalCount
-            Duration     = $pester_result.Duration
-            Tests        = $pester_result.Tests
-            Name         = $Name
-            Title        = $Title
-            Description  = $Description
-            Impact       = $Impact
-            Tags         = $Tags
-            Reference    = $Reference
-            Resource     = $Resource
+            }
         }
     }
     end {
-        $result
+        $ctl
     }
 }

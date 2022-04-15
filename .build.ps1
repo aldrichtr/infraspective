@@ -10,10 +10,22 @@ param (
     # This is the module name used in many directory, file and script
     # functions
     [Parameter()]
-    [string]$ModuleName = 'infraspective'
+    [string]
+    $ModuleName = 'infraspective',
+
+    # Tags to filter the Pester Tests
+    [Parameter(
+    )]
+    [string]$TestTags
 )
 
-. "$BuildTools\BuildTool.ps1"
+
+. ./build/BuildTool.ps1
+
+$config = Get-BuildConfiguration
+
+$env:PSModulePath += "$($config.Artifact.Path)"
+
 
 task UnitTest {
     $config = Get-BuildConfiguration
@@ -28,21 +40,35 @@ task UnitTest {
         $mod = Join-Path -Path $config.Project.Path -ChildPath $config.Project.Modules.Root.Module
         Import-Module $mod -Force
         $PesterResult = Invoke-Pester -Configuration $PesterConfig # passthru must be set to $true
-        Export-Clixml -InputObject $PesterResult -Path 'out/pester_test_results.xml'
+        Export-Clixml -InputObject $PesterResult -Path 'out/pester_invocation_results-unit.xml'
     }
 }
 
+task AnalysisTest {
+    $config = Get-BuildConfiguration
+    $pester_config_file = $config.Tests.Config.Analyzer
+
+    if (-not(Test-Path $pester_config_file)) {
+        Write-Build Red "Could not find Analyzer Test configuration at Tests.Config.Analyzer -> $pester_config_file"
+    } else {
+        $PesterConfig = New-PesterConfiguration -Hashtable (Import-Psd $pester_config_file)
+
+        $mod = Join-Path -Path $config.Project.Path -ChildPath $config.Project.Modules.Root.Module
+        Import-Module $mod -Force
+        $PesterResult = Invoke-Pester -Configuration $PesterConfig # passthru must be set to $true
+        Export-Clixml -InputObject $PesterResult -Path 'out/pester_invocation_results-analyzer.xml'
+    }
+}
 
 task Test {
-
     $pConfig = New-PesterConfiguration
+    $pConfig.Run.Path = "$BuildRoot\tests"
     $pConfig.Run.SkipRemainingOnFailure = 'None'
     $pConfig.Output.Verbosity = 'Detailed'
     $tags = $TestTags -split ' '
     if ($null -ne $TestTags) {
         $pConfig.Filter.Tag = $tags
     }
-
     Invoke-Pester -Configuration $pConfig
 }
 
@@ -82,6 +108,22 @@ task Configure {
     }
 }
 
+task CodeCoverage {
+    $config = Get-BuildConfiguration
+    $pester_config_file = $config.Tests.Config.Coverage
+
+    if (-not(Test-Path $pester_config_file)) {
+        Write-Build Red "Could not find Code Coverage configuration at Tests.Config.Coverage -> $pester_config_file"
+    } else {
+        $PesterConfig = New-PesterConfiguration -Hashtable (Import-Psd $pester_config_file)
+
+        $mod = Join-Path -Path $config.Project.Path -ChildPath $config.Project.Modules.Root.Module
+        Import-Module $mod -Force
+        $PesterResult = Invoke-Pester -Configuration $PesterConfig # passthru must be set to $true
+        Export-Clixml -InputObject $PesterResult -Path 'out/pester_invocation_results-codecoverage.xml'
+    }
+}
+
 task Review {
     $pConfig = New-PesterConfiguration
     $pConfig.Run.Path = "$BuildRoot\tests"
@@ -98,8 +140,4 @@ task Review {
 
 }
 
-task OneTest {
-    $c = Get-BuildConfiguration
-    Write-Build Green "$($c.Project.Name) at $($c.Project.Path)"
-}
 task Stage Clean, make_staging_module, make_staging_manifest
