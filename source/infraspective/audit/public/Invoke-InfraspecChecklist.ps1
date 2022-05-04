@@ -35,89 +35,61 @@ function Invoke-InfraspecChecklist {
     )
 
     begin {
-        $config = $AuditState.Configuration
-        $isDiscovery = $AuditState.Discovery
-
-
-        if ($isDiscovery) {
-            Write-Log -Level INFO -Message "Discovered checklist '$Name v$($Version.ToString())'"
-            $chk = [PSCustomObject]@{
-                PSTypeName = 'Infraspective.Checklist'
-                Name       = $Name
-                Title      = $Title
-                Version    = $Version
-                Profiles   = @()
-                Container  = $null
-                Block      = $null
-                Groups     = @()
-                Controls   = @()
-                Children   = [System.Collections.Stack]@()
-            }
-        } else {
-            Write-Log -Level INFO -Message "Running checklist '$Name v$($Version.ToString())'"
-            $chk = [PSCustomObject]@{
-                PSTypeName   = 'Infraspective.Checklist.ResultInfo'
-                Name         = $Name
-                Title        = $Title
-                Version      = $Version
-                Profile      = $null
-                Result       = ''
-                FailedCount  = 0
-                PassedCount  = 0
-                SkippedCount = 0
-                NotRunCount  = 0
-                TotalCount   = 0
-                Groups       = @()
-                Controls     = @()
-            }
-
+        Write-Log -Level INFO -Message "Checklist '$Name v$($Version.ToString())' start"
+        $chk = [PSCustomObject]@{
+            PSTypeName   = 'Infraspective.Checklist.ResultInfo'
+            Container    = $null
+            Path         = ""
+            Name         = $Name
+            Title        = $Title
+            Version      = $Version
+            Profile      = $null
+            Result       = ''
+            FailedCount  = 0
+            PassedCount  = 0
+            SkippedCount = 0
+            NotRunCount  = 0
+            TotalCount   = 0
+            Groups       = @()
+            Controls     = @()
         }
     }
     process {
-        if ($isDiscovery) {
-            $chk.Block = $Body
-        }
         try {
+            Write-Log -Level DEBUG -Message "Invoking Body of Checklist $Name"
+            $counter = 1
             $Body.InvokeWithContext( $AuditState.Functions,
                 $AuditState.Variables, $AuditState.Arguments) | Foreach-Object {
-                # The objects returned during discovery need to be added to the "AST".
-                #
-                # First, set Child to the current object.  This is mostly a convenience, because
-                # '$_' gets reset in the 'switch' down below
-                $Child = $_
-                if ($isDiscovery) {
-                    # Next, Place the object in the appropriate spot in the "Tree"
-                    $chk.Children.Push($Child)
-                    $Child.Container = $chk
-
-                } else {
-                    switch ($Child.Result) {
-                        'Failed' {
-                            $chk.FailedCount += $Child.FailedCount
-                        }
-                        'Passed' {
-                            $chk.PassedCount += $Child.PassedCount
-                        }
-                        'Skipped' {
-                            $chk.SkippedCount += $Child.SkippedCount
-                        }
-                        Default {
-                            Write-Log -Level WARNING -Message "'$($Child.Name)' result is $($Child.Result)"
-                        }
+                    $Child = $_
+                    Write-Log -Level DEBUG -Message "Result #$counter : $($Child.Result)"
+                switch ($Child.Result) {
+                    'Failed' {
+                        $chk.FailedCount += $Child.FailedCount
                     }
-                    $chk.TotalCount += $Child.TotalCount
-
-                    switch -regex ($Child.PSobject.TypeNames[0]) {
-                        '^Infraspective.Group' {
-                            Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
-                            $chk.Groups += $Child
-                        }
-                        '^Infraspective.Control' {
-                            Write-Log -Level DEBUG -Message "Adding control $($Child.Name)"
-                            $chk.Controls += $Child
-                        }
+                    'Passed' {
+                        $chk.PassedCount += $Child.PassedCount
+                    }
+                    'Skipped' {
+                        $chk.SkippedCount += $Child.SkippedCount
+                    }
+                    Default {
+                        Write-Log -Level WARNING -Message "'$($Child.Name)' result is $($Child.Result)"
                     }
                 }
+                $chk.TotalCount += $Child.TotalCount
+                Write-Log -Level DEBUG -Message "the type is $($Child.GetType())"
+                Write-Log -Level DEBUG -Message "The returned type is $($Child.PSobject.TypeNames[0])"
+                switch -regex ($Child.PSobject.TypeNames[0]) {
+                    '^Infraspective.Group' {
+                        Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
+                        $chk.Groups += $Child
+                    }
+                    '^Infraspective.Control' {
+                        Write-Log -Level DEBUG -Message "Adding control $($Child.Name)"
+                        $chk.Controls += $Child
+                    }
+                }
+                $counter++
             }
         } catch {
             Write-Log -Level ERROR -Message "There was an error executing Checklist $($chk.Title)`n$_"
@@ -125,20 +97,16 @@ function Invoke-InfraspecChecklist {
 
     }
     end {
-        if ($isDiscovery) {
-            Write-Log -Level DEBUG -Message "Completed Discovery of Checklist '$Name v$($Version.ToString())"
+        if ($chk.FailedCount -gt 0) {
+            $chk.Result = 'Failed'
+        } elseif ($chk.PassedCount -eq ($chk.TotalCount - $chk.SkippedCount)) {
+            $chk.Result = 'Passed'
+        } elseif ($chk.SkippedCount -eq $chk.TotalCount) {
+            $chk.Result = 'Skipped'
         } else {
-            Write-Log -Level DEBUG -Message "Completed running Checklist '$Name v$($Version.ToString())"
-            if ($chk.FailedCount -gt 0) {
-                $chk.Result = 'Failed'
-            } elseif ($chk.PassedCount -eq ($chk.TotalCount - $chk.SkippedCount)) {
-                $chk.Result = 'Passed'
-            } elseif ($chk.SkippedCount -eq $chk.TotalCount) {
-                $chk.Result = 'Skipped'
-            } else {
-                $chk.Result = 'NotRun'
-            }
+            $chk.Result = 'NotRun'
         }
+        Write-Log -Level DEBUG -Message "Checklist '$Name v$($Version.ToString()) complete"
         $chk
     }
 }
