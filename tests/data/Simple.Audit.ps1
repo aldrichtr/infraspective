@@ -1,4 +1,4 @@
-Checklist "Security Audit" -Version "1.0.0" -Title "Audit Windows servers against CIS controls" {
+Checklist "Simple Security Audit" -Version "1.0.0" -Title "A simple Audit" {
     Control "xccdf_blah" -Resource "Windows" -Impact 1 -Reference 'CVE:123' {
         Describe "cis control 123" {
             It "Should have foo set to bar" {

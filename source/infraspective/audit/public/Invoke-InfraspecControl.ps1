@@ -54,8 +54,7 @@ Function Invoke-InfraspecControl {
 
         # Tags associated with this control
         [Parameter()]
-        [string[]]
-        $Tags,
+        [string[]]$Tags,
 
         # The type of resource to test
         [Parameter()]
@@ -66,71 +65,52 @@ Function Invoke-InfraspecControl {
         [string[]]$Description
     )
     begin {
-        $config = $AuditState.Configuration
-        $isDiscovery = $AuditState.Discovery
-
-        if ($isDiscovery) {
-            Write-Log -Level INFO -Message "Discovered control '$Name : $Title'"
-            $ctl = [PSCustomObject]@{
-                PSTypeName = 'Infraspective.Control'
-                Name       = $Name
-                Title      = $Title
-                Version    = $Version
-                Profiles   = @()
-                Container  = $null
-                Block      = $null
-                Children   = [System.Collections.Stack]@()
-            }
-        } else {
-            Write-Log -Level INFO -Message "Running control '$Name : $Title'"
-            $ctl = [PSCustomObject]@{
-                PSTypeName   = 'Infraspective.Control.ResultInfo'
-                Result       = $null
-                FailedCount  = 0
-                PassedCount  = 0
-                SkippedCount = 0
-                NotRunCount  = 0
-                TotalCount   = 0
-                Duration     = 0
-                Tests        = @()
-                Name         = $Name
-                Title        = $Title
-                Description  = $Description
-                Impact       = $Impact
-                Tags         = $Tags
-                Reference    = $Reference
-                Resource     = $Resource
-            }
-            try {
-                $PesterContainer = New-PesterContainer -ScriptBlock $Body
-            } catch {
-                Write-Log -Level ERROR -Message "Failed to create Pester Container with scriptblock`n--`n$Body`n--`n$_"
-            }
+        Write-Log -Level INFO -Message "Control '$Name' start"
+        $ctl = [PSCustomObject]@{
+            PSTypeName   = 'Infraspective.Control.ResultInfo'
+            Result       = $null
+            FailedCount  = 0
+            PassedCount  = 0
+            SkippedCount = 0
+            NotRunCount  = 0
+            TotalCount   = 0
+            Duration     = 0
+            Tests        = @()
+            Name         = $Name
+            Title        = $Title
+            Description  = $Description
+            Impact       = $Impact
+            Tags         = $Tags
+            Reference    = $Reference
+            Resource     = $Resource
         }
-
+        try {
+            $PesterContainer = New-PesterContainer -ScriptBlock $Body
+        } catch {
+            Write-Log -Level ERROR -Message "Failed to create Pester Container with scriptblock`n--`n$Body`n--`n$_"
+        }
     }
     process {
-        Write-Log -Level DEBUG -Message "Discovery : $isDiscovery"
-        if ($isDiscovery) {
-            $ctl.Block = $Body
-        } else {
-            Write-Log -Level DEBUG -Message "Invoking Pester on tests"
-            Invoke-Pester -Container $PesterContainer -Output 'None' -PassThru | Foreach-Object {
-                $pester_result = $_
-                Write-Log -Level INFO -Message "Control $Name test result: $($pester_result.Result)"
-                $ctl.Result       = $pester_result.Result
-                $ctl.FailedCount  = $pester_result.FailedCount
-                $ctl.PassedCount  = $pester_result.PassedCount
-                $ctl.SkippedCount = $pester_result.SkippedCount
-                $ctl.NotRunCount  = $pester_result.NotRunCount
-                $ctl.TotalCount   = $pester_result.TotalCount
-                $ctl.Duration     = $pester_result.Duration
-                $ctl.Tests        = $pester_result.Tests
+        Write-Log -Level DEBUG -Message "Invoking Pester on tests"
+        Invoke-Pester -Container $PesterContainer -Output 'None' -PassThru | Foreach-Object {
+            $pester = $_
+            Write-Log -Level INFO -Message "Control $Name test result: $($pester.Result)"
 
+            $ctl.Result = $pester.Result
+            $ctl.FailedCount = $pester.FailedCount
+            $ctl.PassedCount = $pester.PassedCount
+            $ctl.SkippedCount = $pester.SkippedCount
+            $ctl.NotRunCount = $pester.NotRunCount
+            $ctl.TotalCount = $pester.TotalCount
+            $ctl.Duration = $pester.Duration
+            $ctl.Tests = $pester.Tests
+            foreach ($t in $pester.Tests) {
+                Write-Log INFO "$($t.Result) - $($t.ExpandedPath)"
             }
         }
     }
     end {
+        Write-Log -Level INFO -Message "Control '$Name' complete"
         $ctl
     }
 }
