@@ -12,16 +12,16 @@ function New-InfraspecAuditState {
     }
     process {
         $auditState = [PSCustomObject]@{
-            PSTypeName = 'Infraspective.AuditState'
-            Discovery = $false
+            PSTypeName    = 'Infraspective.AuditState'
+            Depth         = 0
+            Discovery     = $false
             Configuration = $null
             CurrentBlock  = $null
             SessionState  = $null
             Functions     = @{}
             Variables     = [System.Collections.Generic.List[PSVariable]]@()
             Arguments     = @()
-
-            Stack  = [System.Collections.Stack]@()
+            Stack         = [System.Collections.Stack]@()
 
             AuditTimer = [System.Diagnostics.Stopwatch]::StartNew()
         }

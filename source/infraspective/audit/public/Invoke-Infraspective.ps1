@@ -30,14 +30,18 @@ function Invoke-Infraspective {
             Write-Error "There was an error loading the configuration`n$_" -ErrorAction Stop
         }
 
-        $AuditState = New-InfraspecAuditState
-        $AuditState.Configuration = $config
-        $AuditState.SessionState = $PSCmdlet.SessionState
+        $state = New-InfraspecAuditState
+        $state.Configuration = $config
+        $state.SessionState = $PSCmdlet.SessionState
         $logging = $config.Logging
         foreach ($target in $logging.Keys) {
             Add-LoggingTarget -Name $target -Configuration $logging[$target]
         }
         Write-Log -Level INFO -Message "Logging initialized on $($logging.Keys -join ', ')"
+        $TotalCount = 0
+        $FailedCount = 0
+        $PassedCount = 0
+        $SkippedCount = 0
     }
     process {
         Write-Log -Level INFO -Message "Generating file list"
@@ -54,22 +58,39 @@ function Invoke-Infraspective {
         Write-Log -Level DEBUG -Message " - Recurse: $($file_options.Recurse)"
         $audit_files = Get-ChildItem @file_options
         Write-Log -Level DEBUG -Message "Found $($audit_files.Count) audit files"
-        $AuditState.AuditTimer.Restart()
+        $state.AuditTimer.Restart()
 
         Write-Log -Level INFO -Message "Audit start"
+        Write-Result Audit 'Start' "Audit $(Get-Date -Format 'dd-MMM-yyyy HH:mm:ss')"
         foreach ($f in $audit_files) {
+            $state.Depth += 1
             Write-Log -Level INFO -Message "File $($f.Name) start"
+            Write-Result File 'Start' "File $($f.Name)"
             [scriptblock]$sb = { . $f.FullName }
             Write-Log -Level DEBUG -Message " Executing Audit file $($f.Name)"
             $result = & $sb
             $result.Container = $f
+            $state.Depth -= 1
             Write-Log -Level INFO -Message "File $($f.Name) complete"
+            $TotalCount += $result.TotalCount
+            $PassedCount += $result.PassedCount
+            $FailedCount += $result.FailedCount
+            $SkippedCount += $result.SkippedCount
+
             Write-Output $result
         }
+
     }
     end {
-        Write-Log -Level INFO -Message (
+        $message = (
             "Audit complete.  Total files {0} executed in {1:N4} milliseconds" -f $audit_files.Count,
-            $AuditState.AuditTimer.Elapsed.MilliSeconds)
+            $state.AuditTimer.Elapsed.MilliSeconds)
+        Write-Result Audit 'End' $message -Stats @{
+            Total = $TotalCount
+            Passed = $PassedCount
+            Failed = $FailedCount
+            Skipped = $SkippedCount
+        }
+        Write-Log -Level INFO -Message $message
     }
 }

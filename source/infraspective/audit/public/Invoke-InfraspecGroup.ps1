@@ -54,10 +54,12 @@ function Invoke-InfraspecGroup {
     }
     process {
         try {
+            $state.Depth += 1
+            Write-Result Grouping 'Start' "Group $Name : $Title"
             Write-Log -Level DEBUG -Message "Invoking Body of Group $Name"
             $counter = 1
-            $Body.InvokeWithContext($AuditState.Functions,
-                $AuditState.Variables, $AuditState.Arguments) | Foreach-Object {
+            $Body.InvokeWithContext($state.Functions,
+                $state.Variables, $state.Arguments) | Foreach-Object {
                 $Child = $_
                 Write-Log -Level DEBUG -Message "Result #$counter : $($Child.Result)"
                 switch ($Child.Result) {
@@ -101,6 +103,14 @@ function Invoke-InfraspecGroup {
         } else {
             $grp.Result = 'NotRun'
         }
+        Write-Result Grouping End "Group $Name $Title" -Stats @{
+            Total   = $grp.TotalCount
+            Failed  = $grp.FailedCount
+            Passed  = $grp.PassedCount
+            Skipped = $grp.SkippedCount
+        }
+
+        $state.Depth -= 1
         Write-Log -Level INFO -Message "Group '$Name $Title' complete"
         $grp
     }

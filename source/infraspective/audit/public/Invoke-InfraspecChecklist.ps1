@@ -56,10 +56,11 @@ function Invoke-InfraspecChecklist {
     }
     process {
         try {
-            Write-Log -Level DEBUG -Message "Invoking Body of Checklist $Name"
+            $state.Depth += 1
+            Write-Result Checklist 'Start' "Checklist '$Name v$($Version.ToString())'"
             $counter = 1
-            $Body.InvokeWithContext( $AuditState.Functions,
-                $AuditState.Variables, $AuditState.Arguments) | Foreach-Object {
+            $Body.InvokeWithContext( $state.Functions,
+                $state.Variables, $state.Arguments) | Foreach-Object {
                     $Child = $_
                     Write-Log -Level DEBUG -Message "Result #$counter : $($Child.Result)"
                 switch ($Child.Result) {
@@ -77,8 +78,6 @@ function Invoke-InfraspecChecklist {
                     }
                 }
                 $chk.TotalCount += $Child.TotalCount
-                Write-Log -Level DEBUG -Message "the type is $($Child.GetType())"
-                Write-Log -Level DEBUG -Message "The returned type is $($Child.PSobject.TypeNames[0])"
                 switch -regex ($Child.PSobject.TypeNames[0]) {
                     '^Infraspective.Group' {
                         Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
@@ -92,7 +91,11 @@ function Invoke-InfraspecChecklist {
                 $counter++
             }
         } catch {
-            Write-Log -Level ERROR -Message "There was an error executing Checklist $($chk.Title)`n$_"
+            Write-Log -Level ERROR -Message ((
+                "There was an error executing Checklist $($chk.Title)",
+                $_,
+                "$($MyInvocation.ScriptName):$($MyInvocation.ScriptLineNumber)"
+                ) -join "`n")
         }
 
     }
@@ -106,7 +109,14 @@ function Invoke-InfraspecChecklist {
         } else {
             $chk.Result = 'NotRun'
         }
-        Write-Log -Level DEBUG -Message "Checklist '$Name v$($Version.ToString()) complete"
+        Write-Log -Level INFO -Message "Checklist '$Name v$($Version.ToString()) complete"
+        Write-Result Checklist End "Checklist $Name v$($Version.ToString())" -Stats @{
+            Total  = $chk.TotalCount
+            Failed = $chk.FailedCount
+            Passed = $chk.PassedCount
+            Skipped = $chk.SkippedCount
+        }
+        $state.Depth -= 1
         $chk
     }
 }

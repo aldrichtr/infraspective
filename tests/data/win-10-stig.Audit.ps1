@@ -4,18 +4,20 @@ Checklist "Win10_STIG" -Title "Microsoft Windows 10 Security Technical Implement
         "Domain-joined systems must use Windows 10 Enterprise Edition 64-bit version.") -Description (
         "Credential Guard use virtualization based security to protect...") {
         Describe "Verify domain-joined systems are the proper version" {
-            BeforeAll {
-                $v = Get-WindowsVersion
-            }
+            Context "Given the current computer" {
+                BeforeAll {
+                    $v = Get-WindowsVersion
+                }
 
-            It "Should be Windows 10" {
-                $v.ProductName | Should -match '^Windows 10'
-            }
-            It "Should be Enterprise Edition" {
-                $v.EditionID | Should -match 'Enterprise'
-            }
-            It "Should be 64 bit" {
-                [Environment]::Is64BitOperatingSystem | Should -BeTrue
+                It "Should be Windows 10" {
+                    $v.ProductName | Should -match '^Windows 10'
+                }
+                It "Should be Enterprise Edition" {
+                    $v.EditionID | Should -match 'Enterprise'
+                }
+                It "Should be 64 bit" {
+                    [Environment]::Is64BitOperatingSystem | Should -BeTrue
+                }
             }
         }
     }

@@ -52,7 +52,7 @@
         }
         #>
         Console = @{
-            Level = 'ERROR'
+            Level = 'WARNING'
 #            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
             Format = '[%{timestamp}] [%{level}] %{message}'
             ColorMapping = @{
@@ -65,7 +65,49 @@
     }
 
     Output = @{
-        Verbose = 'Detailed'
+        <#
+        The Scope controls which structures output status messages. Current options are:
+        None, Audit, File, Checklist, Grouping, Control, Block or Test
+        #>
+        Scope = 'Test'
+        <#
+        Control the format of the status message:
+            Color = the [System.ConsoleColor] name (foreground)
+            Format = the string to display
+            Reset = resets the color after the status tag.
+              - $true : The status tag will be the color given, the remaining text will be
+                        the default output color
+              - $false : The entire line will be the color of the status tag
+        #>
+        StatusMap = @{
+            Passed  = @{
+                Color = 'Green'
+                Format = "[Passed]"
+                Reset = $true
+            }
+            Failed  = @{
+                Color = 'Red'
+                Format = "[Failed]"
+                Reset = $true
+            }
+            Skipped = @{
+                Color = 'BrightBlack'
+                Format = "[Skipped]"
+                Reset = $true
+            }
+            Start   = @{
+                Color = 'Blue'
+                Format = "+-"
+                Reset = $true
+            }
+            End   = @{
+                Color = 'Blue'
+                # %T is total, %P passed, %F is failed, %S is skipped
+                Format = '%T +%P-%F'
+                Reset = $true
+            }
+        }
+        Leader   = "|  "
     }
 
     Audit = @{
