@@ -61,12 +61,18 @@ task AnalysisTest {
 }
 
 task Test {
+    $config = Get-BuildConfiguration
+    $mod = Join-Path -Path $config.Project.Path -ChildPath $config.Project.Modules.Root.Module
+    Import-Module $mod -Force
+
     $pConfig = New-PesterConfiguration
     $pConfig.Run.Path = "$BuildRoot\tests"
     $pConfig.Run.SkipRemainingOnFailure = 'None'
     $pConfig.Output.Verbosity = 'Detailed'
-    $tags = $TestTags -split ' '
+    Write-Build DarkBlue "tags given as input: $TestTags"
     if ($null -ne $TestTags) {
+        $tags = $TestTags -split ' '
+        Write-Build DarkBlue "tags passed to pester : $($tags -join ';')"
         $pConfig.Filter.Tag = $tags
     }
     Invoke-Pester -Configuration $pConfig
