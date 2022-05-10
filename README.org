@@ -6,7 +6,7 @@
 
 | Status:   | Under Development (Pre-release) |
 | Location: | [[https://github.com/aldrichtr/infraspective][github]]                          |
-| Version:  | 0.2                          |
+| Version:  | 0.2.1                          |
 
 [[https://github.com/aldrichtr/infraspective/actions][file:https://github.com/aldrichtr/infraspective/workflows/Build%20pipeline/badge.svg]]
 

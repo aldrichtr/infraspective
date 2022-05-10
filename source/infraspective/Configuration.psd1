@@ -52,9 +52,9 @@
         }
         #>
         Console = @{
-            Level = 'INFO'
+            Level = 'ERROR'
 #            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
-            Format = '[%{timestamp}] [%{level}] %{filename}:%{lineno} - %{message}'
+            Format = '[%{timestamp}] [%{level}] %{message}'
             ColorMapping = @{
                 'DEBUG'   = 'White'
                 'INFO'    = 'DarkBlue'
@@ -63,7 +63,16 @@
             }
         }
     }
+
+    Output = @{
+        Verbose = 'Detailed'
+    }
+
     Audit = @{
+        Path = ".\tests\data\*"
         Filter = "*.Audit.ps1"
+        Recurse = $false
+        Include = $null
+        Exclude = $null
     }
 }

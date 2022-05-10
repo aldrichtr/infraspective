@@ -1,17 +1,14 @@
-BeforeAll {
-    . "$BuildRoot\source\infraspective\audit\public\Invoke-InfraspecChecklist.ps1"
-}
 
 $options = @{
     Name = "Testing the public function Invoke-InfraspecChecklist"
-    Tag  = @('unit', 'Invoke', 'InfraspecChecklist')
+    Tag  = @('unit', 'Invoke', 'InfraspecChecklist', 'Checklist')
 }
 Describe @options {
-    Context "When the Discovery state is set to 'true'" {
+    Context "When invoking a Checklist" {
         BeforeAll {
-            #Mock Write-Log { return $null }
-            $AuditState = @{
-                Discovery     = $true
+            Mock Write-Log { <#do nothing#> }
+
+            $global:state = @{
                 Configuration = @{}
             }
             $child = @{
@@ -21,8 +18,12 @@ Describe @options {
             $check = Invoke-InfraspecChecklist "Checklist test" { $child } -Title "A test checklist" -Version "0.1"
         }
 
-        It "It should return an 'Infraspective.Checklist' object" {
-            $check.PSObject.TypeNames[0] | Should -Be 'Infraspective.Checklist'
+        AfterAll {
+            Remove-Variable -Scope 'Global' -Name 'state'
+        }
+
+        It "It should return an 'Infraspective.Checklist.ResultInfo' object" {
+            $check.PSObject.TypeNames[0] | Should -Be 'Infraspective.Checklist.ResultInfo'
         }
         It "It should set the Name parameter" {
             $check.Name | Should -Be "Checklist test"
