@@ -2,7 +2,7 @@
 ```yaml
 Status: "Under Development (Pre-release)"
 Location: https://github.com/aldrichtr/infraspective
-Version: 0.2.1
+Version: 0.3.0
 ```
 
 ![Build pipeline](https://github.com/aldrichtr/infraspective/workflows/Build%20pipeline/badge.svg)
