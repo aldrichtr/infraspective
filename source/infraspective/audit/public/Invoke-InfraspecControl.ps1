@@ -89,8 +89,37 @@ Function Invoke-InfraspecControl {
         } catch {
             Write-Log -Level ERROR -Message "Failed to create Pester Container with scriptblock`n--`n$Body`n--`n$_"
         }
+        function processBlock {
+            param(
+                [Parameter(
+                    Mandatory,
+                    Position = 0
+                )]
+                [object]$Block
+            )
+            $state.Depth += 1
+            Write-Result Block 'Start' "Block $($block.Name)"
+            if ($block.Tests.Count -gt 0) {
+                foreach ($t in $block.Tests) {
+                    $state.Depth += 1
+                    Write-Result Test $t.Result $t.Name
+                    $state.Depth -= 1
+                }
+            }
+            if ($block.Blocks.Count -gt 0) {
+                foreach ($b in $block.Blocks) {
+                    processBlock $b
+                }
+            }
+            Write-Result Block $block.Result "Block $($block.Name)"
+            $state.Depth -= 1
+
+        }
+
     }
     process {
+        $state.Depth += 1
+        Write-Result Control 'Start' "Control $Name - $Title"
         Write-Log -Level DEBUG -Message "Invoking Pester on tests"
         Invoke-Pester -Container $PesterContainer -Output 'None' -PassThru | Foreach-Object {
             $pester = $_
@@ -104,12 +133,17 @@ Function Invoke-InfraspecControl {
             $ctl.TotalCount = $pester.TotalCount
             $ctl.Duration = $pester.Duration
             $ctl.Tests = $pester.Tests
-            foreach ($t in $pester.Tests) {
-                Write-Log INFO "$($t.Result) - $($t.ExpandedPath)"
-            }
+            $pester.Containers[0].Blocks | Foreach-Object { processBlock $_ }
         }
     }
     end {
+        Write-Result Control 'End' "Control $Name $Title" -Stats @{
+            'Total' = $pester.TotalCount
+            'Failed' = $pester.FailedCount
+            'Passed'  = $pester.PassedCount
+            'Skipped'  = $pester.SkippedCount
+        }
+        $state.Depth -= 1
         Write-Log -Level INFO -Message "Control '$Name' complete"
         $ctl
     }
