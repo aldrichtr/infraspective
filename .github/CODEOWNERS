@@ -1,0 +1,16 @@
+# The CODEOWNERS file controls who is automatically requested for
+# review when someone opens a pull request that modifies code they own
+
+# Each line is a file pattern followed by a list of owners by @username
+# or @team-name.  Order is important, the last matching pattern takes
+# the most precedence
+
+## Global
+*           @aldrichtr
+
+
+## PowerShell Code
+*.ps*1      @aldrichtr
+
+## Documentation
+docs/       @aldrichtr
