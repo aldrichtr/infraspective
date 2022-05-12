@@ -1,0 +1,69 @@
+# Github action workflow to run the Pester tests tagged 'unit'
+
+name: Run unit tests
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  UnitTest:
+    name: Run Pester tests tagged 'unit'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          # Ensure we checkout the buildtools git submodule
+          submodules: recursive
+
+        # PSDepend2 reads modules from 'requirements.psd1' and installs them
+        # according to the options in the file and/or the command line.
+      - name: Install PSDepend2 from PSGallery
+        run: |
+          $current_user_mod_path = ($env:PSModulePath -split ';')[0]
+          Write-Host "PowerShell Modules in $current_user_mod_path"
+
+          Set-PSRepository psgallery -InstallationPolicy trusted
+          Write-Host -ForegroundColor Green "Installing PSDepend2"
+          Install-Module PSDepend2 -Scope CurrentUser -Confirm:$false -Force
+
+      - name: Cache the required modules
+        id: cache-modules
+        uses: actions/cache@v3
+        with:
+          path: C:\Users\runneradmin\Documents\PowerShell\Modules
+          key: ${{ runner.os }}-${{ hashFiles('**/requirements.psd1') }}
+          restore-keys: |
+            ${{ runner.os }}-psdepend-
+
+      - if: ${{ steps.cache-modules.outputs.cache-hit == false }}
+        name: List the installed modules
+        continue-on-error: true
+        run: |
+          Get-InstalledModule
+
+      - name: Call PSDepend to install modules
+        run: |
+          Write-Host -ForegroundColor Green "Now using PSDepend2 to install the rest of the required Modules"
+          Import-Module PSDepend2
+          Invoke-PSDepend -Path "." -Recurse:$true -Tags 'ci' -Test | Format-Table DependencyName, Version, DependencyType
+
+          Invoke-PSDepend -Path "." -Recurse:$true -Confirm:$false -Target 'CurrentUser' -Tags 'ci'
+
+
+      # The Configure task ensures that directories, files and variables
+      # are present before the other tasks are run.
+      - name: Configure the project
+        run: Invoke-Build Configure
+
+      # Run Pester Tests on files in source directory
+      - name: Run UnitTests
+        run: Invoke-Build UnitTest
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit-test-report
+          path: out/*.xml
+          retention-days: 7
