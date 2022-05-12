@@ -1,7 +1,8 @@
-name: Move new issues into Backlog
+name: Move pull requests when assigned
 on:
   pull_request:
-    types: [assigned]
+    types:
+      - assigned
 
 jobs:
   automate-project-columns:
@@ -11,4 +12,4 @@ jobs:
         with:
           project: Infrastructure Testing Framework
           column: Working
-          repo-token: ${{ secrets.GH_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
