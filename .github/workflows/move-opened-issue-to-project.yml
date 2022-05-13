@@ -7,8 +7,8 @@ on:
       - reopened
 
 jobs:
-  add-to-projects:
-    name: Add new issues to projects
+  Repo:
+    name: Add new issues to the local repository project
     runs-on: ubuntu-latest
     steps:
       - name: Add the issue to the Backlog project ForReview
@@ -16,7 +16,11 @@ jobs:
         with:
           project: Backlog
           column: For Review
-          repo-token: ${{ secrets.GH_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+  Personal:
+    name: Add issue to my personal project management space
+    runs-on: ubuntu-latest
+    steps:
       - name: Add issue to my personal project management space
       - uses: actions/add-to-project@main
         with:

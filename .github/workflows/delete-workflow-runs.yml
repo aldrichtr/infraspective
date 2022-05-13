@@ -1,0 +1,38 @@
+name: Clean up old workflow runs
+
+on:
+  workflow_dispatch:
+    inputs:
+      interval:
+        description: Time interval (only hours supported for now)
+        required: true
+        default: 'hours'
+        type: choice
+        options:
+          - hours
+      time_value:
+        description: Time value
+        required: true
+        default: 1
+        type: number
+
+
+jobs:
+  delete-workflow-runs:
+    runs-on: ubuntu-latest
+    name: Delete workflow runs older than 3 days
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Delete workflow runs
+        uses: MajorScruffy/delete-workflow-runs@v0.1
+        id: delete-workflow-runs
+        with:
+          repository: aldrichtr/infraspective
+          ## 8640 seconds == 1 day
+          older-than-seconds: ${{ inputs.time_value * 60 * 60 }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

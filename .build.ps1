@@ -35,12 +35,12 @@ task UnitTest {
         Write-Build Red "Could not find Unit Test configuration at Tests.Config.Unit -> $pester_config_file"
     } else {
         $PesterConfig = New-PesterConfiguration -Hashtable (Import-Psd $pester_config_file)
-
+        $PesterConfig.TestResult.OutputPath = ".\out\unit_test_results.nunit($(Get-Date -Format 'yyyy-MM-dd-HHmm')).xml"
 
         $mod = Join-Path -Path $config.Project.Path -ChildPath $config.Project.Modules.Root.Module
         Import-Module $mod -Force
         $PesterResult = Invoke-Pester -Configuration $PesterConfig # passthru must be set to $true
-        Export-Clixml -InputObject $PesterResult -Path 'out/pester_invocation_results-unit.xml'
+        Export-Clixml -InputObject $PesterResult -Path "./out/pester_invocation_results-unit($(Get-Date -Format 'yyyy-MM-dd-HHmm')).xml"
     }
 }
 
@@ -52,11 +52,12 @@ task AnalysisTest {
         Write-Build Red "Could not find Analyzer Test configuration at Tests.Config.Analyzer -> $pester_config_file"
     } else {
         $PesterConfig = New-PesterConfiguration -Hashtable (Import-Psd $pester_config_file)
+        $PesterConfig.TestResult.OutputPath = ".\out\analyzer_test_results.nunit($(Get-Date -Format 'yyyy-MM-dd-HHmm')).xml"
 
         $mod = Join-Path -Path $config.Project.Path -ChildPath $config.Project.Modules.Root.Module
         Import-Module $mod -Force
         $PesterResult = Invoke-Pester -Configuration $PesterConfig # passthru must be set to $true
-        Export-Clixml -InputObject $PesterResult -Path 'out/pester_invocation_results-analyzer.xml'
+        Export-Clixml -InputObject $PesterResult -Path "./out/pester_invocation_results-analyzer($(Get-Date -Format 'yyyy-MM-dd-HHmm')).xml"
     }
 }
 
