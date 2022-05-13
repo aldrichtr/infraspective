@@ -4,23 +4,23 @@ on:
   workflow_dispatch:
     inputs:
       interval:
-        description: Time interval (only hours supported for now)
+        description: Time interval (only seconds supported for now)
         required: true
-        default: 'hours'
+        default: 'seconds'
         type: choice
         options:
-          - hours
+          - seconds
       time_value:
-        description: Time value
+        description: Time value (8640 sec == 1 day)
         required: true
-        default: 1
+        default: 8640
         type: number
 
 
 jobs:
   delete-workflow-runs:
     runs-on: ubuntu-latest
-    name: Delete workflow runs older than 3 days
+    name: Delete workflow runs
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -33,6 +33,6 @@ jobs:
         with:
           repository: aldrichtr/infraspective
           ## 8640 seconds == 1 day
-          older-than-seconds: ${{ inputs.time_value * 60 * 60 }}
+          older-than-seconds: ${{ inputs.time_value }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
