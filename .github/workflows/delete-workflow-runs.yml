@@ -1,0 +1,23 @@
+name: Clean up old workflow runs
+
+on: [push]
+
+jobs:
+  delete-workflow-runs:
+    runs-on: ubuntu-latest
+    name: Delete workflow runs older than 3 days
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Delete workflow runs
+        uses: MajorScruffy/delete-workflow-runs
+        id: delete-workflow-runs
+        with:
+          repository: aldrichtr/infraspective
+          ## 8640 seconds == 1 day
+          older-than-seconds: 25920
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
