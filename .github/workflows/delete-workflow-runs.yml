@@ -28,7 +28,7 @@ jobs:
           submodules: recursive
 
       - name: Delete workflow runs
-        uses: MajorScruffy/delete-workflow-runs@v0.1
+        uses: MajorScruffy/delete-workflow-runs@main
         id: delete-workflow-runs
         with:
           repository: aldrichtr/infraspective
