@@ -68,6 +68,7 @@ task Test {
 
     $pConfig = New-PesterConfiguration
     $pConfig.Run.Path = "$BuildRoot\tests"
+    $pConfig.Run.Exit = $true
     $pConfig.Run.SkipRemainingOnFailure = 'None'
     $pConfig.Output.Verbosity = 'Detailed'
     Write-Build DarkBlue "tags given as input: $TestTags"
