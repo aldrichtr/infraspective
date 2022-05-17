@@ -1,25 +1,23 @@
-<#
-.SYNOPSIS
-    Test a Security Option.
-.DESCRIPTION
-    Test the setting of a particular security option.
-.PARAMETER Target
-    Specifies the category of the security option.
-.PARAMETER Should 
-    A Script Block defining a Pester Assertion.       
-.EXAMPLE
-    SecurityOption 'Accounts: Administrator account status' { Should -Be Disabled }
-.EXAMPLE
-    SecurityOption 'Domain member: Maximum machine account password age' { Should -Be 30 }
-.EXAMPLE
-    SecurityOption 'Accounts: Block Microsoft accounts' { Should -Be $null }
-.NOTES
-    Assertions: Be, BeExactly, Match, MatchExactly
-#>
- 
+
 function SecurityOption {
+    <#
+    .SYNOPSIS
+        Test a Security Option.
+    .DESCRIPTION
+        Test the setting of a particular security option.
+    .EXAMPLE
+        SecurityOption 'Accounts: Administrator account status' { Should -Be Disabled }
+    .EXAMPLE
+        SecurityOption 'Domain member: Maximum machine account password age' { Should -Be 30 }
+    .EXAMPLE
+        SecurityOption 'Accounts: Block Microsoft accounts' { Should -Be $null }
+    .NOTES
+        Assertions: Be, BeExactly, Match, MatchExactly
+    #>
+
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param(
+        # Specifies the category of the security option.
         [Parameter(Mandatory, Position = 1)]
         [Alias("Category")]
         [ValidateSet(
@@ -120,84 +118,106 @@ function SecurityOption {
             "User Account Control: Switch to the secure desktop when prompting for elevation",
             "User Account Control: Virtualize file and registry write failures to per user locations"
         )]
-        [string]
-        $Target,
-        
-        [Parameter(Mandatory, Position = 2)]
-        [scriptblock]
-        $Should
-    )
-    function GetSecurityPolicy([string]$Category) {
+        [string]$Target,
 
+        #A Script Block defining a Pester Assertion.
+        [Parameter(Mandatory, Position = 2)]
+        [scriptblock]$Should
+    )
+
+    begin {
         function Get-PolicyOptionData {
+            <#
+            .SYNOPSIS
+                Load the Policy option data
+            .DESCRIPTION
+                Load the Policy option data from the datafile, transforming it using the DSC function
+            #>
             [OutputType([hashtable])]
             [CmdletBinding()]
-            Param
-            (
+            param(
                 [Parameter(Mandatory = $true)]
                 [Microsoft.PowerShell.DesiredStateConfiguration.ArgumentToConfigurationDataTransformation()]
-                [hashtable]
-                $FilePath
+                [hashtable]$FilePath
             )
             return $FilePath
         }
 
-        $securityOptionData = Get-PolicyOptionData -FilePath $("$PSScriptRoot\SecurityOptionData.psd1").Normalize()
-        
-        $SecurityOption = $securityOptionData[$Category]
+        function GetSecurityPolicy {
+            <#
+            .SYNOPSIS
+                Get the Security Policy of the given Category
+            .DESCRIPTION
+                Get the Security Policy of the given Category.
+            #>
+            [CmdletBinding()]
+            [OutputType([System.Collections.Array])]
+            param(
+                # The category of the security policy to lookup
+                [Parameter(Mandatory = $true)]
+                [string]$Category
+            )
+            begin {
+                $securityOptionData = Get-PolicyOptionData -FilePath $("$PSScriptRoot\SecurityOptionData.psd1").Normalize()
+            }
+            process {
+                $SecurityOption = $securityOptionData[$Category]
+                if ($SecurityOption) {
 
-        If ($SecurityOption) {
+                    $SecurityPolicyFilePath = Join-Path -Path $env:temp -ChildPath 'SecurityPolicy.inf'
+                    secedit.exe /export /cfg $SecurityPolicyFilePath /areas 'SECURITYPOLICY' | Out-Null
 
-            $SecurityPolicyFilePath = Join-Path -Path $env:temp -ChildPath 'SecurityPolicy.inf'
-            secedit.exe /export /cfg $SecurityPolicyFilePath /areas 'SECURITYPOLICY' | Out-Null
-    
-            $policyConfiguration = @{ }
+                    $policyConfiguration = @{ }
 
-            switch -regex -file $SecurityPolicyFilePath {
-                "^\[(.+)\]" {
-                    # Section
-                    $section = $matches[1]
-                    $policyConfiguration[$section] = @{ }
-                }
-                "(.+?)\s*=(.*)" {
-                    # Key
-                    $name, $value = $matches[1..2] -replace "\*"
-                    $policyConfiguration[$section][$name] = $value.Trim()
+                    switch -regex -file $SecurityPolicyFilePath {
+                        "^\[(.+)\]" {
+                            # Section
+                            $section = $matches[1]
+                            $policyConfiguration[$section] = @{ }
+                        }
+                        "(.+?)\s*=(.*)" {
+                            # Key
+                            $name, $value = $matches[1..2] -replace "\*"
+                            $policyConfiguration[$section][$name] = $value.Trim()
+                        }
+                    }
+
+                    $soSection = $SecurityOption.Section
+                    $soOptions = $SecurityOption.Option
+                    $soValue = $SecurityOption.Value
+
+                    $soResultValue = $policyConfiguration.$soSection.$soValue
+
+                    if ($soResultValue) {
+
+                        if ($soOptions.GetEnumerator().Name -ne 'String') {
+                            $soResult = ($soOptions.GetEnumerator() | Where-Object { $_.Value -eq $soResultValue }).Name
+                        } else {
+                            $soOptionsValue = ($soOptions.GetEnumerator() | Where-Object { $_.Name -eq 'String' }).Value
+                            $soResult = $soResultValue -replace "^$soOptionsValue", ''
+                        }
+                    } else {
+                        $soResult = $null
+                    }
+
+                } else {
+                    throw "The security option $Category was not found."
                 }
             }
-
-            $soSection = $SecurityOption.Section
-            $soOptions = $SecurityOption.Option
-            $soValue = $SecurityOption.Value                
-
-            $soResultValue = $policyConfiguration.$soSection.$soValue
-
-            If ($soResultValue) {
-
-                If ($soOptions.GetEnumerator().Name -ne 'String') {
-                    $soResult = ($soOptions.GetEnumerator() | Where-Object { $_.Value -eq $soResultValue }).Name
-                } 
-                Else {
-                    $soOptionsValue = ($soOptions.GetEnumerator() | Where-Object { $_.Name -eq 'String' }).Value
-                    $soResult = $soResultValue -Replace "^$soOptionsValue", ''
-                }
-            }
-            Else {
-                $soResult = $null
+            end {
+                $soResult
             }
 
-            Return $soResult
-        }
-        Else {
-            Throw "The security option $Category was not found."
+
         }
     }
-
-    # Modify the target string to match what is in the SecurityOptionData.psd1 file
-    $Category = $Target.Replace(':','').Replace(' ','_')
-
-    $Expression = { GetSecurityPolicy -Category '$Category' }
-    $Params = Get-PoshspecParam -TestName SecurityOption -TestExpression $Expression @PSBoundParameters
-
-    Invoke-PoshspecExpression @Params
+    process {
+        # Modify the target string to match what is in the SecurityOptionData.psd1 file
+        $Category = $Target.Replace(':', '').Replace(' ', '_')
+        $Expression = { GetSecurityPolicy -Category '$Category' }
+        $params = Get-PoshspecParam -TestName SecurityOption -TestExpression $Expression @PSBoundParameters
+    }
+    end {
+        Invoke-PoshspecExpression @params
+    }
 }
