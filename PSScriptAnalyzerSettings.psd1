@@ -1,6 +1,6 @@
 @{
     #region Severity
-    Severity              = @()
+    # Severity              = @()
     #endregion Severity
 
     #region ExcludeRules
@@ -45,7 +45,7 @@
 
     # The **Severity** parameter takes precedence over **IncludeRule**. For example, if **Severity** is
     # `Error`, you cannot use **IncludeRule** to include a `Warning` rule.
-    IncludeRules          = @()
+    # IncludeRules          = @()
     #endregion IncludeRules
 
     #region Rules
@@ -80,7 +80,7 @@
     # If Invoke-ScriptAnalyzer cannot find rules in the CustomRulePath, it runs the standard rules without notice.
 
     CustomRulePath        = @(
-        "build/rules"
+        ".\.buildtool\pssa_rules\*"
     )
     #endregion CustomRulePath
 

@@ -1,0 +1,27 @@
+name: Analyze PowerShell source code
+
+on:
+  push:
+
+jobs:
+  Analyze:
+   name: Analyze source with PSSA
+   runs-on: windows-latest
+   steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+       submodules: recursive
+
+    - name: Run PSScriptAnalyzer
+      uses: microsoft/psscriptanalyzer-action@v1.0
+      with:
+       path: '.\source'
+       recurse: true
+       settings: '.\PSScriptAnalyzerSettings.psd1'
+       output: pssa-results.sarif
+
+    - name: Upload SARIF results file
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+       sarif_file: pssa-results.sarif

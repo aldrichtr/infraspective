@@ -11,7 +11,7 @@ Describe "Validate <_.Visibility> component <_.Name> passes ScriptAnalyzer rules
         Import-Module PSScriptAnalyzer
 
         # Gather results during run, so we can use them inside the 'It'
-        $analysis = Invoke-ScriptAnalyzer $_.Path
+        $analysis = Invoke-ScriptAnalyzer $_.Path -Settings "$BuildRoot\PSScriptAnalyzerSettings.psd1"
 
     }
 
