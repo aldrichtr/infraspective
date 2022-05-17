@@ -1,54 +1,60 @@
 
 function Get-PoshspecParam {
     <#
-.SYNOPSIS
-    Returns an object which is used with Invoke-PoshspecExpression to execute a Pester 'It' block with the
-    generated name and test expression values.
-.EXAMPLE
-    ``` powershell
-    Get-PoshspecParam -TestName File -TestExpression {'C:\Temp'} -Target 'C:\Temp' -Should { Should -Exist }
-    ```
-    ``` output
-    Name       : File 'C:\Temp' Should -Exist
-    Expression : 'C:\Temp' | Should -Exist
-    ```
-.NOTE
+    .SYNOPSIS
+        Returns an object which is used with Invoke-PoshspecExpression to execute a Pester 'It' block with the
+        generated name and test expression values.
+    .DESCRIPTION
+        Returns an object which is used with 'Name' and 'Expression'
+    .EXAMPLE
+        Get-PoshspecParam -TestName File -TestExpression { 'C:\Temp' } -Target 'C:\Temp' -Should { Should -Exist }
+    .NOTES
         This function was originally part of the [poshspec](https://github.com/Ticketmaster/poshspec) module.
+    .LINK
+        Invoke-PoshspecExpression
     #>
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param(
+        # The name of the Test
         [Parameter(Mandatory, ParameterSetName = "Default")]
         [Parameter(Mandatory, ParameterSetName = "PropertyExpression")]
         [string]
         $TestName,
 
+        # The Expression to be used
         [Parameter(Mandatory, ParameterSetName = "Default")]
         [Parameter(Mandatory, ParameterSetName = "PropertyExpression")]
         [string]
         $TestExpression,
 
+        # The object that the function will test against.
         [Parameter(Mandatory, ParameterSetName = "Default")]
         [Parameter(Mandatory, ParameterSetName = "PropertyExpression")]
         [string]
         $Target,
 
+        # A display name
         [Parameter(ParameterSetName = "Default")]
         [string]
         $FriendlyName,
 
+        # The property of the object to test
         [Parameter(ParameterSetName = "Default")]
         [string]
         $Property,
 
+        # An expression that is used to get the properties
         [Parameter(Mandatory, ParameterSetName = "PropertyExpression")]
         [string]
         $PropertyExpression,
 
+        # The value to test against
         [Parameter(ParameterSetName = "Default")]
         [Parameter(ParameterSetName = "PropertyExpression")]
         [string]
         $Qualifier,
 
+        # The 'Should' test expression
         [Parameter(Mandatory, ParameterSetName = "Default")]
         [Parameter(Mandatory, ParameterSetName = "PropertyExpression")]
         [scriptblock]
@@ -108,19 +114,12 @@ function Get-PoshspecParam {
             }
             $expressionString += " | $assertion"
             $expressionString = $ExecutionContext.InvokeCommand.ExpandString($expressionString)
-
-            Write-Output -InputObject ([PSCustomObject]@{
-                    Name       = $nameString
-                    Expression = $expressionString
-                })
-
-
         }
     }
     end {
-
+        ([PSCustomObject]@{
+                Name       = $nameString
+                Expression = $expressionString
+            })
     }
-
-
-
 }
