@@ -1,5 +1,5 @@
 
-Describe 'Testing the DnsHost specification' -Tag @('unit', 'DnsHost', 'poshspec') {
+Describe 'Testing the WebSite specification' -Tag @('unit', 'WebSite', 'poshspec') {
     BeforeAll {
         Mock Invoke-PoshspecExpression -Module infraspective {
             return $InputObject
@@ -22,7 +22,7 @@ Describe 'Testing the DnsHost specification' -Tag @('unit', 'DnsHost', 'poshspec
         BeforeAll {
             $results = WebSite TestSite ManagedPipelineMode { Should -Be 'Integrated' }
         }
-        
+
         It "Should return the correct test Name" {
             $results.Name | Should -Be "WebSite property 'ManagedPipelineMode' for 'TestSite' Should -Be 'Integrated'"
         }
@@ -36,7 +36,7 @@ Describe 'Testing the DnsHost specification' -Tag @('unit', 'DnsHost', 'poshspec
         BeforeAll {
             $results = WebSite TestSite 'Applications["/"].Path' { Should -Be '/' }
         }
-        
+
         It "Should return the correct test Name" {
             $results.Name | Should -Be "WebSite property 'Path' for 'TestSite' at 'Applications[`"/`"]' Should -Be '/'"
         }
@@ -50,7 +50,7 @@ Describe 'Testing the DnsHost specification' -Tag @('unit', 'DnsHost', 'poshspec
         BeforeAll {
             $results = WebSite TestSite 'Bindings.Count' { Should -Be '1' }
         }
-        
+
         It "Should return the correct test Name" {
             $results.Name | Should -Be "WebSite property 'Count' for 'TestSite' at 'Bindings' Should -Be '1'"
         }
