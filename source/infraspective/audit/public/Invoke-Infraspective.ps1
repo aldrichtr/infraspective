@@ -4,9 +4,10 @@ function Invoke-Infraspective {
     <#
     .SYNOPSIS
         Perform an audit on the specified hosts
+    .DESCRIPTION
+        Run checklists, groupings and controls in files specified in the configuration.
     #>
     [CmdletBinding(
-        SupportsShouldProcess,
         ConfirmImpact = "Low"
     )]
     param(
