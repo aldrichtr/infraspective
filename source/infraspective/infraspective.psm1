@@ -7,7 +7,7 @@ $import_options = @{
 
 
 if (Test-Path "$PSScriptRoot\LoadOrder.txt") {
-    Write-Host "Using custom load order"
+    Write-Information "Using custom load order" -InformationAction Continue
     $custom = Get-Content "$PSScriptRoot\LoadOrder.txt"
 
     Get-ChildItem @import_options -Recurse | ForEach-Object {
