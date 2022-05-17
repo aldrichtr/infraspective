@@ -114,12 +114,13 @@ function Get-PoshspecParam {
             }
             $expressionString += " | $assertion"
             $expressionString = $ExecutionContext.InvokeCommand.ExpandString($expressionString)
+
+            Write-Output -InputObject ([PSCustomObject]@{
+                    Name       = $nameString
+                    Expression = $expressionString
+                })
         }
     }
     end {
-        ([PSCustomObject]@{
-                Name       = $nameString
-                Expression = $expressionString
-            })
     }
 }
