@@ -6,6 +6,8 @@ function Invoke-InfraspecChecklist {
     <#
     .SYNOPSIS
         A collection of security controls to check against one or more systems.
+    .DESCRIPTION
+        A collection of Groupings, and or Controls.
     #>
     [OutputType('Infraspective.Checklist.ResultInfo')]
     [CmdletBinding()]
