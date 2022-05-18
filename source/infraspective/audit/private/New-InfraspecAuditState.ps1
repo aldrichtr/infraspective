@@ -23,6 +23,7 @@ function New-InfraspecAuditState {
                 Discovery     = $false
                 Configuration = $null
                 CurrentBlock  = $null
+                CurrentPath   = $null
                 SessionState  = $null
                 Functions     = @{}
                 Variables     = [System.Collections.Generic.List[PSVariable]]@()
