@@ -66,6 +66,7 @@ function Invoke-Infraspective {
         foreach ($f in $audit_files) {
             if ($PSCmdlet.ShouldProcess($f, "Perform tests")) {
                 $audit_state.Depth += 1
+                $audit_state.CurrentPath = $f.Directory.FullName
                 Write-Log -Level INFO -Message "File $($f.Name) start"
                 Write-Result File 'Start' "File $($f.Name)"
                 [scriptblock]$sb = { . $f.FullName }
