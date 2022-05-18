@@ -16,7 +16,7 @@ jobs:
         with:
           project: Backlog
           column: For Review
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.ACTION_ADDTOPROJECT }}
   Personal:
     name: Add issue to my personal project management space
     runs-on: ubuntu-latest
