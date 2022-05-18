@@ -72,13 +72,13 @@ function Write-Result {
         }
         # state is initialized in `Invoke-Infraspective`
         $indent = ($config.Leader * $state.Depth)
-        $max_scope = $config.Scope.value__
+        $max_scope = ([ResultScope]$config.Scope).value__
     }
     process {
         # check to see if the requested Scope is higher than the configured scope
         # break early if it isnt
         $this_scope = $Scope.value__
-        if (-not($this_scope -le $max_scope)) {
+        if ($this_scope -le $max_scope) {
             if (-not($map.Keys -contains $Type)) {
                 $fmt = "$reset$Type"
             } else {
