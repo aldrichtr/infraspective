@@ -1,34 +1,37 @@
-<#
-.SYNOPSIS
-    Test if a share exists.
-.DESCRIPTION
-    Test if a share exists.
-.PARAMETER Target
-    The share name to test for. Eg 'C$' or 'MyShare'
-.PARAMETER Should 
-    A Script Block defining a Pester Assertion.  
-.EXAMPLE
-    Share 'MyShare' { should not BeNullOrEmpty }    
-.EXAMPLE
-    Share 'BadShare' { should BeNullOrEmpty }
-.NOTES
-    Assertions: BeNullOrEmpty
-#>
-    
+
 function Share {
+    <#
+    .SYNOPSIS
+        Test if a share exists.
+    .DESCRIPTION
+        Test if a share exists.
+    .EXAMPLE
+        Share 'MyShare' { should -Not -BeNullOrEmpty }
+    .EXAMPLE
+        Share 'BadShare' { should -BeNullOrEmpty }
+    .NOTES
+        Assertions: BeNullOrEmpty
+    #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory, Position=1)]
+        # The share name to test for. Eg 'C$' or 'MyShare'
+        [Parameter(Mandatory, Position = 1)]
         [Alias('Name')]
         [string]$Target,
-        
-        [Parameter(Mandatory, Position=2)]
+
+        # A Script Block defining a Pester Assertion.
+        [Parameter(Mandatory, Position = 2)]
         [scriptblock]$Should
     )
-
-    $expression = {Get-CimInstance -ClassName Win32_Share -Filter "Name = '$Target'"}
-    
-    $params = Get-PoshspecParam -TestName Share -TestExpression $expression @PSBoundParameters
-    
-    Invoke-PoshspecExpression @params
+    begin {
+    }
+    process {
+        $expression = {
+            Get-CimInstance -ClassName Win32_Share -Filter "Name = '$Target'"
+        }
+        $params = Get-PoshspecParam -TestName Share -TestExpression $expression @PSBoundParameters
+    }
+    end {
+        Invoke-PoshspecExpression @params
+    }
 }

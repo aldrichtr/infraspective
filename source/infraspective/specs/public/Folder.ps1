@@ -1,32 +1,34 @@
-<#
-.SYNOPSIS
-    Test if a folder exists.
-.DESCRIPTION
-    Test if a folder exists.
-.PARAMETER Target
-    The path of the folder to search for.
-.PARAMETER Should
-    A Script Block defining a Pester Assertion.
-.EXAMPLE
-    folder $env:ProgramData { should exist }
-.EXAMPLE
-    folder C:\badfolder { should not exist }
-.NOTES
-    Assertions: exist
-#>
+
 function Folder {
+    <#
+    .SYNOPSIS
+        Test if a folder exists.
+    .DESCRIPTION
+        Test if a folder exists.
+    .EXAMPLE
+        folder $env:ProgramData { Should -Exist }
+    .EXAMPLE
+        folder C:\badfolder { Should -Not -Exist }
+    .NOTES
+        Assertions: Exist
+    #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory, Position=1)]
+        # The path of the folder to search for.
+        [Parameter(Mandatory, Position = 1)]
         [Alias('Path')]
         [string]$Target,
 
+        # A Script Block defining a Pester Assertion.
         [Parameter(Mandatory, Position=2)]
         [scriptblock]$Should
     )
-
-
-    $params = Get-PoshspecParam -TestName Folder -TestExpression {'$Target'} @PSBoundParameters
-
-    Invoke-PoshspecExpression @params
+    begin {
+    }
+    process {
+        $params = Get-PoshspecParam -TestName Folder -TestExpression {'$Target'} @PSBoundParameters
+    }
+    end {
+        Invoke-PoshspecExpression @params
+    }
 }

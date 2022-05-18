@@ -1,7 +1,10 @@
 
 Describe 'Testing the AuditPolicy specification' -Tag @('unit', 'AuditPolicy', 'poshspec') {
     BeforeAll {
-        Mock Invoke-PoshspecExpression -Module infraspective {
+        Mock Test-RunAsAdmin -ModuleName infraspective {
+            return $true
+        }
+        Mock Invoke-PoshspecExpression -ModuleName infraspective {
             return $InputObject
         }
     }
@@ -13,7 +16,7 @@ Describe 'Testing the AuditPolicy specification' -Tag @('unit', 'AuditPolicy', '
         It "Should return the correct test Name" {
             $results.Name | Should -Be "AuditPolicy 'Security System Extension' Should -Be 'Success'"
         }
-            
+
         It "Should return the correct test Expression" {
             $results.Expression | Should -Be "GetAuditPolicy -Category 'System' -Subcategory 'Security System Extension' | Should -Be 'Success'"
         }

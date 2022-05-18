@@ -3,7 +3,30 @@ function Write-Result {
     <#
     .SYNOPSIS
         Write the results to the screen
-    #>
+    .DESCRIPTION
+        `Write-Result` sends formatted output to the Information stream (6).  The format
+        of the output is controlled by the 'Output' key in the Configuration settings.
+
+        - Scope: controls which structures output status messages. Current options are:
+            None, Audit, File, Checklist, Grouping, Control, Block or Test
+        - StatusMap:  A hashtable of Status Messages, and Scope Start and End hashtables.
+          Each key can have:
+          - Color: The $PSStyle color option to format the text
+          - Format: The text to be displayed.  (The 'End' status is special, see below)
+          - Reset: $true or $false.  If $false, the entire line will be the color set.
+
+        - Leader: a text string to use as the indentation of each scope
+
+        End Format:  Because the End of the scope can contain totals, the following tokens
+            are available:
+            '%T' : The Total tests for that scope
+            '%P' : The Total amount of tests that 'Passed'
+            '%F' : The Total amount of tests that 'Failed'
+            '%S' : The Total amount of tests that 'Skipped'
+    .LINK
+        - https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_ansi_terminals?view=powershell-7.2
+
+        #>
     [CmdletBinding()]
     param(
         # Scope of result.  'File', 'Checklist', etc.

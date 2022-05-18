@@ -1,39 +1,41 @@
-<#
-.SYNOPSIS
-    Test if a local user exists and is enabled.
-.DESCRIPTION
-    Test if a local user exists and is enabled.
-.PARAMETER Target
-    The local user name to test for. Eg 'Guest'
-.PARAMETER Should 
-    A Script Block defining a Pester Assertion.  
-.EXAMPLE
-    LocalUser 'Guest' { should not BeNullOrEmpty }    
-.EXAMPLE
-    LocalUser 'Guest' Disabled { should Be $true }
-.NOTES
-    Assertions: Be, BeExactly, BeNullOrEmpty, Match, MatchExactly
-#>
-    
+
 function LocalUser {
-    [CmdletBinding(DefaultParameterSetName="Default")]
+    <#
+    .SYNOPSIS
+        Test if a local user exists and is enabled.
+    .DESCRIPTION
+        Test if a local user exists and is enabled.
+    .EXAMPLE
+        LocalUser 'Guest' { should -Not -BeNullOrEmpty }
+    .EXAMPLE
+        LocalUser 'Guest' Disabled { should -Be $true }
+    .NOTES
+        Assertions: Be, BeExactly, BeNullOrEmpty, Match, MatchExactly
+    #>
+    [CmdletBinding(DefaultParameterSetName = "Default")]
     param(
-        [Parameter(Mandatory, Position=1,ParameterSetName="Default")]
-        [Parameter(Mandatory, Position=1,ParameterSetName="Property")]
+        # The local user name to test for. Eg 'Guest'
+        [Parameter(Mandatory, Position = 1, ParameterSetName = "Default")]
+        [Parameter(Mandatory, Position = 1, ParameterSetName = "Property")]
         [Alias('Name')]
         [string]$Target,
 
-        [Parameter(Position=2,ParameterSetName="Property")]
+        # The property of the account to test
+        [Parameter(Position = 2, ParameterSetName = "Property")]
         [string]$Property,
-        
-        [Parameter(Mandatory, Position=2,ParameterSetName="Default")]
-        [Parameter(Mandatory, Position=3,ParameterSetName="Property")]
+
+        # A Script Block defining a Pester Assertion.
+        [Parameter(Mandatory, Position = 2, ParameterSetName = "Default")]
+        [Parameter(Mandatory, Position = 3, ParameterSetName = "Property")]
         [scriptblock]$Should
     )
-
-    $expression = {Get-CimInstance -ClassName Win32_UserAccount -filter "LocalAccount=True AND` Name='$Target'"}
-    
-    $params = Get-PoshspecParam -TestName LocalUser -TestExpression $expression @PSBoundParameters
-    
-    Invoke-PoshspecExpression @params
+    begin {
+    }
+    process {
+        $expression = { Get-CimInstance -ClassName Win32_UserAccount -filter "LocalAccount=True AND` Name='$Target'" }
+        $params = Get-PoshspecParam -TestName LocalUser -TestExpression $expression @PSBoundParameters
+    }
+    end {
+        Invoke-PoshspecExpression @params
+    }
 }

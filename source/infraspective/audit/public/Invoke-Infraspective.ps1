@@ -4,6 +4,8 @@ function Invoke-Infraspective {
     <#
     .SYNOPSIS
         Perform an audit on the specified hosts
+    .DESCRIPTION
+        Run checklists, groupings and controls in files specified in the configuration.
     #>
     [CmdletBinding(
         SupportsShouldProcess,
@@ -25,8 +27,7 @@ function Invoke-Infraspective {
             $c = Import-Configuration
             $c.PSTypeName = 'Infraspective.Configuration'
             $config = [PSCustomObject]$c
-        }
-        catch {
+        } catch {
             Write-Error "There was an error loading the configuration`n$_" -ErrorAction Stop
         }
 
@@ -63,21 +64,23 @@ function Invoke-Infraspective {
         Write-Log -Level INFO -Message "Audit start"
         Write-Result Audit 'Start' "Audit $(Get-Date -Format 'dd-MMM-yyyy HH:mm:ss')"
         foreach ($f in $audit_files) {
-            $state.Depth += 1
-            Write-Log -Level INFO -Message "File $($f.Name) start"
-            Write-Result File 'Start' "File $($f.Name)"
-            [scriptblock]$sb = { . $f.FullName }
-            Write-Log -Level DEBUG -Message " Executing Audit file $($f.Name)"
-            $result = & $sb
-            $result.Container = $f
-            $state.Depth -= 1
-            Write-Log -Level INFO -Message "File $($f.Name) complete"
-            $TotalCount += $result.TotalCount
-            $PassedCount += $result.PassedCount
-            $FailedCount += $result.FailedCount
-            $SkippedCount += $result.SkippedCount
+            if ($PSCmdlet.ShouldProcess($f, "Perform tests")) {
+                $state.Depth += 1
+                Write-Log -Level INFO -Message "File $($f.Name) start"
+                Write-Result File 'Start' "File $($f.Name)"
+                [scriptblock]$sb = { . $f.FullName }
+                Write-Log -Level DEBUG -Message " Executing Audit file $($f.Name)"
+                $result = & $sb
+                $result.Container = $f
+                $state.Depth -= 1
+                Write-Log -Level INFO -Message "File $($f.Name) complete"
+                $TotalCount += $result.TotalCount
+                $PassedCount += $result.PassedCount
+                $FailedCount += $result.FailedCount
+                $SkippedCount += $result.SkippedCount
 
-            Write-Output $result
+                Write-Output $result
+            }
         }
 
     }
@@ -86,9 +89,9 @@ function Invoke-Infraspective {
             "Audit complete.  Total files {0} executed in {1:N4} milliseconds" -f $audit_files.Count,
             $state.AuditTimer.Elapsed.MilliSeconds)
         Write-Result Audit 'End' $message -Stats @{
-            Total = $TotalCount
-            Passed = $PassedCount
-            Failed = $FailedCount
+            Total   = $TotalCount
+            Passed  = $PassedCount
+            Failed  = $FailedCount
             Skipped = $SkippedCount
         }
         Write-Log -Level INFO -Message $message
