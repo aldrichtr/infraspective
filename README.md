@@ -4,8 +4,11 @@ Status: "Under Development (Pre-release)"
 Location: https://github.com/aldrichtr/infraspective
 Version: 0.3.0
 ```
+## Current status
 
-![Build pipeline](https://github.com/aldrichtr/infraspective/workflows/Build%20pipeline/badge.svg)
+[![PSScriptAnalyzer
+results](https://github.com/aldrichtr/infraspective/actions/workflows/cicd-run-pssa.yml/badge.svg)](https://github.com/aldrichtr/infraspective/actions/workflows/cicd-run-pssa.yml)
+[![Pester unit tests](https://github.com/aldrichtr/infraspective/actions/workflows/cicd-run-unit-tests.yml/badge.svg)](https://github.com/aldrichtr/infraspective/actions/workflows/cicd-run-unit-tests.yml)
 
 ## Synopsis
 
