@@ -7,6 +7,7 @@ function New-InfraspecAuditState {
         The state object is used to store and track the current audit variables and values
     #>
     [CmdletBinding(
+        SupportsShouldProcess,
         ConfirmImpact = 'Low'
     )]
     param(
@@ -15,19 +16,21 @@ function New-InfraspecAuditState {
     begin {
     }
     process {
-        $auditState = [PSCustomObject]@{
-            PSTypeName    = 'Infraspective.AuditState'
-            Depth         = 0
-            Discovery     = $false
-            Configuration = $null
-            CurrentBlock  = $null
-            SessionState  = $null
-            Functions     = @{}
-            Variables     = [System.Collections.Generic.List[PSVariable]]@()
-            Arguments     = @()
-            Stack         = [System.Collections.Stack]@()
+        if ($PSCmdlet.ShouldProcess('AuditState', 'Initialize timers')) {
+            $auditState = [PSCustomObject]@{
+                PSTypeName    = 'Infraspective.AuditState'
+                Depth         = 0
+                Discovery     = $false
+                Configuration = $null
+                CurrentBlock  = $null
+                SessionState  = $null
+                Functions     = @{}
+                Variables     = [System.Collections.Generic.List[PSVariable]]@()
+                Arguments     = @()
+                Stack         = [System.Collections.Stack]@()
 
-            AuditTimer = [System.Diagnostics.Stopwatch]::StartNew()
+                AuditTimer = [System.Diagnostics.Stopwatch]::StartNew()
+            }
         }
 
     }
