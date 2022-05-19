@@ -7,11 +7,15 @@ Describe @options {
     Context "When invoking a Group" {
         BeforeAll {
             Mock Write-Log { <#do nothing#> }
-            Mock Write-Result { <#do nothing#> }
+            Mock Write-Result -ModuleName infraspective { <#do nothing#> }
 
-            $global:state = @{
+            $global:audit_state = @{
                 Depth         = 0
-                Configuration = @{}
+                Configuration = @{
+                    Output = @{
+                        Scope = 'Test'
+                    }
+                }
             }
 
             $child = @{
@@ -22,7 +26,7 @@ Describe @options {
         }
 
         AfterAll {
-            Remove-Variable -Scope 'Global' -Name 'state'
+            Remove-Variable -Scope 'Global' -Name 'audit_state'
         }
 
         It "It should return an 'Infraspective.Group.ResultInfo' object" {

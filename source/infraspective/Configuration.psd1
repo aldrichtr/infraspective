@@ -66,7 +66,7 @@
         The Scope controls which structures output status messages. Current options are:
         None, Audit, File, Checklist, Grouping, Control, Block or Test
         #>
-        Scope     = 'Control'
+        Scope     = 'Test'
         <#
         Control the format of the status message:
             Color = the [System.ConsoleColor] name (foreground)

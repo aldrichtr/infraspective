@@ -65,6 +65,12 @@ Function Invoke-InfraspecControl {
         [string[]]$Description
     )
     begin {
+        if ($null -eq $audit_state) {
+            Write-Log -Level WARNING -Message "Audit state missing.  Was $($MyInvocation.MyCommand.Name) invoked directly?"
+
+            $audit_state = New-InfraspecAuditState
+        }
+
         Write-Log -Level INFO -Message "Control '$Name' start"
         $ctl = [PSCustomObject]@{
             PSTypeName   = 'Infraspective.Control.ResultInfo'
@@ -97,13 +103,13 @@ Function Invoke-InfraspecControl {
                 )]
                 [object]$Block
             )
-            $state.Depth += 1
+            $audit_state.Depth += 1
             Write-Result Block 'Start' "Block $($block.Name)"
             if ($block.Tests.Count -gt 0) {
                 foreach ($t in $block.Tests) {
-                    $state.Depth += 1
+                    $audit_state.Depth += 1
                     Write-Result Test $t.Result $t.Name
-                    $state.Depth -= 1
+                    $audit_state.Depth -= 1
                 }
             }
             if ($block.Blocks.Count -gt 0) {
@@ -112,13 +118,13 @@ Function Invoke-InfraspecControl {
                 }
             }
             Write-Result Block $block.Result "Block $($block.Name)"
-            $state.Depth -= 1
+            $audit_state.Depth -= 1
 
         }
 
     }
     process {
-        $state.Depth += 1
+        $audit_state.Depth += 1
         Write-Result Control 'Start' "Control $Name - $Title"
         Write-Log -Level DEBUG -Message "Invoking Pester on tests"
         Invoke-Pester -Container $PesterContainer -Output 'None' -PassThru | Foreach-Object {
@@ -138,12 +144,12 @@ Function Invoke-InfraspecControl {
     }
     end {
         Write-Result Control 'End' "Control $Name $Title" -Stats @{
-            'Total' = $pester.TotalCount
-            'Failed' = $pester.FailedCount
+            'Total'   = $pester.TotalCount
+            'Failed'  = $pester.FailedCount
             'Passed'  = $pester.PassedCount
-            'Skipped'  = $pester.SkippedCount
+            'Skipped' = $pester.SkippedCount
         }
-        $state.Depth -= 1
+        $audit_state.Depth -= 1
         Write-Log -Level INFO -Message "Control '$Name' complete"
         $ctl
     }

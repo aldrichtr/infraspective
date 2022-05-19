@@ -60,7 +60,7 @@ function Write-Result {
 
     )
     begin {
-        $config = $state.Configuration.Output
+        $config = $audit_state.Configuration.Output
         $map = $config.StatusMap
         $reset = $PSStyle.Reset
 
@@ -71,7 +71,7 @@ function Write-Result {
             '%S' = 'Skipped'
         }
         # state is initialized in `Invoke-Infraspective`
-        $indent = ($config.Leader * $state.Depth)
+        $indent = ($config.Leader * $audit_state.Depth)
         $max_scope = ([ResultScope]$config.Scope).value__
     }
     process {
