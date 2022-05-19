@@ -36,6 +36,12 @@ function Invoke-InfraspecGroup {
         [string]$Description
     )
     begin {
+        if ($null -eq $audit_state) {
+            Write-Log -Level WARNING -Message "Audit state missing.  Was $($MyInvocation.MyCommand.Name) invoked directly?"
+
+            $audit_state = New-InfraspecAuditState
+        }
+
         Write-Log -Level INFO -Message "Group '$Name : $Title' start"
         $grp = [PSCustomObject]@{
             PSTypeName   = 'Infraspective.Group.ResultInfo'
@@ -54,12 +60,12 @@ function Invoke-InfraspecGroup {
     }
     process {
         try {
-            $state.Depth += 1
+            $audit_state.Depth += 1
             Write-Result Grouping 'Start' "Group $Name : $Title"
             Write-Log -Level DEBUG -Message "Invoking Body of Group $Name"
             $counter = 1
-            $Body.InvokeWithContext($state.Functions,
-                $state.Variables, $state.Arguments) | Foreach-Object {
+            $Body.InvokeWithContext($audit_state.Functions,
+                $audit_state.Variables, $audit_state.Arguments) | Foreach-Object {
                 $Child = $_
                 Write-Log -Level DEBUG -Message "Result #$counter : $($Child.Result)"
                 switch ($Child.Result) {
@@ -103,14 +109,14 @@ function Invoke-InfraspecGroup {
         } else {
             $grp.Result = 'NotRun'
         }
-        Write-Result Grouping End "Group $Name $Title" -Stats @{
+        Write-Result Grouping 'End' "Group $Name $Title" -Stats @{
             Total   = $grp.TotalCount
             Failed  = $grp.FailedCount
             Passed  = $grp.PassedCount
             Skipped = $grp.SkippedCount
         }
 
-        $state.Depth -= 1
+        $audit_state.Depth -= 1
         Write-Log -Level INFO -Message "Group '$Name $Title' complete"
         $grp
     }

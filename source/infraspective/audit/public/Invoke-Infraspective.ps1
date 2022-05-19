@@ -31,9 +31,9 @@ function Invoke-Infraspective {
             Write-Error "There was an error loading the configuration`n$_" -ErrorAction Stop
         }
 
-        $state = New-InfraspecAuditState
-        $state.Configuration = $config
-        $state.SessionState = $PSCmdlet.SessionState
+        $audit_state = New-InfraspecAuditState
+        $audit_state.Configuration = $config
+        $audit_state.SessionState = $PSCmdlet.SessionState
         $logging = $config.Logging
         foreach ($target in $logging.Keys) {
             Add-LoggingTarget -Name $target -Configuration $logging[$target]
@@ -59,20 +59,20 @@ function Invoke-Infraspective {
         Write-Log -Level DEBUG -Message " - Recurse: $($file_options.Recurse)"
         $audit_files = Get-ChildItem @file_options
         Write-Log -Level DEBUG -Message "Found $($audit_files.Count) audit files"
-        $state.AuditTimer.Restart()
+        $audit_state.AuditTimer.Restart()
 
         Write-Log -Level INFO -Message "Audit start"
         Write-Result Audit 'Start' "Audit $(Get-Date -Format 'dd-MMM-yyyy HH:mm:ss')"
         foreach ($f in $audit_files) {
             if ($PSCmdlet.ShouldProcess($f, "Perform tests")) {
-                $state.Depth += 1
+                $audit_state.Depth += 1
                 Write-Log -Level INFO -Message "File $($f.Name) start"
                 Write-Result File 'Start' "File $($f.Name)"
                 [scriptblock]$sb = { . $f.FullName }
                 Write-Log -Level DEBUG -Message " Executing Audit file $($f.Name)"
                 $result = & $sb
                 $result.Container = $f
-                $state.Depth -= 1
+                $audit_state.Depth -= 1
                 Write-Log -Level INFO -Message "File $($f.Name) complete"
                 $TotalCount += $result.TotalCount
                 $PassedCount += $result.PassedCount
@@ -87,7 +87,7 @@ function Invoke-Infraspective {
     end {
         $message = (
             "Audit complete.  Total files {0} executed in {1:N4} milliseconds" -f $audit_files.Count,
-            $state.AuditTimer.Elapsed.MilliSeconds)
+            $audit_state.AuditTimer.Elapsed.MilliSeconds)
         Write-Result Audit 'End' $message -Stats @{
             Total   = $TotalCount
             Passed  = $PassedCount

@@ -60,7 +60,7 @@ function Write-Result {
 
     )
     begin {
-        $config = $state.Configuration.Output
+        $config = $audit_state.Configuration.Output
         $map = $config.StatusMap
         $reset = $PSStyle.Reset
 
@@ -71,14 +71,14 @@ function Write-Result {
             '%S' = 'Skipped'
         }
         # state is initialized in `Invoke-Infraspective`
-        $indent = ($config.Leader * $state.Depth)
-        $max_scope = $config.Scope.value__
+        $indent = ($config.Leader * $audit_state.Depth)
+        $max_scope = ([ResultScope]$config.Scope).value__
     }
     process {
         # check to see if the requested Scope is higher than the configured scope
         # break early if it isnt
         $this_scope = $Scope.value__
-        if (-not($this_scope -le $max_scope)) {
+        if ($this_scope -le $max_scope) {
             if (-not($map.Keys -contains $Type)) {
                 $fmt = "$reset$Type"
             } else {

@@ -37,6 +37,12 @@ function Invoke-InfraspecChecklist {
     )
 
     begin {
+        if ($null -eq $audit_state) {
+            Write-Log -Level WARNING -Message "Audit state missing.  Was $($MyInvocation.MyCommand.Name) invoked directly?"
+
+            $audit_state = New-InfraspecAuditState
+        }
+
         Write-Log -Level INFO -Message "Checklist '$Name v$($Version.ToString())' start"
         $chk = [PSCustomObject]@{
             PSTypeName   = 'Infraspective.Checklist.ResultInfo'
@@ -58,11 +64,11 @@ function Invoke-InfraspecChecklist {
     }
     process {
         try {
-            $state.Depth += 1
+            $audit_state.Depth += 1
             Write-Result Checklist 'Start' "Checklist '$Name v$($Version.ToString())'"
             $counter = 1
-            $Body.InvokeWithContext( $state.Functions,
-                $state.Variables, $state.Arguments) | Foreach-Object {
+            $Body.InvokeWithContext( $audit_state.Functions,
+                $audit_state.Variables, $audit_state.Arguments) | Foreach-Object {
                     $Child = $_
                     Write-Log -Level DEBUG -Message "Result #$counter : $($Child.Result)"
                 switch ($Child.Result) {
@@ -112,13 +118,13 @@ function Invoke-InfraspecChecklist {
             $chk.Result = 'NotRun'
         }
         Write-Log -Level INFO -Message "Checklist '$Name v$($Version.ToString()) complete"
-        Write-Result Checklist End "Checklist $Name v$($Version.ToString())" -Stats @{
+        Write-Result Checklist 'End' "Checklist $Name v$($Version.ToString())" -Stats @{
             Total  = $chk.TotalCount
             Failed = $chk.FailedCount
             Passed = $chk.PassedCount
             Skipped = $chk.SkippedCount
         }
-        $state.Depth -= 1
+        $audit_state.Depth -= 1
         $chk
     }
 }
