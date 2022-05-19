@@ -1,0 +1,20 @@
+changelog:
+  exclude:
+    labels:
+      - '!exclude-from-release'
+#    authors:
+  categories:
+    - title: Breaking Changes
+      labels:
+        - 'breaking-change'
+        - '>version-major'
+    - title: New Features
+      labels:
+        - '>version-minor'
+        - '>feature'
+    - title: Notable Improvements
+      labels:
+        - '>enhancement'
+    - title: Other Changes
+      labels:
+        - "*"
