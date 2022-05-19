@@ -21,4 +21,6 @@ Checklist "Win10_STIG" -Title "Microsoft Windows 10 Security Technical Implement
             }
         }
     }
+
+    Include -Path "controls" -Filter "control*.ps1"
 }
