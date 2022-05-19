@@ -1,0 +1,24 @@
+changelog:
+  exclude:
+    labels:
+      - 'state: exclude-from-release'
+  categories:
+    - title: Breaking Changes
+      labels:
+        - 'type: breaking-change'
+
+    - title: Bug fixes
+      labels:
+        - 'type: bug'
+
+    - title: New Features
+      labels:
+        - 'type: feature'
+
+    - title: Notable Improvements
+      labels:
+        - 'type: enhancement'
+
+    - title: Other Changes
+      labels:
+        - "*"
