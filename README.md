@@ -2,7 +2,7 @@
 ```yaml
 Status: "Under Development (Pre-release)"
 Location: https://github.com/aldrichtr/infraspective
-Version: 0.3.0
+Version: 0.4.0
 ```
 ## Current status
 
@@ -53,11 +53,12 @@ Describe "Services" {
 
 ## Additional language features
 
-At this time (version 0.2) `infraspective` adds three new structures to organize and classify tests:
+At this time `infraspective` adds four new structures to organize and classify tests:
 
 - Control
 - Grouping
 - Checklist
+- Include
 
 
 ### Control
@@ -144,6 +145,28 @@ Checklist "MS Windows 10 STIG V2R3" -Title "Microsoft Windows 10 Security Techni
                 }
     }
 }
+```
+
+### Include
+
+An organizational function, `Include` allows you to define Checklists, Groups, Controls, and tests in separate files
+which can then be executed at run time at the place that you include them from, like this:
+
+``` powershell
+Checklist "A well organized checklist" -Version "1.0" {
+    Include -Path "controls" -Filter "*.Control.ps1" -Recurse
+}
+```
+
+Include supports _most_ of the relevant `Get-ChildItem` parameters:
+
+```
+-Path (this is relative to the path of the file that `Include` was called from)
+-Filter
+-Include
+-Exclude
+-FollowSymlinks
+-Recurse
 ```
 
 ## Notes
