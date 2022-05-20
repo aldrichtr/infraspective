@@ -137,5 +137,4 @@ task CodeCoverage {
 task Stage Clean, make_staging_module, make_staging_manifest
 
 task Package register_local_artifact_repository,
-publish_to_temp_repository,
-remove_temp_repository
+publish_to_temp_repository
