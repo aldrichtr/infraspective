@@ -3,13 +3,14 @@
 name: Build the source files into a PowerShell module
 
 on:
-  pull_request:
-    branches: [ main ]
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
 
 jobs:
   Build:
-    name: Test and Compile individual files into Module and Manifest
+    name: Test and Compile individual files into a PowerShell Module
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -44,7 +45,7 @@ jobs:
         run: |
           Get-InstalledModule
 
-      - name: Call PSDepend to install modules
+      - name: Install requirements
         run: |
           Write-Host -ForegroundColor Green "Now using PSDepend2 to install the rest of the required Modules"
           Import-Module PSDepend2
@@ -58,7 +59,7 @@ jobs:
         run: Invoke-Build Configure
 
       # Run Pester Tests on files in source directory
-      - name: Run UnitTests
+      - name: UnitTest the source files
         run: Invoke-Build UnitTest
 
       - name: Upload test results
@@ -68,8 +69,7 @@ jobs:
           path: out/*.xml
           retention-days: 7
 
-      # Now create the Module and Manifest
-      - name: Compile module and manifest
+      - name: Stage the module components
         if: ${{ success() }}
         run: Invoke-Build Stage
 
@@ -81,3 +81,22 @@ jobs:
             stage/infraspective/infraspective.psm1
             stage/infraspective/infraspective.psd1
           retention-days: 1
+
+      - name: Package the nuget module
+        if: ${{ success() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $username = 'aldrichtr'
+          $token = $env:GITHUB_TOKEN
+          $sourceName = 'GitHub'
+          $source = "https://nuget.pkg.github.com/$username/index.json"
+          # add the github package registry as a nuget source
+          nuget sources Add -Name $sourceName -Source $source -UserName $username -Password $token
+
+          Invoke-Build Package
+
+          dotnet tool install --global gpr --version 0.1.281
+          gpr push -k $env:GITHUB_TOKEN .\out\infraspective\*.nupkg -r https://github.com/${{github.repository}}
+
+
