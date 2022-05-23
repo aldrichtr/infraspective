@@ -19,18 +19,7 @@ jobs:
           # Ensure we checkout the buildtools git submodule
           submodules: recursive
 
-        # PSDepend2 reads modules from 'requirements.psd1' and installs them
-        # according to the options in the file and/or the command line.
-      - name: Install PSDepend2 from PSGallery
-        run: |
-          $current_user_mod_path = ($env:PSModulePath -split ';')[0]
-          Write-Host "PowerShell Modules in $current_user_mod_path"
-
-          Set-PSRepository psgallery -InstallationPolicy trusted
-          Write-Host -ForegroundColor Green "Installing PSDepend2"
-          Install-Module PSDepend2 -Scope CurrentUser -Confirm:$false -Force
-
-      - name: Cache the required modules
+      - name: Check the Cache for required modules
         id: cache-modules
         uses: actions/cache@v3
         with:
@@ -39,19 +28,34 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-psdepend-
 
-      - if: ${{ steps.cache-modules.outputs.cache-hit == false }}
-        name: List the installed modules
-        continue-on-error: true
+        # PSDepend2 reads modules from 'requirements.psd1' and installs them
+        # according to the options in the file and/or the command line.
+      - name: Install PSDepend2 from PSGallery
+        if: ${{ steps.cache-modules.outputs.cache-hit == false }}
         run: |
-          Get-InstalledModule
+          $current_user_mod_path = ($env:PSModulePath -split ';')[0]
+          Write-Host "PowerShell Modules in $current_user_mod_path"
+
+          Set-PSRepository psgallery -InstallationPolicy trusted
+          Write-Host -ForegroundColor Green "Installing PSDepend2"
+          Install-Module PSDepend2 -Scope CurrentUser -Confirm:$false -Force
+
 
       - name: Install requirements
+        if: ${{ steps.cache-modules.outputs.cache-hit == false }}
         run: |
           Write-Host -ForegroundColor Green "Now using PSDepend2 to install the rest of the required Modules"
           Import-Module PSDepend2
           Invoke-PSDepend -Path "." -Recurse:$true -Tags 'ci' -Test | Format-Table DependencyName, Version, DependencyType
 
           Invoke-PSDepend -Path "." -Recurse:$true -Confirm:$false -Target 'CurrentUser' -Tags 'ci'
+
+      - name: Capture the environment
+        continue-on-error: true
+        run: |
+          Get-ChildItem env:
+          Get-PSVersionTable
+          Get-InstalledModule
 
       # The Configure task ensures that directories, files and variables
       # are present before the other tasks are run.
@@ -98,5 +102,3 @@ jobs:
 
           dotnet tool install --global gpr --version 0.1.281
           gpr push -k $env:GITHUB_TOKEN .\out\infraspective\*.nupkg -r https://github.com/${{github.repository}}
-
-
