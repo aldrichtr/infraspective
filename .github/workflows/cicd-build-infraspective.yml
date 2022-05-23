@@ -91,13 +91,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $username = 'aldrichtr'
-          $token = $env:GITHUB_TOKEN
-          $sourceName = 'GitHub'
-          $source = "https://nuget.pkg.github.com/$username/index.json"
-          # add the github package registry as a nuget source
-          nuget sources Add -Name $sourceName -Source $source -UserName $username -Password $token
-
           Invoke-Build Package
 
           dotnet tool install --global gpr --version 0.1.281
