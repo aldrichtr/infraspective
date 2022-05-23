@@ -59,4 +59,20 @@
     Plaster = @{
         Path = 'build/PlasterTemplates'
     }
+
+    Clean = @{
+        Targets = @(
+            @{
+                Path = 'stage/*'
+                Recurse = $True
+                Force = $True
+            }
+            @{
+                Path = 'out/*'
+                Recurse = $True
+                Force = $True
+            }
+        )
+
+    }
 }

@@ -1,0 +1,16 @@
+---
+name: Feature request
+description: Suggest an idea for infraspective
+labels:
+  - 'type: feature'
+
+body:
+  - type: markdown
+    attributes:
+     value: >
+     **Thank you for taking the time to suggest a feature**
+
+     Before you fill out the form, please search the [list of
+     issues](https://github.com/aldrichtr/infraspective/search?q=is%3Aissue&type=issues)
+
+     please provide as much detail as possible.
