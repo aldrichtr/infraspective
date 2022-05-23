@@ -3,14 +3,13 @@
 name: Build the source files into a PowerShell module
 
 on:
-  push:
-    tags:
-      - '*'
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   Build:
-    name: Test and Compile individual files into a PowerShell Module
+    name: Test and Compile individual files into Module and Manifest
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -19,19 +18,9 @@ jobs:
           # Ensure we checkout the buildtools git submodule
           submodules: recursive
 
-      - name: Check the Cache for required modules
-        id: cache-modules
-        uses: actions/cache@v3
-        with:
-          path: C:\Users\runneradmin\Documents\PowerShell\Modules
-          key: ${{ runner.os }}-${{ hashFiles('**/requirements.psd1') }}
-          restore-keys: |
-            ${{ runner.os }}-psdepend-
-
         # PSDepend2 reads modules from 'requirements.psd1' and installs them
         # according to the options in the file and/or the command line.
       - name: Install PSDepend2 from PSGallery
-        if: ${{ steps.cache-modules.outputs.cache-hit == false }}
         run: |
           $current_user_mod_path = ($env:PSModulePath -split ';')[0]
           Write-Host "PowerShell Modules in $current_user_mod_path"
@@ -40,9 +29,22 @@ jobs:
           Write-Host -ForegroundColor Green "Installing PSDepend2"
           Install-Module PSDepend2 -Scope CurrentUser -Confirm:$false -Force
 
+      - name: Cache the required modules
+        id: cache-modules
+        uses: actions/cache@v3
+        with:
+          path: C:\Users\runneradmin\Documents\PowerShell\Modules
+          key: ${{ runner.os }}-${{ hashFiles('**/requirements.psd1') }}
+          restore-keys: |
+            ${{ runner.os }}-psdepend-
 
-      - name: Install requirements
-        if: ${{ steps.cache-modules.outputs.cache-hit == false }}
+      - if: ${{ steps.cache-modules.outputs.cache-hit == false }}
+        name: List the installed modules
+        continue-on-error: true
+        run: |
+          Get-InstalledModule
+
+      - name: Call PSDepend to install modules
         run: |
           Write-Host -ForegroundColor Green "Now using PSDepend2 to install the rest of the required Modules"
           Import-Module PSDepend2
@@ -50,20 +52,13 @@ jobs:
 
           Invoke-PSDepend -Path "." -Recurse:$true -Confirm:$false -Target 'CurrentUser' -Tags 'ci'
 
-      - name: Capture the environment
-        continue-on-error: true
-        run: |
-          Get-ChildItem env:
-          Get-PSVersionTable
-          Get-InstalledModule
-
       # The Configure task ensures that directories, files and variables
       # are present before the other tasks are run.
       - name: Configure the project
         run: Invoke-Build Configure
 
       # Run Pester Tests on files in source directory
-      - name: UnitTest the source files
+      - name: Run UnitTests
         run: Invoke-Build UnitTest
 
       - name: Upload test results
@@ -73,7 +68,8 @@ jobs:
           path: out/*.xml
           retention-days: 7
 
-      - name: Stage the module components
+      # Now create the Module and Manifest
+      - name: Compile module and manifest
         if: ${{ success() }}
         run: Invoke-Build Stage
 
@@ -85,13 +81,3 @@ jobs:
             stage/infraspective/infraspective.psm1
             stage/infraspective/infraspective.psd1
           retention-days: 1
-
-      - name: Package the nuget module
-        if: ${{ success() }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          Invoke-Build Package
-
-          dotnet tool install --global gpr --version 0.1.281
-          gpr push -k $env:GITHUB_TOKEN .\out\infraspective\*.nupkg -r https://github.com/${{github.repository}}

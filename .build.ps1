@@ -114,8 +114,7 @@ task Configure {
     }
 
     }
-},
-remove_temp_repository
+}
 
 task CodeCoverage {
     $config = Get-BuildConfiguration
@@ -133,8 +132,20 @@ task CodeCoverage {
     }
 }
 
+task Review {
+    $pConfig = New-PesterConfiguration
+    $pConfig.Run.Path = "$BuildRoot\tests"
+    $pConfig.Run.SkipRemainingOnFailure = 'None'
+    $pConfig.Filter.Tag = @('analyze')
+    $pConfig.Output.Verbosity = 'Detailed'
+
+    $pConfig.TestResult.Enabled = $true
+    $pConfig.TestResult.OutputFormat = 'NUnitXml'
+    $pConfig.TestResult.OutputPath = "$($Artifact.Path)\testResults.xml"
+    $pConfig.Output.CIFormat = 'GitHubActions'
+
+    Invoke-Pester -Configuration $pConfig
+
+}
 
 task Stage Clean, make_staging_module, make_staging_manifest
-
-task Package register_local_artifact_repository,
-publish_to_temp_repository

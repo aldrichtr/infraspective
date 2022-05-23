@@ -43,7 +43,18 @@
     # ProcessorArchitecture = ''
 
     # Modules that must be imported into the global environment prior to importing this module
-    RequiredModules   = @()
+    RequiredModules   = @(
+        @{
+            ModuleName    = 'Logging'
+            ModuleVersion = '4.8.3'
+            GUID          = '25a60f1d-85dd-4ad6-9efc-35fd3894f6c1'
+        },
+        @{
+            ModuleName    = 'Pester'
+            ModuleVersion = '5.3.1'
+            GUID          = 'a699dea5-2c73-4616-a270-1f7abb777e71'
+        }
+    )
 
     # Assemblies that must be loaded prior to importing this module
     # RequiredAssemblies = @()
@@ -108,18 +119,7 @@
             # RequireLicenseAcceptance = $false
 
             # External dependent modules of this module
-            ExternalModuleDependencies = @(
-                @{
-                    ModuleName    = 'Logging'
-                    ModuleVersion = '4.8.3'
-                    GUID          = '25a60f1d-85dd-4ad6-9efc-35fd3894f6c1'
-                },
-                @{
-                    ModuleName    = 'Pester'
-                    ModuleVersion = '5.3.3'
-                    GUID          = 'a699dea5-2c73-4616-a270-1f7abb777e71'
-                }
-            )
+            ExternalModuleDependencies = @('Pester')
 
         } # End of PSData hashtable
 
