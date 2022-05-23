@@ -2,7 +2,7 @@
 ```yaml
 Status: "Under Development (Pre-release)"
 Location: https://github.com/aldrichtr/infraspective
-Version: 0.4.0
+Version: 0.4.1
 ```
 ## Current status
 
