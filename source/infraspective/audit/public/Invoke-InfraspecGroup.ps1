@@ -48,14 +48,22 @@ function Invoke-InfraspecGroup {
             Name         = $Name
             Title        = $Title
             Description  = $Description
-            Result       = ''
+            Result       = $null
             FailedCount  = 0
             PassedCount  = 0
             SkippedCount = 0
             NotRunCount  = 0
             TotalCount   = 0
-            Groups       = @()
-            Controls     = @()
+            Groups       = @{
+                Passed  = @()
+                Failed  = @()
+                Skipped = @()
+            }
+            Controls     = @{
+                Passed  = @()
+                Failed  = @()
+                Skipped = @()
+            }
         }
     }
     process {
@@ -68,38 +76,70 @@ function Invoke-InfraspecGroup {
                 $audit_state.Variables, $audit_state.Arguments) | Foreach-Object {
                 $Child = $_
                 Write-Log -Level DEBUG -Message "Result #$counter : $($Child.Result)"
-                switch ($Child.Result) {
-                    'Failed' {
-                        $grp.FailedCount += $Child.FailedCount
-                    }
-                    'Passed' {
-                        $grp.PassedCount += $Child.PassedCount
-                    }
-                    'Skipped' {
-                        $grp.SkippedCount += $Child.SkippedCount
-                    }
-                    Default {
-                        Write-Log -Level WARNING -Message "'$($Child.Name)' result is $($Child.Result)"
-                    }
-                }
-                $grp.TotalCount += $Child.TotalCount
                 switch -regex ($Child.PSobject.TypeNames[0]) {
-                    '^Infraspective.Group' {
-                        Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
-                        $grp.Groups += $Child
-                    }
                     '^Infraspective.Control' {
                         Write-Log -Level DEBUG -Message "Adding control $($Child.Name)"
-                        $grp.Controls += $Child
+                        $grp.TotalCount += 1
+                        switch ($Child.Result) {
+                            'Failed' {
+                                $grp.Controls.Failed += $Child
+                                $grp.Result = 'Failed'
+                                $grp.FailedCount += 1
+                                continue
+                            }
+                            'Passed' {
+                                if ($null -like $grp.Result) { $grp.Result = 'Passed' }
+                                $grp.Controls.Passed += $Child
+                                $grp.PassedCount += 1
+                                continue
+                            }
+                            'Skipped' {
+                                if ($null -like $grp.Result) { $grp.Result = 'Skipped' }
+                                $grp.Controls.Skipped += $Child
+                                $grp.SkippedCount += 1
+                                continue
+                            }
+                            Default {
+                                Write-Log -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
+                            }
+                        }
+                    }
+                    '^Infraspective.Group' {
+                        Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
+                        $grp.TotalCount += $Child.TotalCount
+                        switch ($Child.Result) {
+                            'Failed' {
+                                $grp.Groups.Failed += $Child
+                                $grp.Result = 'Failed'
+                                $grp.FailedCount += $Child.FailedCount
+                                continue
+                            }
+                            'Passed' {
+                                if (-not($grp.Result)) { $grp.Result = 'Passed' }
+                                $grp.Groups.Passed += $Child
+                                $grp.PassedCount += $Child.PassedCount
+                                continue
+                            }
+                            'Skipped' {
+                                if (-not($grp.Result)) { $grp.Result = 'Skipped' }
+                                $grp.Groups.Skipped += $Child
+                                $grp.SkippedCount += $Child.SkippedCount
+                                continue
+                            }
+                            Default {
+                                Write-Log -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
+                            }
+                        }
                     }
                 }
-                $counter++
             }
+            $counter++
         } catch {
             Write-Log -Level ERROR -Message "There was an error executing Group $($grp.Title)`n$_"
         }
     }
     end {
+        # Ensure the appropriate Result is set
         if ($grp.FailedCount -gt 0) {
             $grp.Result = 'Failed'
         } elseif ($grp.PassedCount -eq ($grp.TotalCount - $grp.SkippedCount)) {
