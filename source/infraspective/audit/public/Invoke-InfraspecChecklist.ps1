@@ -58,8 +58,16 @@ function Invoke-InfraspecChecklist {
             SkippedCount = 0
             NotRunCount  = 0
             TotalCount   = 0
-            Groups       = @()
-            Controls     = @()
+            Groups       = @{
+                Passed  = @()
+                Failed  = @()
+                Skipped = @()
+            }
+            Controls     = @{
+                Passed  = @()
+                Failed  = @()
+                Skipped = @()
+            }
         }
     }
     process {
@@ -71,31 +79,63 @@ function Invoke-InfraspecChecklist {
                 $audit_state.Variables, $audit_state.Arguments) | Foreach-Object {
                     $Child = $_
                     Write-Log -Level DEBUG -Message "Result #$counter : $($Child.Result)"
-                switch ($Child.Result) {
-                    'Failed' {
-                        $chk.FailedCount += $Child.FailedCount
-                    }
-                    'Passed' {
-                        $chk.PassedCount += $Child.PassedCount
-                    }
-                    'Skipped' {
-                        $chk.SkippedCount += $Child.SkippedCount
-                    }
-                    Default {
-                        Write-Log -Level WARNING -Message "'$($Child.Name)' result is $($Child.Result)"
-                    }
-                }
-                $chk.TotalCount += $Child.TotalCount
                 switch -regex ($Child.PSobject.TypeNames[0]) {
-                    '^Infraspective.Group' {
-                        Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
-                        $chk.Groups += $Child
-                    }
                     '^Infraspective.Control' {
                         Write-Log -Level DEBUG -Message "Adding control $($Child.Name)"
-                        $chk.Controls += $Child
+                        $chk.TotalCount += 1
+                        switch ($Child.Result) {
+                            'Failed' {
+                                $chk.Controls.Failed += $Child
+                                $chk.Result = 'Failed'
+                                $chk.FailedCount += 1
+                                continue
+                            }
+                            'Passed' {
+                                if (-not($chk.Result)) { $chk.Result = 'Passed' }
+                                $chk.Controls.Passed += $Child
+                                $chk.PassedCount += 1
+                                continue
+                            }
+                            'Skipped' {
+                                if (-not($chk.Result)) { $chk.Result = 'Skipped' }
+                                $chk.Controls.Skipped += $Child
+                                $chk.SkippedCount += 1
+                                continue
+                            }
+                            Default {
+                                Write-Log -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
+                            }
+                        }
+                    }
+                    '^Infraspective.Group' {
+                        Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
+                        $chk.TotalCount += $Child.TotalCount
+                        $chk.FailedCount += $Child.FailedCount
+                        $chk.PassedCount += $Child.PassedCount
+                        $chk.SkippedCount += $Child.SkippedCount
+                        switch ($Child.Result) {
+                            'Failed' {
+                                $chk.Groups.Failed += $Child
+                                $chk.Result = 'Failed'
+                                continue
+                            }
+                            'Passed' {
+                                if (-not($chk.Result)) { $chk.Result = 'Passed' }
+                                $chk.Groups.Passed += $Child
+                                continue
+                            }
+                            'Skipped' {
+                                if (-not($chk.Result)) { $chk.Result = 'Skipped' }
+                                $chk.Groups.Skipped += $Child
+                                continue
+                            }
+                            Default {
+                                Write-Log -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
+                            }
+                        }
                     }
                 }
+
                 $counter++
             }
         } catch {
