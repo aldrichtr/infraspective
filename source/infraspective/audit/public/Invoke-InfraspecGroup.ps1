@@ -106,24 +106,24 @@ function Invoke-InfraspecGroup {
                     }
                     '^Infraspective.Group' {
                         Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
-                        $grp.TotalCount += $Child.TotalCount
+                        $grp.TotalCount   += $Child.TotalCount
+                        $grp.FailedCount  += $Child.FailedCount
+                        $grp.PassedCount  += $Child.PassedCount
+                        $grp.SkippedCount += $Child.SkippedCount
                         switch ($Child.Result) {
                             'Failed' {
                                 $grp.Groups.Failed += $Child
                                 $grp.Result = 'Failed'
-                                $grp.FailedCount += $Child.FailedCount
                                 continue
                             }
                             'Passed' {
                                 if (-not($grp.Result)) { $grp.Result = 'Passed' }
                                 $grp.Groups.Passed += $Child
-                                $grp.PassedCount += $Child.PassedCount
                                 continue
                             }
                             'Skipped' {
                                 if (-not($grp.Result)) { $grp.Result = 'Skipped' }
                                 $grp.Groups.Skipped += $Child
-                                $grp.SkippedCount += $Child.SkippedCount
                                 continue
                             }
                             Default {
