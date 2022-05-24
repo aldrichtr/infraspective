@@ -3,14 +3,18 @@ name: Feature request
 description: Suggest an idea for infraspective
 labels:
   - 'type: feature'
-
 body:
   - type: markdown
     attributes:
-     value: >
-     **Thank you for taking the time to suggest a feature**
+     value: |
+       "**Thank you for taking the time to suggest a feature**"
 
-     Before you fill out the form, please search the [list of
-     issues](https://github.com/aldrichtr/infraspective/search?q=is%3Aissue&type=issues)
+       "Before you fill out the form, please search the [list of issues](https://github.com/aldrichtr/infraspective/search?q=is%3Aissue&type=issues)"
 
-     please provide as much detail as possible.
+       "please provide as much detail as possible."
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature or enhancement
+      description: "What would you like to see added or improved?"
+      placeholder: "It would be great if infraspective could ...."
