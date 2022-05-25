@@ -2,7 +2,7 @@ name: Bug Report
 description: Report a bug or defect
 title: "<A description of the problem>"
 labels:
-  - 'type: bug'
+  - 'type:bug'
 body:
   - type: markdown
     attributes:

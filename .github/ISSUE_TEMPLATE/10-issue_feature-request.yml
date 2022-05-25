@@ -2,7 +2,7 @@
 name: Feature request
 description: Suggest an idea for infraspective
 labels:
-  - 'type: feature'
+  - 'type:feature'
 body:
   - type: markdown
     attributes:
