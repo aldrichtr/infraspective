@@ -42,21 +42,32 @@
         Path      = "${env:Temp}\infraspective-%{+%Y%m%d}.log"
     }
     #>
-        Console = @{
-            Level        = 'WARNING'
-            #            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
-            Format       = '[%{timestamp}] [%{level}] %{message}'
-            ColorMapping = @{
-                'DEBUG'   = 'White'
-                'INFO'    = 'DarkBlue'
-                'WARNING' = 'Yellow'
-                'ERROR'   = 'Red'
+        Targets       = @{
+            Console = @{
+                Level        = 'DEBUG'
+                #            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
+                Format       = '[%{timestamp}] [%{level}] %{message}'
+                ColorMapping = @{
+                    'DEBUG'   = 'White'
+                    'INFO'    = 'DarkBlue'
+                    'WARNING' = 'Yellow'
+                    'ERROR'   = 'Red'
+                }
             }
         }
+
+        Audit         = 'DEBUG'
+        Configuration = 'INFO'
+        Checklist     = 'INFO'
+        Control       = 'INFO'
+        Group         = 'INFO'
+        Include       = 'INFO'
+        Result        = 'INFO'
+
     }
 
     Output  = @{
-    <# -------------------------------------------------------------------------------------------------------------
+        <# -------------------------------------------------------------------------------------------------------------
     These options control status output to the screen.  Note that this output is on the 'Information' stream (6) in
     order to stay separate from the pipeline output.  If you want to redirect this output to a file, you can like
     this:
@@ -79,22 +90,22 @@
         StatusMap = @{
             Passed  = @{
                 Color  = 'Green'
-                Format = "[Passed]"
+                Format = '[Passed]'
                 Reset  = $true
             }
             Failed  = @{
                 Color  = 'Red'
-                Format = "[Failed]"
+                Format = '[Failed]'
                 Reset  = $true
             }
             Skipped = @{
                 Color  = 'BrightBlack'
-                Format = "[Skipped]"
+                Format = '[Skipped]'
                 Reset  = $true
             }
             Start   = @{
                 Color  = 'Blue'
-                Format = "+-"
+                Format = '+-'
                 Reset  = $true
             }
             End     = @{
@@ -104,16 +115,16 @@
                 Reset  = $true
             }
         }
-        Leader    = "|  "
+        Leader    = '|  '
     }
 
     Audit   = @{
-    <# -------------------------------------------------------------------------------------------------------------
+        <# -------------------------------------------------------------------------------------------------------------
     These options tell Invoke-Infraspective which files to run.
     ------------------------------------------------------------------------------------------------------------- #>
 
-        Path    = ".\tests\data\*"
-        Filter  = "*.Audit.ps1"
+        Path    = '.\tests\data\*'
+        Filter  = '*.Audit.ps1'
         Recurse = $false
         Include = $null
         Exclude = $null
