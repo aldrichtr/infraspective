@@ -9,7 +9,7 @@ function Invoke-Infraspective {
     #>
     [CmdletBinding(
         SupportsShouldProcess,
-        ConfirmImpact = "Low"
+        ConfirmImpact = 'Low'
     )]
     param(
         [Parameter(
@@ -34,47 +34,75 @@ function Invoke-Infraspective {
         $audit_state = New-InfraspecAuditState
         $audit_state.Configuration = $config
         $audit_state.SessionState = $PSCmdlet.SessionState
-        $logging = $config.Logging
-        foreach ($target in $logging.Keys) {
-            Add-LoggingTarget -Name $target -Configuration $logging[$target]
+        $targets = $config.Logging.Targets
+        $log_option = @{
+            Scope     = 'Audit'
+            Level     = 'INFO'
+            Message   = ''
+            Arguments = ''
         }
-        Write-Log -Level INFO -Message "Logging initialized on $($logging.Keys -join ', ')"
+
+        foreach ($target in $targets.Keys) {
+            Add-LoggingTarget -Name $target -Configuration $targets[$target]
+            Write-CustomLog @log_option -Message "Logging initialized on $target"
+        }
+
         $TotalCount = 0
         $FailedCount = 0
         $PassedCount = 0
         $SkippedCount = 0
+
     }
     process {
-        Write-Log -Level INFO -Message "Generating file list"
+        Write-CustomLog @log_option -Message 'Generating file list'
 
         $file_options = $config.Audit
 
         if ($PSBoundParameters['Path']) {
             $file_options.Path = $Path
         }
-        Write-Log -Level DEBUG -Message " - Path: $($file_options.Path)"
-        Write-Log -Level DEBUG -Message " - Filter: $($file_options.Filter)"
-        Write-Log -Level DEBUG -Message " - Include: $($file_options.Include)"
-        Write-Log -Level DEBUG -Message " - Exclude: $($file_options.Exclude)"
-        Write-Log -Level DEBUG -Message " - Recurse: $($file_options.Recurse)"
+
+        Write-CustomLog @log_option -Level 'DEBUG' -Message @'
+  - Path:    {0}
+  - Filter:  {1}
+  - Include: {2}
+  - Exclude: {3}
+  - Recurse: {4}
+'@ -Arguments  @(
+            $file_options.Path
+            $file_options.Filter
+            $file_options.Include
+            $file_options.Exclude
+            $file_options.Recurse
+        )
+
         $audit_files = Get-ChildItem @file_options
-        Write-Log -Level DEBUG -Message "Found $($audit_files.Count) audit files"
+
+        Write-CustomLog @log_option -Message "Found $($audit_files.Count) audit files"
+
         $audit_state.AuditTimer.Restart()
 
-        Write-Log -Level INFO -Message "Audit start"
+        Write-CustomLog @log_option -Message 'Audit start'
         Write-Result Audit 'Start' "Audit $(Get-Date -Format 'dd-MMM-yyyy HH:mm:ss')"
+
         foreach ($f in $audit_files) {
-            if ($PSCmdlet.ShouldProcess($f, "Perform tests")) {
+            if ($PSCmdlet.ShouldProcess($f, 'Perform tests')) {
                 $audit_state.Depth += 1
                 $audit_state.CurrentPath = $f.Directory.FullName
-                Write-Log -Level INFO -Message "File $($f.Name) start"
+
+                Write-CustomLog @log_option -Message "File $($f.Name) start"
+
                 Write-Result File 'Start' "File $($f.Name)"
+
                 [scriptblock]$sb = { . $f.FullName }
-                Write-Log -Level DEBUG -Message " Executing Audit file $($f.Name)"
+
+                Write-CustomLog @log_option -Level 'DEBUG' -Message " Executing Audit file $($f.Name)"
                 $result = & $sb
                 $result.Container = $f
                 $audit_state.Depth -= 1
-                Write-Log -Level INFO -Message "File $($f.Name) complete"
+
+                Write-CustomLog @log_option -Message "File $($f.Name) complete"
+
                 $TotalCount += $result.TotalCount
                 $PassedCount += $result.PassedCount
                 $FailedCount += $result.FailedCount
@@ -87,7 +115,7 @@ function Invoke-Infraspective {
     }
     end {
         $message = (
-            "Audit complete.  Total files {0} executed in {1:N4} milliseconds" -f $audit_files.Count,
+            'Audit complete.  Total files {0} executed in {1:N4} milliseconds' -f $audit_files.Count,
             $audit_state.AuditTimer.Elapsed.MilliSeconds)
         Write-Result Audit 'End' $message -Stats @{
             Total   = $TotalCount
@@ -95,6 +123,6 @@ function Invoke-Infraspective {
             Failed  = $FailedCount
             Skipped = $SkippedCount
         }
-        Write-Log -Level INFO -Message $message
+        Write-CustomLog @log_option -Message $message
     }
 }

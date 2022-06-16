@@ -44,16 +44,23 @@ function Invoke-InfraspecInclude {
         [switch]$Recurse
     )
     begin {
+        $log_option = @{
+            Scope = 'Include'
+            Level = 'INFO'
+            Message = ''
+            Arguments = ''
+        }
     }
     process {
         $tmp_path = foreach ($p in $Path) {
             Join-Path -Path $audit_state.CurrentPath -ChildPath $p
         }
         Get-ChildItem -Path $tmp_path @PSBoundParameters | Foreach-Object {
-            $file = $_
-            Write-Log -Level INFO -Message "Including file : $file.Name"
-            Write-Log -Level DEBUG -Message "               : $file.FullName"
+            $file = Get-Item $_
+            Write-CustomLog @log_option -Message "Including file : $($file.Name)"
+            Write-CustomLog @log_option -Level DEBUG -Message "              : $($file.FullName)"
             & { . $file }
+            Write-CustomLog @log_option -Level DEBUG -Message "Returned from calling included file"
         }
     }
     end {}

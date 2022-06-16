@@ -65,13 +65,19 @@ Function Invoke-InfraspecControl {
         [string[]]$Description
     )
     begin {
+        $log_option = @{
+            Scope     = 'Control'
+            Level     = 'INFO'
+            Message   = ''
+            Arguments = ''
+        }
         if ($null -eq $audit_state) {
-            Write-Log -Level WARNING -Message "Audit state missing.  Was $($MyInvocation.MyCommand.Name) invoked directly?"
+            Write-CustomLog @log_option -Level WARNING -Message "Audit state missing.  Was $($MyInvocation.MyCommand.Name) invoked directly?"
 
             $audit_state = New-InfraspecAuditState
         }
 
-        Write-Log -Level INFO -Message "Control '$Name' start"
+        Write-CustomLog @log_option -Message "Control '$Name' start"
         $ctl = [PSCustomObject]@{
             PSTypeName   = 'Infraspective.Control.ResultInfo'
             Result       = $null
@@ -93,7 +99,7 @@ Function Invoke-InfraspecControl {
         try {
             $PesterContainer = New-PesterContainer -ScriptBlock $Body
         } catch {
-            Write-Log -Level ERROR -Message "Failed to create Pester Container with scriptblock`n--`n$Body`n--`n$_"
+            Write-CustomLog @log_option -Level ERROR -Message "Failed to create Pester Container with scriptblock`n--`n$Body`n--`n$_"
         }
         function processBlock {
             param(
@@ -126,10 +132,10 @@ Function Invoke-InfraspecControl {
     process {
         $audit_state.Depth += 1
         Write-Result Control 'Start' "Control $Name - $Title"
-        Write-Log -Level DEBUG -Message "Invoking Pester on tests"
-        Invoke-Pester -Container $PesterContainer -Output 'None' -PassThru | Foreach-Object {
+        Write-CustomLog @log_option -Level DEBUG -Message 'Invoking Pester on tests'
+        Invoke-Pester -Container $PesterContainer -Output 'None' -PassThru | ForEach-Object {
             $pester = $_
-            Write-Log -Level INFO -Message "Control $Name test result: $($pester.Result)"
+            Write-CustomLog @log_option -Message "Control $Name test result: $($pester.Result)"
 
             $ctl.Result = $pester.Result
             $ctl.FailedCount = $pester.FailedCount
@@ -139,7 +145,7 @@ Function Invoke-InfraspecControl {
             $ctl.TotalCount = $pester.TotalCount
             $ctl.Duration = $pester.Duration
             $ctl.Tests = $pester.Tests
-            $pester.Containers[0].Blocks | Foreach-Object { processBlock $_ }
+            $pester.Containers[0].Blocks | ForEach-Object { processBlock $_ }
         }
     }
     end {
@@ -150,7 +156,7 @@ Function Invoke-InfraspecControl {
             'Skipped' = $pester.SkippedCount
         }
         $audit_state.Depth -= 1
-        Write-Log -Level INFO -Message "Control '$Name' complete"
+        Write-CustomLog @log_option -Message "Control '$Name' complete"
         $ctl
     }
 }

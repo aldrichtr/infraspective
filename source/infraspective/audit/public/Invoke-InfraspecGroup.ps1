@@ -36,13 +36,20 @@ function Invoke-InfraspecGroup {
         [string]$Description
     )
     begin {
+        $log_option = @{
+            Scope = 'Group'
+            Level = 'INFO'
+            Message = ''
+            Arguments = ''
+        }
+
         if ($null -eq $audit_state) {
-            Write-Log -Level WARNING -Message "Audit state missing.  Was $($MyInvocation.MyCommand.Name) invoked directly?"
+            Write-CustomLog @log_option -Level WARNING -Message "Audit state missing.  Was $($MyInvocation.MyCommand.Name) invoked directly?"
 
             $audit_state = New-InfraspecAuditState
         }
 
-        Write-Log -Level INFO -Message "Group '$Name : $Title' start"
+        Write-CustomLog @log_option -Message "Group '$Name : $Title' start"
         $grp = [PSCustomObject]@{
             PSTypeName   = 'Infraspective.Group.ResultInfo'
             Name         = $Name
@@ -70,15 +77,15 @@ function Invoke-InfraspecGroup {
         try {
             $audit_state.Depth += 1
             Write-Result Grouping 'Start' "Group $Name : $Title"
-            Write-Log -Level DEBUG -Message "Invoking Body of Group $Name"
+            Write-CustomLog @log_option -Level DEBUG -Message "Invoking Body of Group $Name"
             $counter = 1
             $Body.InvokeWithContext($audit_state.Functions,
                 $audit_state.Variables, $audit_state.Arguments) | Foreach-Object {
                 $Child = $_
-                Write-Log -Level DEBUG -Message "Result #$counter : $($Child.Result)"
+                Write-CustomLog @log_option -Level DEBUG -Message "Result #$counter : $($Child.Result)"
                 switch -regex ($Child.PSobject.TypeNames[0]) {
                     '^Infraspective.Control' {
-                        Write-Log -Level DEBUG -Message "Adding control $($Child.Name)"
+                        Write-CustomLog @log_option -Level DEBUG -Message "Adding control $($Child.Name)"
                         $grp.TotalCount += 1
                         switch ($Child.Result) {
                             'Failed' {
@@ -100,12 +107,12 @@ function Invoke-InfraspecGroup {
                                 continue
                             }
                             Default {
-                                Write-Log -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
+                                Write-CustomLog @log_option -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
                             }
                         }
                     }
                     '^Infraspective.Group' {
-                        Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
+                        Write-CustomLog @log_option -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
                         $grp.TotalCount   += $Child.TotalCount
                         $grp.FailedCount  += $Child.FailedCount
                         $grp.PassedCount  += $Child.PassedCount
@@ -127,7 +134,7 @@ function Invoke-InfraspecGroup {
                                 continue
                             }
                             Default {
-                                Write-Log -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
+                                Write-CustomLog @log_option -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
                             }
                         }
                     }
@@ -135,7 +142,7 @@ function Invoke-InfraspecGroup {
             }
             $counter++
         } catch {
-            Write-Log -Level ERROR -Message "There was an error executing Group $($grp.Title)`n$_"
+            Write-CustomLog @log_option -Level ERROR -Message "There was an error executing Group $($grp.Title)`n$_"
         }
     }
     end {
@@ -157,7 +164,7 @@ function Invoke-InfraspecGroup {
         }
 
         $audit_state.Depth -= 1
-        Write-Log -Level INFO -Message "Group '$Name $Title' complete"
+        Write-CustomLog @log_option -Message "Group '$Name $Title' complete"
         $grp
     }
 }

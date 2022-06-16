@@ -5,6 +5,10 @@ $options = @{
 }
 Describe @options {
     BeforeAll {
+        Mock Write-CustomLog -ModuleName infraspective { <#do nothing#> }
+        Mock Write-Result -ModuleName infraspective { <#do nothing#> }
+        Mock Invoke-Pester -ModuleName infraspective -ParameterFilter { $Container -like '*' } -Verifiable
+
         function Invoke-TestControlResult {
             <#
             .SYNOPSIS
@@ -52,9 +56,6 @@ Describe @options {
     }
     Context "When invoking a Checklist" {
         BeforeAll {
-            Mock Write-Log { <#do nothing#> }
-            Mock Write-Result -ModuleName infraspective { <#do nothing#> }
-            Mock Invoke-Pester -ModuleName infraspective -ParameterFilter { $Container -like "*" } -Verifiable
 
             $global:audit_state = @{
                 Depth         = 0
