@@ -37,13 +37,19 @@ function Invoke-InfraspecChecklist {
     )
 
     begin {
+        $log_option = @{
+            Scope = 'Checklist'
+            Level = 'INFO'
+            Message = ''
+            Arguments = ''
+        }
         if ($null -eq $audit_state) {
-            Write-Log -Level WARNING -Message "Audit state missing.  Was $($MyInvocation.MyCommand.Name) invoked directly?"
+            Write-CustomLog @log_option -Level WARNING -Message "Audit state missing.  Was $($MyInvocation.MyCommand.Name) invoked directly?"
 
             $audit_state = New-InfraspecAuditState
         }
 
-        Write-Log -Level INFO -Message "Checklist '$Name v$($Version.ToString())' start"
+        Write-CustomLog @log_option -Message "Checklist '$Name v$($Version.ToString())' start"
         $chk = [PSCustomObject]@{
             PSTypeName   = 'Infraspective.Checklist.ResultInfo'
             Container    = $null
@@ -78,10 +84,10 @@ function Invoke-InfraspecChecklist {
             $Body.InvokeWithContext( $audit_state.Functions,
                 $audit_state.Variables, $audit_state.Arguments) | Foreach-Object {
                     $Child = $_
-                    Write-Log -Level DEBUG -Message "Result #$counter : $($Child.Result)"
+                    Write-CustomLog @log_option -Level DEBUG -Message "Result #$counter : $($Child.Result)"
                 switch -regex ($Child.PSobject.TypeNames[0]) {
                     '^Infraspective.Control' {
-                        Write-Log -Level DEBUG -Message "Adding control $($Child.Name)"
+                        Write-CustomLog @log_option -Level DEBUG -Message "Adding control $($Child.Name)"
                         $chk.TotalCount += 1
                         switch ($Child.Result) {
                             'Failed' {
@@ -103,12 +109,12 @@ function Invoke-InfraspecChecklist {
                                 continue
                             }
                             Default {
-                                Write-Log -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
+                                Write-CustomLog @log_option -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
                             }
                         }
                     }
                     '^Infraspective.Group' {
-                        Write-Log -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
+                        Write-CustomLog @log_option -Level DEBUG -Message "Setting Group $($Child.Name) As current container"
                         $chk.TotalCount += $Child.TotalCount
                         $chk.FailedCount += $Child.FailedCount
                         $chk.PassedCount += $Child.PassedCount
@@ -130,7 +136,7 @@ function Invoke-InfraspecChecklist {
                                 continue
                             }
                             Default {
-                                Write-Log -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
+                                Write-CustomLog @log_option -Level WARNING -Message "'$($Child.Name)' unhandled result: '$($Child.Result)'"
                             }
                         }
                     }
@@ -139,7 +145,7 @@ function Invoke-InfraspecChecklist {
                 $counter++
             }
         } catch {
-            Write-Log -Level ERROR -Message ((
+            Write-CustomLog @log_option -Level ERROR -Message ((
                 "There was an error executing Checklist $($chk.Title)",
                 $_,
                 "$($MyInvocation.ScriptName):$($MyInvocation.ScriptLineNumber)"
@@ -157,7 +163,7 @@ function Invoke-InfraspecChecklist {
         } else {
             $chk.Result = 'NotRun'
         }
-        Write-Log -Level INFO -Message "Checklist '$Name v$($Version.ToString()) complete"
+        Write-CustomLog @log_option -Message "Checklist '$Name v$($Version.ToString()) complete"
         Write-Result Checklist 'End' "Checklist $Name v$($Version.ToString())" -Stats @{
             Total  = $chk.TotalCount
             Failed = $chk.FailedCount

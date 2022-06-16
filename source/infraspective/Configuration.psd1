@@ -46,7 +46,7 @@
             Console = @{
                 Level        = 'DEBUG'
                 #            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
-                Format       = '[%{timestamp}] [%{level}] %{message}'
+                Format       = '[%{timestamp}] [%{level:7}] %{message}'
                 ColorMapping = @{
                     'DEBUG'   = 'White'
                     'INFO'    = 'DarkBlue'
@@ -56,12 +56,13 @@
             }
         }
 
-        Audit         = 'DEBUG'
+        Audit         = 'WARNING'
         Configuration = 'INFO'
         Checklist     = 'INFO'
         Control       = 'INFO'
         Group         = 'INFO'
         Include       = 'INFO'
+        Test          = 'DEBUG'
         Result        = 'INFO'
 
     }
