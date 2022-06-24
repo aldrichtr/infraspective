@@ -12,4 +12,4 @@ jobs:
         with:
           project: Infrastructure Testing Framework
           column: Working
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.ACTION_ADDTOPROJECT }}
