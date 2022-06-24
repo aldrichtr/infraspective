@@ -1,0 +1,5 @@
+@{
+    Output = @{
+        Scope = 'Control'
+    }
+}
