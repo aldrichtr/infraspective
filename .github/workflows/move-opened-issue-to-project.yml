@@ -1,28 +1,31 @@
-name: Move new issues into the proper projects
+name: Move new items into the proper projects
 
 on:
-  issues:
+  items:
     types:
       - opened
       - reopened
+  pull_request:
+    types:
+      - opened
 
 jobs:
   Repo:
-    name: Add new issues to the local repository project
+    name: Add new items to the local repository project
     runs-on: ubuntu-latest
     steps:
-      - name: Add the issue to the Backlog project ForReview
+      - name: Add the item to the New column
         uses: alex-page/github-project-automation-plus@v0.7.1
         with:
-          project: Backlog
-          column: For Review
+          project: Infrastructure Testing Framework
+          column: New
           repo-token: ${{ secrets.ACTION_ADDTOPROJECT }}
-  Personal:
-    name: Add issue to my personal project management space
+  Beta:
+    name: Add item to project beta
     runs-on: ubuntu-latest
     steps:
-      - name: Add issue to my personal project management space
+      - name: Add item to project beta
         uses: actions/add-to-project@main
         with:
-          project-url: https://github.com/users/aldrichtr/projects/1
+          project-url: https://github.com/users/aldrichtr/projects/4
           github-token: ${{ secrets.ACTION_ADDTOPROJECT }}
