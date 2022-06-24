@@ -1,5 +1,13 @@
 
 function Get-InfraspecConfiguration {
+    <#
+    .SYNOPSIS
+        Return the running configuration object
+    .DESCRIPTION
+        `Get-InfraspecConfiguration` returns the running configuration
+    .EXAMPLE
+        Get-InfraspecConfiguration
+    #>
     [CmdletBinding()]
     param(
     )
@@ -9,7 +17,6 @@ function Get-InfraspecConfiguration {
     process {
         if($audit_state) {
         $config = $audit_state.Configuration
-        Write-Host "getting state config"
     } else {
         $config = Import-Configuration
     }
