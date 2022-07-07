@@ -95,7 +95,7 @@ task Configure {
 
     Export-PsdXml -Path $configFile -Xml $x
 
-    Write-Build Blue "Checking paths and locations"
+    Write-Build Blue 'Checking paths and locations'
     $config = Get-BuildConfiguration
 
     $projectPaths = @(
@@ -106,12 +106,12 @@ task Configure {
     )
 
     foreach ($p in $projectPaths) {
-    if (-not(Test-Path $p)) {
-        Write-Build DarkBlue "Creating $p directory"
-        New-Item -Path $p -ItemType Directory
-    } else {
-        Write-Build Green "$p already exists"
-    }
+        if (-not(Test-Path $p)) {
+            Write-Build DarkBlue "Creating $p directory"
+            New-Item -Path $p -ItemType Directory
+        } else {
+            Write-Build Green "$p already exists"
+        }
 
     }
 },
@@ -133,6 +133,59 @@ task CodeCoverage {
     }
 }
 
+task new_markdown_help {
+    $config = Get-BuildConfiguration
+    if (-not(Test-Path $config.Docs.Help)) { mkdir $config.Docs.Help -Force }
+    Import-Module (Resolve-Path $config.Project.Modules.Root.Manifest) -Force
+
+    <#HACK:
+      In order to generate a "Module page", I need to pass in `-WithModulePage`.  And if I want to add
+      the onlineversionurl I need to supply the `-Command`, However they cannot be used together.
+      So, I'm running `New-MarkdownHelp` twice.  The first time to make the module page, and the second
+      time for each command that has the `-Force` set to overwrite them
+    #>
+
+    New-MarkdownHelp -Module infraspective -WithModulePage -OutputFolder $config.Docs.Help -Force
+
+    foreach ($cmd in (Get-Command -Module Infraspective | Select-Object -ExpandProperty Name)) {
+    $doc_options = @{
+        Force                 = $true
+        Command               = ''
+        OutputFolder          = $config.Docs.Help
+        AlphabeticParamsOrder = $true
+        ExcludeDontShow       = $true
+        OnlineVersionUrl      = 'https://github.com/aldrichtr/infraspective/blob/main/docs/help/'
+        Encoding              = [System.Text.Encoding]::UTF8
+    }
+        $doc_options.Command = $cmd
+        $doc_options.OnlineVersionUrl += "$cmd.md"
+
+        New-MarkdownHelp @doc_options
+    }
+}
+
+
+task update_markdown_help {
+    $config = Get-BuildConfiguration
+    if (-not(Test-Path $config.Docs.Help)) { mkdir $config.Docs.Help -Force }
+    $doc_options = @{
+        Path                  = $config.Docs.Help
+        RefreshModulePage     = $true
+        AlphabeticParamsOrder = $true
+        UpdateInputOutput     = $true
+        ExcludeDontShow       = $true
+        LogPath               = (Join-Path $config.Artifact.Path "platyps_$(Get-Date -Format 'yyyy.MM.dd.HH.mm').log")
+        Encoding              = [System.Text.Encoding]::UTF8
+    }
+    Import-Module (Resolve-Path $config.Project.Modules.Root.Manifest) -Force
+    Write-Build DarkBlue "Updating help"
+    Update-MarkdownHelpModule @doc_options
+}
+
+task make_external_help {
+    $config = Get-BuildConfiguration
+    New-ExternalHelp $config.Docs.Help -OutputPath (Join-Path $config.Artifact.Path "infraspective\en-US")
+}
 
 task Stage Clean, make_staging_module, make_staging_manifest
 
