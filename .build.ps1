@@ -180,7 +180,11 @@ task update_markdown_help {
     Import-Module (Resolve-Path $config.Project.Modules.Root.Manifest) -Force
     Write-Build DarkBlue "Updating help"
     Update-MarkdownHelpModule @doc_options
+}
 
+task make_external_help {
+    $config = Get-BuildConfiguration
+    New-ExternalHelp $config.Docs.Help -OutputPath (Join-Path $config.Artifact.Path "infraspective\en-US")
 }
 
 task Stage Clean, make_staging_module, make_staging_manifest
