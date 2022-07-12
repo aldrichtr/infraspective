@@ -3,29 +3,27 @@ Set-Alias -Name Control -Value 'Invoke-InfraspecControl' -Description 'Execute a
 
 Function Invoke-InfraspecControl {
     <#
-.SYNOPSIS
-    A security control consisting of one or more tests and metadata about the test.
-.DESCRIPTION
-    This function is aliased by the `Control` keyword, and maps directly to the concept of a Security Control found
-    in many frameworks such as CIS, STIG, HIPAA, etc.  A control consists of one or more tests, such as the
-    existence of a file permission, or the status of a service and maps that to a recommended setting for that test
-    found in one of those frameworks, or your corporate or personal security policy.
+    .SYNOPSIS
+        A security control consisting of one or more tests and metadata about the test.
+    .DESCRIPTION
+        This function is aliased by the `Control` keyword, and maps directly to the concept of a Security Control
+        found in many frameworks such as CIS, STIG, HIPAA, etc.  A control consists of one or more tests, such as
+        the existence of a file permission, or the status of a service and maps that to a recommended setting for
+        that test found in one of those frameworks, or your corporate or personal security policy.
 
-    A passing test(s) means that the system under test complies with the given control, while a failing test means
-    that the system is not in compliance
-    The tests are regular Pester tests, using the standard "Describe/Context/It/Should" keywords.  These tests are
-    passed directly to Pester (Invoke-Pester) and the results are returned.
+        A passing test(s) means that the system under test complies with the given control, while a failing test
+        means that the system is not in compliance The tests are regular Pester tests, using the standard
+        "Describe/Context/It/Should" keywords.  These tests are passed directly to Pester (Invoke-Pester) and the
+        results are returned.
 
-.EXAMPLE
-    ``` powershell
-    Control "xccdf_blah" -Resource "Windows" -Impact 1 -Reference 'CVE:123' {
-        Describe "cis control 123" {
-            It "Should have foo set to bar" {
-                $p.foo | Should -Be "bar"
+    .EXAMPLE
+        Control "xccdf_blah" -Resource "Windows" -Impact 1 -Reference 'CVE:123' {
+            Describe "cis control 123" {
+                It "Should have foo set to bar" {
+                    $p.foo | Should -Be "bar"
+                }
             }
         }
-    }
-    ```
     #>
     [CmdletBinding()]
     param(
@@ -48,6 +46,9 @@ Function Invoke-InfraspecControl {
         [string]$Title,
 
         # References to external tools and databases
+        # By convention, these are listed as an array of strings in the form of `< standard >: < id >` such as:
+        # ```powershell
+        # @('CVE: CVE-2022-33915', ')
         [Parameter()]
         [string[]]$Reference,
 
