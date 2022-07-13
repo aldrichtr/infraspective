@@ -76,7 +76,12 @@ function Invoke-InfraspecGroup {
     process {
         try {
             $audit_state.Depth += 1
-            Write-Result Grouping 'Start' "Group $Name : $Title"
+
+            $result_options = $PSBoundParameters
+            $null = $result_options.Remove('Body')
+
+            Write-Result Grouping 'Start' -Data $result_options
+
             Write-CustomLog @log_option -Level DEBUG -Message "Invoking Body of Group $Name"
             $counter = 1
             $Body.InvokeWithContext($audit_state.Functions,
@@ -156,12 +161,14 @@ function Invoke-InfraspecGroup {
         } else {
             $grp.Result = 'NotRun'
         }
-        Write-Result Grouping 'End' "Group $Name $Title" -Stats @{
-            Total   = $grp.TotalCount
-            Failed  = $grp.FailedCount
-            Passed  = $grp.PassedCount
-            Skipped = $grp.SkippedCount
-        }
+
+
+        $result_options['Total']   = $grp.TotalCount
+        $result_options['Failed']  = $grp.FailedCount
+        $result_options['Passed']  = $grp.PassedCount
+        $result_options['Skipped'] = $grp.SkippedCount
+
+        Write-Result Checklist 'End' -Data $result_options
 
         $audit_state.Depth -= 1
         Write-CustomLog @log_option -Message "Group '$Name $Title' complete"

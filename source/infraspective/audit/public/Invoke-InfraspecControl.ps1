@@ -40,7 +40,6 @@ Function Invoke-InfraspecControl {
 
         # The criticality, if this control fails
         [Parameter(
-            ValueFromPipeline
         )]
         [string]$Impact,
 
@@ -110,11 +109,11 @@ Function Invoke-InfraspecControl {
                 [object]$Block
             )
             $audit_state.Depth += 1
-            Write-Result Block 'Start' "Block $($block.Name)"
+            Write-Result Block 'Start' -Data @{ Name = $block.Name }
             if ($block.Tests.Count -gt 0) {
                 foreach ($t in $block.Tests) {
                     $audit_state.Depth += 1
-                    Write-Result Test $t.Result $t.Name
+                    Write-Result Test $t.Result -Data @{ Name = $t.Name }
                     $audit_state.Depth -= 1
                 }
             }
@@ -123,39 +122,46 @@ Function Invoke-InfraspecControl {
                     processBlock $b
                 }
             }
-            Write-Result Block $block.Result "Block $($block.Name)"
+            Write-Result Block $block.Result -Data @{ Name = $block.Name }
             $audit_state.Depth -= 1
 
         }
 
     }
     process {
+
+        $result_options = $PSBoundParameters
+        $null = $result_options.Remove('Body')
+
         $audit_state.Depth += 1
-        Write-Result Control 'Start' "Control $Name - $Title"
+        Write-Result Control 'Start' -Data $result_options
         Write-CustomLog @log_option -Level DEBUG -Message 'Invoking Pester on tests'
         Invoke-Pester -Container $PesterContainer -Output 'None' -PassThru | ForEach-Object {
             $pester = $_
             Write-CustomLog @log_option -Message "Control $Name test result: $($pester.Result)"
 
-            $ctl.Result = $pester.Result
-            $ctl.FailedCount = $pester.FailedCount
-            $ctl.PassedCount = $pester.PassedCount
+            $ctl.Result       = $pester.Result
+            $ctl.FailedCount  = $pester.FailedCount
+            $ctl.PassedCount  = $pester.PassedCount
             $ctl.SkippedCount = $pester.SkippedCount
-            $ctl.NotRunCount = $pester.NotRunCount
-            $ctl.TotalCount = $pester.TotalCount
-            $ctl.Duration = $pester.Duration
-            $ctl.Tests = $pester.Tests
+            $ctl.NotRunCount  = $pester.NotRunCount
+            $ctl.TotalCount   = $pester.TotalCount
+            $ctl.Duration     = $pester.Duration
+            $ctl.Tests        = $pester.Tests
             $pester.Containers[0].Blocks | ForEach-Object { processBlock $_ }
         }
     }
     end {
-        Write-Result Control 'End' "Control $Name $Title" -Stats @{
-            'Total'   = $pester.TotalCount
-            'Failed'  = $pester.FailedCount
-            'Passed'  = $pester.PassedCount
-            'Skipped' = $pester.SkippedCount
-        }
+        $result_options['Duration'] = $audit_state.AuditTimer
+        $result_options['Total']    = $pester.TotalCount
+        $result_options['Failed']   = $pester.FailedCount
+        $result_options['Skipped']  = $pester.SkippedCount
+        $result_options['Passed']   = $pester.PassedCount
+        $result_options['Name']     = $Name
+
+        Write-Result Control 'End' -Data $result_options
         $audit_state.Depth -= 1
+
         Write-CustomLog @log_option -Message "Control '$Name' complete"
         $ctl
     }

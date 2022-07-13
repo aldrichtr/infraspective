@@ -38,9 +38,9 @@ function Invoke-InfraspecChecklist {
 
     begin {
         $log_option = @{
-            Scope = 'Checklist'
-            Level = 'INFO'
-            Message = ''
+            Scope     = 'Checklist'
+            Level     = 'INFO'
+            Message   = ''
             Arguments = ''
         }
         if ($null -eq $audit_state) {
@@ -53,7 +53,7 @@ function Invoke-InfraspecChecklist {
         $chk = [PSCustomObject]@{
             PSTypeName   = 'Infraspective.Checklist.ResultInfo'
             Container    = $null
-            Path         = ""
+            Path         = ''
             Name         = $Name
             Title        = $Title
             Version      = $Version
@@ -79,12 +79,16 @@ function Invoke-InfraspecChecklist {
     process {
         try {
             $audit_state.Depth += 1
-            Write-Result Checklist 'Start' "Checklist '$Name v$($Version.ToString())'"
+
+            $result_options = $PSBoundParameters
+            $null = $result_options.Remove('Body')
+
+            Write-Result Checklist 'Start' -Data $result_options
             $counter = 1
             $Body.InvokeWithContext( $audit_state.Functions,
-                $audit_state.Variables, $audit_state.Arguments) | Foreach-Object {
-                    $Child = $_
-                    Write-CustomLog @log_option -Level DEBUG -Message "Result #$counter : $($Child.Result)"
+                $audit_state.Variables, $audit_state.Arguments) | ForEach-Object {
+                $Child = $_
+                Write-CustomLog @log_option -Level DEBUG -Message "Result #$counter : $($Child.Result)"
                 switch -regex ($Child.PSobject.TypeNames[0]) {
                     '^Infraspective.Control' {
                         Write-CustomLog @log_option -Level DEBUG -Message "Adding control $($Child.Name)"
@@ -146,9 +150,9 @@ function Invoke-InfraspecChecklist {
             }
         } catch {
             Write-CustomLog @log_option -Level ERROR -Message ((
-                "There was an error executing Checklist $($chk.Title)",
-                $_,
-                "$($MyInvocation.ScriptName):$($MyInvocation.ScriptLineNumber)"
+                    "There was an error executing Checklist $($chk.Title)",
+                    $_,
+                    "$($MyInvocation.ScriptName):$($MyInvocation.ScriptLineNumber)"
                 ) -join "`n")
         }
 
@@ -164,12 +168,14 @@ function Invoke-InfraspecChecklist {
             $chk.Result = 'NotRun'
         }
         Write-CustomLog @log_option -Message "Checklist '$Name v$($Version.ToString()) complete"
-        Write-Result Checklist 'End' "Checklist $Name v$($Version.ToString())" -Stats @{
-            Total  = $chk.TotalCount
-            Failed = $chk.FailedCount
-            Passed = $chk.PassedCount
-            Skipped = $chk.SkippedCount
-        }
+
+
+        $result_options['Total']   = $chk.TotalCount
+        $result_options['Failed']  = $chk.FailedCount
+        $result_options['Passed']  = $chk.PassedCount
+        $result_options['Skipped'] = $chk.SkippedCount
+
+        Write-Result Checklist 'End' -Data $result_options
         $audit_state.Depth -= 1
         $chk
     }

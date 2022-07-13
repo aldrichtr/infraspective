@@ -45,8 +45,8 @@
         Targets       = @{
             Console = @{
                 Level        = 'DEBUG'
-                #            Format = '[%{timestamp}] %{level} %{caller} - %{pathname}\%{filename}:%{lineno} - %{message}'
-                Format       = '[%{timestamp}] [%{level:7}] %{message}'
+                Format       = '[%{timestamp}] %{level} %{caller}:%{lineno} - %{message}'
+                #Format       = '[%{timestamp}] [%{level:7}] %{message}'
                 ColorMapping = @{
                     'DEBUG'   = 'White'
                     'INFO'    = 'DarkBlue'
@@ -57,13 +57,13 @@
         }
 
         Audit         = 'WARNING'
-        Configuration = 'INFO'
-        Checklist     = 'INFO'
-        Control       = 'INFO'
-        Group         = 'INFO'
-        Include       = 'INFO'
-        Test          = 'DEBUG'
-        Result        = 'INFO'
+        Configuration = 'WARNING'
+        Checklist     = 'WARNING'
+        Control       = 'WARNING'
+        Group         = 'WARNING'
+        Include       = 'WARNING'
+        Test          = 'WARNING'
+        Result        = 'DEBUG'
 
     }
 
@@ -87,42 +87,60 @@
               - $true : The status tag will be the color given, the remaining text will be
                         the default output color
               - $false : The entire line will be the color of the status tag
-        #>
+              #>
         StatusMap = @{
+            Leader  = '|  '
+            Default = @{
+                Foreground = 'DarkGrey'
+                Background = 'Black'
+                Render     = $true
+                Reset      = $true
+            }
+            Control = @{
+                Start = @{
+                    Format = '+- {${fg:blue}<%= $Scope %>${fg:clear}} - Impact: <%= $Impact %><%= $Name %>: <%= $Title %>'
+                }
+                End   = @{
+                    Format = @'
+[${fg:2767c0}&sum;<%= $Total %> ${fg:8fbc8f}&uarr;<%= $Passed %> ${fg:b22222}&darr;<%= $Failed %>${fg:clear}] &#xfab2; - &#x231A; {${fg:blue}<%= $Scope %>${fg:clear}} - <%= $Name %>: <%= $Title %>
+'@
+                }
+            }
+
+            Audit = @{
+                Start = @{
+                    Format = '+- {${fg:blue}<%= $Scope %>${fg:clear}} - Started at <%= $Time %> on <%= $env:COMPUTERNAME %> by <%= "$env:USERDOMAIN\$env:USERNAME" %>'
+                }
+                End = @{
+                    Format = @'
+[${fg:2767c0}&sum;<%= $Total %> ${fg:8fbc8f}&uarr;<%= $Passed %> ${fg:b22222}&darr;<%= $Failed %>${fg:clear}] &#xfab2; -  {${fg:blue}<%= $Scope %>${fg:clear}} - <%= $Count %> files executed in &#x231A; <%= "{0:N4}" -f $Duration %> Milliseconds
+'@
+                }
+            }
             Passed  = @{
-                Color  = 'Green'
-                Format = '[Passed]'
-                Reset  = $true
+                Format = '[${fg:green}<%= $Type %>${fg:clear}] - {${fg:blue}<%= $Scope %>${fg:clear}} - <%= $Name %>: <%= $Title %>'
             }
             Failed  = @{
-                Color  = 'Red'
-                Format = '[Failed]'
-                Reset  = $true
+                Format = '[${fg:red}<%= $Type %>${fg:clear}] - {${fg:blue}<%= $Scope %>${fg:clear}} - <%= $Name %>: <%= $Title %>'
             }
             Skipped = @{
-                Color  = 'BrightBlack'
-                Format = '[Skipped]'
-                Reset  = $true
+                Format = '[${fg:darkgrey}<%= $Type %>${fg:clear}] - {${fg:blue}<%= $Scope %>${fg:clear}} - <%= $Name %>: <%= $Title %>'
             }
             Start   = @{
-                Color  = 'Blue'
-                Format = '+-'
-                Reset  = $true
+                Format = '+- {${fg:blue}<%= $Scope %>${fg:clear}} - <%= $Name %>: <%= $Title %>'
             }
             End     = @{
-                Color  = 'Blue'
-                # %T is total, %P passed, %F is failed, %S is skipped
-                Format = '%T +%P-%F'
-                Reset  = $true
+                Format = @'
+[${fg:2767c0}&sum;<%= $Total %> ${fg:8fbc8f}&uarr;<%= $Passed %> ${fg:b22222}&darr;<%= $Failed %>${fg:clear}] &#xfab2; - &#x231A; {${fg:blue}<%= $Scope %>${fg:clear}} - <%= $Name %>: <%= $Title %>
+'@
             }
         }
-        Leader    = '|  '
     }
 
     Audit   = @{
         <# -------------------------------------------------------------------------------------------------------------
-    These options tell Invoke-Infraspective which files to run.
-    ------------------------------------------------------------------------------------------------------------- #>
+        These options tell Invoke-Infraspective which files to run.
+        ------------------------------------------------------------------------------------------------------------- #>
 
         Path    = '.\tests\data\*'
         Filter  = '*.Audit.ps1'
