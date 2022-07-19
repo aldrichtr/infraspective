@@ -1,4 +1,4 @@
-param (
+param(
     # BuildRoot is automatically set by Invoke-Build, but it could
     # be modified here so that hierarchical builds can be done
     [Parameter()]
@@ -133,6 +133,7 @@ task CodeCoverage {
     }
 }
 
+
 task new_markdown_help {
     $config = Get-BuildConfiguration
     if (-not(Test-Path $config.Docs.Help)) { mkdir $config.Docs.Help -Force }
@@ -148,15 +149,15 @@ task new_markdown_help {
     New-MarkdownHelp -Module infraspective -WithModulePage -OutputFolder $config.Docs.Help -Force
 
     foreach ($cmd in (Get-Command -Module Infraspective | Select-Object -ExpandProperty Name)) {
-    $doc_options = @{
-        Force                 = $true
-        Command               = ''
-        OutputFolder          = $config.Docs.Help
-        AlphabeticParamsOrder = $true
-        ExcludeDontShow       = $true
-        OnlineVersionUrl      = 'https://github.com/aldrichtr/infraspective/blob/main/docs/help/'
-        Encoding              = [System.Text.Encoding]::UTF8
-    }
+        $doc_options = @{
+            Force                 = $true
+            Command               = ''
+            OutputFolder          = $config.Docs.Help
+            AlphabeticParamsOrder = $true
+            ExcludeDontShow       = $true
+            OnlineVersionUrl      = 'https://github.com/aldrichtr/infraspective/blob/main/docs/help/'
+            Encoding              = [System.Text.Encoding]::UTF8
+        }
         $doc_options.Command = $cmd
         $doc_options.OnlineVersionUrl += "$cmd.md"
 
@@ -184,10 +185,75 @@ task update_markdown_help {
 
 task make_external_help {
     $config = Get-BuildConfiguration
-    New-ExternalHelp $config.Docs.Help -OutputPath (Join-Path $config.Artifact.Path "infraspective\en-US")
+    New-ExternalHelp $config.Docs.Help -OutputPath (Join-Path $config.Artifact.Path "infraspective\en-US") -Force
 }
 
-task Stage Clean, make_staging_module, make_staging_manifest
+task stage_external_help {
+    $config = Get-BuildConfiguration
+    New-ExternalHelp $config.Docs.Help -OutputPath (Join-Path $config.Staging.Path "infraspective\en-US") -Force
+}
+
+task update_stage_manifest_version {
+    $config = Get-BuildConfiguration
+    $version_info = dotnet-gitversion | ConvertFrom-Json
+
+    $man = Test-ModuleManifest -Path $config.Project.Modules.Root.Manifest
+
+    $previous_version = $man.Version
+    $current_version = $version_info.MajorMinorPatch
+    $stage_man = Join-Path $config.Staging.Path -ChildPath "infraspective" -AdditionalChildPath "infraspective.psd1"
+
+    Write-Build DarkBlue "Moving staged module from $previous_version to version $current_version"
+    Update-Metadata -Path $stage_man -PropertyName 'ModuleVersion' -Value $current_version
+}
+
+task update_source_manifest_version {
+    $config = Get-BuildConfiguration
+    $version_info = dotnet-gitversion | ConvertFrom-Json
+
+    $man = Test-ModuleManifest $config.Project.Modules.Root.Manifest
+
+    $previous_version = $man.Version
+    $current_version = $version_info.MajorMinorPatch
+
+    Write-Build DarkBlue "Updating source module from $previous_version to version $current_version"
+    Update-Metadata -Path $man.Path -PropertyName 'ModuleVersion' -Value $current_version
+}
+
+task update_doc_help_version {
+    $config = Get-BuildConfiguration
+    $version_info = dotnet-gitversion | ConvertFrom-Json
+    $current_version = $version_info.MajorMinorPatch
+
+    Get-ChildItem $config.Docs.Help -Include *.md | % {
+        if (Select-String -Path $_ -Pattern '^Help Version:') {
+            Write-Build DarkBlue "Updating help $($_.Name) to version $current_version"
+            (Get-Content $_ -Raw) -replace '^Help Version: .*' , "Help Version: $current_version" | Set-Content $_
+        }
+    }
+}
+
+task update_readme_version {
+    $config = Get-BuildConfiguration
+    $version_info = dotnet-gitversion | ConvertFrom-Json
+    $current_version = $version_info.MajorMinorPatch
+    $readme = Join-Path $config.Project.Path "README.md"
+
+    Write-Build DarkBlue "Updating Readme to version $current_version"
+    (Get-Content $readme -Raw) -replace '^Version: .*', "Version: $current_version"
+}
+
+
+task bump_version update_source_manifest_version,
+update_doc_help_version,
+update_readme_version
+
+
+task Stage Clean,
+make_staging_module,
+make_staging_manifest,
+stage_external_help
+
 
 task Package register_local_artifact_repository,
 publish_to_temp_repository
