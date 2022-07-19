@@ -135,44 +135,48 @@ function Invoke-Infraspective {
         $audit_state.AuditTimer.Restart()
 
         Write-CustomLog @log_option -Message 'Audit start'
-        Write-Result Audit 'Start' "Audit $(Get-Date -Format 'dd-MMM-yyyy HH:mm:ss')"
+        Write-Result Audit 'Start' -Data @{Time = Get-Date -format 'yyyy MMM dd HH:mm'}
 
         foreach ($f in $audit_files) {
             if ($PSCmdlet.ShouldProcess($f.Name, 'Audit')) {
-                    $audit_state.Depth += 1
-                    $audit_state.CurrentPath = $f.Directory.FullName
+                $audit_state.Depth += 1
+                $audit_state.CurrentPath = $f.Directory.FullName
 
-                    Write-CustomLog @log_option -Message "File $($f.Name) start"
-                    Write-Result File 'Start' "File $($f.Name)"
+                Write-CustomLog @log_option -Message "File $($f.Name) start"
+                Write-Result File 'Start' -Data @{ Name = $f.Name }
 
-                    [scriptblock]$sb = { . $f.FullName }
+                [scriptblock]$sb = { . $f.FullName }
 
-                    Write-CustomLog @log_option -Level 'DEBUG' -Message " Executing Audit file $($f.Name)"
-                    $result = & $sb
-                    $result.Container = $f
-                    $audit_state.Depth -= 1
+                Write-CustomLog @log_option -Level 'DEBUG' -Message " Executing Audit file $($f.Name)"
+                $result = & $sb
+                $result.Container = $f
+                $audit_state.Depth -= 1
 
-                    Write-CustomLog @log_option -Message "File $($f.Name) complete"
+                Write-CustomLog @log_option -Message "File $($f.Name) complete"
 
-                    $TotalCount += $result.TotalCount
-                    $PassedCount += $result.PassedCount
-                    $FailedCount += $result.FailedCount
-                    $SkippedCount += $result.SkippedCount
+                $TotalCount   += $result.TotalCount
+                $PassedCount  += $result.PassedCount
+                $FailedCount  += $result.FailedCount
+                $SkippedCount += $result.SkippedCount
 
-                    Write-Output $result
-                }
+                Write-Output $result
             }
-        }
-        end {
-            $message = (
-                'Audit complete.  Total files {0} executed in {1:N4} milliseconds' -f $audit_files.Count,
-                $audit_state.AuditTimer.Elapsed.MilliSeconds)
-            Write-Result Audit 'End' $message -Stats @{
-                Total   = $TotalCount
-                Passed  = $PassedCount
-                Failed  = $FailedCount
-                Skipped = $SkippedCount
-            }
-            Write-CustomLog @log_option -Message $message
         }
     }
+    end {
+        Write-Result Audit 'End' -Data @{
+            Count    = $audit_files.Count
+            Duration = $audit_state.AuditTimer.Elapsed.MilliSeconds
+            Total    = $TotalCount
+            Passed   = $PassedCount
+            Failed   = $FailedCount
+            Skipped  = $SkippedCount
+        }
+
+        $message = (
+            'Audit complete.  Total files {0} executed in {1:N4} milliseconds' -f $audit_files.Count,
+            $audit_state.AuditTimer.Elapsed.MilliSeconds)
+
+        Write-CustomLog @log_option -Message $message
+    }
+}

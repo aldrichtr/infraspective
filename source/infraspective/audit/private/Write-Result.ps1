@@ -6,27 +6,8 @@ function Write-Result {
     .DESCRIPTION
         `Write-Result` sends formatted output to the Information stream (6).  The format
         of the output is controlled by the 'Output' key in the Configuration settings.
-
-        - Scope: controls which structures output status messages. Current options are:
-            None, Audit, File, Checklist, Grouping, Control, Block or Test
-        - StatusMap:  A hashtable of Status Messages, and Scope Start and End hashtables.
-          Each key can have:
-          - Color: The $PSStyle color option to format the text
-          - Format: The text to be displayed.  (The 'End' status is special, see below)
-          - Reset: $true or $false.  If $false, the entire line will be the color set.
-
-        - Leader: a text string to use as the indentation of each scope
-
-        End Format:  Because the End of the scope can contain totals, the following tokens
-            are available:
-            '%T' : The Total tests for that scope
-            '%P' : The Total amount of tests that 'Passed'
-            '%F' : The Total amount of tests that 'Failed'
-            '%S' : The Total amount of tests that 'Skipped'
-    .LINK
-        - https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_ansi_terminals?view=powershell-7.2
-
-        #>
+    #>
+    [OutputType([string])]
     [CmdletBinding()]
     param(
         # Scope of result.  'File', 'Checklist', etc.
@@ -37,7 +18,7 @@ function Write-Result {
         )]
         [ResultScope]$Scope,
 
-        # Type of result.  'Pass', 'Fail', 'Skip', etc.
+        # Type of Event. 'Start', 'End', 'Pass', 'Fail', 'Skip', etc.
         # See also: about_infraspective_configuration
         [Parameter(
             Mandatory,
@@ -45,87 +26,68 @@ function Write-Result {
         )]
         [string]$Type,
 
-        # The message to write
-        [Parameter(
-            Mandatory,
-            Position = 2
-        )]
-        [ValidateNotNullOrEmpty()]
-        [string]$Message,
-
-        # optionally provide statistics in a hashtable where the keys are:
-        # Total, Passed, Failed, and Skipped and their values are a number
+        # Each Element passes their Parameters, Statistics and other Metadata in a HashTable
+        # so that it can be used in the Output template.  For example:
+        # Data.Impact = 1 would be available as <%= $Impact %>
         [Parameter()]
-        [hashtable]$Stats
+        [hashtable]$Data
 
     )
     begin {
         $config = $audit_state.Configuration.Output
         $map = $config.StatusMap
-        $reset = $PSStyle.Reset
 
-        $stat_tokens = @{
-            '%T' = 'Total'
-            '%P' = 'Passed'
-            '%F' = 'Failed'
-            '%S' = 'Skipped'
-        }
-        # state is initialized in `Invoke-Infraspective`
-        $indent = ($config.Leader * $audit_state.Depth)
+        # audit_state is initialized in `Invoke-Infraspective`, and each infraspective Element
+        # increments and decrements the Depth accordingly
+        $output = ($map.Leader * $audit_state.Depth)
+
+        # Used to control the level of Results
         $max_scope = ([ResultScope]$config.Scope).value__
     }
     process {
         # check to see if the requested Scope is higher than the configured scope
         # break early if it isnt
         $this_scope = $Scope.value__
-        if ($this_scope -le $max_scope) {
-            if (-not($map.Keys -contains $Type)) {
-                $fmt = "$reset$Type"
-            } else {
-                $color = $map.$Type.Color
-                if ([system.enum]::GetNames([System.ConsoleColor]) -contains $color) {
+        if ($this_scope -gt $max_scope) { return }
 
-                    if ($Type -like 'End') {
-                        # treat the end "cookie special"
-                        $pre_fmt = "$($PSStyle.Foreground.$color)[$reset"
-                        $pst_fmt = "$($PSStyle.Foreground.$color)]$reset"
-                        $s_fmt = $map.End.Format
-                        foreach ($token in $stat_tokens.Keys) {
-                            # this looks scary, but what it's doing is:
-                            # for each of the statistics tokens like '%P' in the
-                            # Format for 'End', replace it with the value in the
-                            # Stats hash corresponding to the value in the
-                            # stats_token
-                            # if Stats looks like @{Passed = 1; Total = 3}
-                            # and the Format is '%P of %T' then the result should be
-                            # 1 of 3
-                            if ($s_fmt -match [regex]::Escape($token)) {
-                                $token_status = $stat_tokens[$token]
-                                if ($token_status -like 'Total') {
-                                    $tok_color = $map.End.Color
-                                } else {
-                                    $tok_color = $map.$token_status.Color
-                                }
+        # Add these to 'Data' for use in the template
+        $Data['Scope'] = $Scope
+        $Data['Type']  = $Type
+        ## Templates can access the config using $Map.Leader, etc.
+        ## Means arbitrary items can be added to the map
+        ## StatusMap.Ticket = '#INC1234'
+        ## and then used like
+        ## Related to ticket: <%= $Map.Ticket %>
+        $Data['Map']   = $map
 
-                                $s_value = "$($PSStyle.Foreground.$tok_color)$($Stats[$stat_tokens[$token]])$reset"
-                                $s_fmt = $s_fmt -replace [regex]::Escape($token), $s_value
-                            }
-                        }
-                        $fmt = "$pre_fmt$s_fmt$pst_fmt"
-                    } else {
-                        $fmt = "$($PSStyle.Foreground.$color)$($map.$Type.Format)"
-                    }
-                    if ($map.$Type.Reset) {
-                        $fmt += $reset
-                    }
-                } else {
-                    $fmt = "$reset$($map.$Type.Format)"
-                }
+
+        if (($map.Keys -contains $Scope) -and
+            ($map."$Scope".Keys -contains $Type)) {
+            Write-CustomLog -Scope 'Result' -Level 'DEBUG' -Message '{0} has custom format for {1}' -Arguments $Scope, $Type
+            # only replace the keys that are present in the Scope "Custom" config
+            foreach ($k in $map."$Scope".Keys) {
+                $map."$k" = $map."$Scope"."$k"
             }
-
-            $output = "$indent$fmt $Message$reset"
-            Write-Information $output -InformationAction Continue
         }
+
+        $fmt = Invoke-EpsTemplate -Template $map["$Type"].Format -Safe -Binding $Data
+
+        if (-not($map."$Type".Render ?? $map.Default.Render)) {
+            Write-CustomLog -Scope 'Result' -Level 'DEBUG' -Message "Entities will not be rendered for $Scope $Type"
+        }
+
+        $text_options = @{
+            Object          = $ExecutionContext.InvokeCommand.ExpandString($fmt)
+            ForegroundColor = $map."$Type".Foreground    ?? $map.Default.Foreground
+            BackgroundColor = $map."$Type".Background    ?? $map.Default.Background
+            IgnoreEntities  = (-not ($map."$Type".Render ?? $map.Default.Render))
+            LeaveColor      = (-not ($map."$Type".Reset  ?? $map.Default.Reset))
+        }
+        # Note we are appending the results of the `New-Text` to the indent above
+        $text = New-Text @text_options
+        $output += $text.ToString()
     }
-    end {}
+    end {
+        Write-Information $output -InformationAction Continue
+    }
 }

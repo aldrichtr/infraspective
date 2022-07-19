@@ -4,9 +4,9 @@
         AddToPath = $true
     }
 
-    # used to write logging messages to various targets
-    Logging = @{
-        Version = '4.8.3'
+    # Not much of a testing application without the testing module
+    Pester  = @{
+        Version = '5.3'
         Tags    = 'dev', 'prod', 'ci'
     }
 
@@ -16,10 +16,27 @@
         Tags    = 'dev', 'prod', 'ci'
     }
 
-    # Not much of a testing application without the testing module
-    Pester  = @{
-        Version = '5.3'
+    # used to write logging messages to various targets
+    Logging = @{
+        Version = '4.8.3'
         Tags    = 'dev', 'prod', 'ci'
+    }
+
+    # The template system for flexible, configurable Output
+    EPS = @{
+        Version = '1.0'
+        Tags    = 'dev', 'prod', 'ci'
+    }
+
+    # Provides colors, emojis and symbols to Output
+    Pansies = @{
+        Version = '2.3'
+        Tags    = 'dev', 'prod', 'ci'
+        # This module wants to "Clobber" `Write-Host`, which personally, I think is a good thing....
+        Parameters = @{
+            AllowClobber = $true
+            AllowPrerelease = $true
+        }
     }
 
     # used during development and testing
