@@ -1,1 +1,19 @@
-* -crlf
+# auto by default
+*            text=auto
+
+# powershell source
+*.ps1        text eol=lf
+*.psm1       text eol=lf
+*.psd1       text eol=lf
+
+# documents
+*.md        text eol=lf
+*.txt       text eol=lf
+*.log       text eol=lf
+*.xml       text eol=lf
+*.yml       text eol=lf
+*.json      text eol=lf
+
+# git configuration
+
+.gitignore  text eol=lf
