@@ -53,6 +53,8 @@
     Docs = @{
         Path = 'docs'
         Help = 'docs/help'
+        New  = 'docs/new'
+        Source = 'source/docs/help'
     }
 
 

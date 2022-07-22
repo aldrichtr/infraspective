@@ -142,12 +142,12 @@ task new_markdown_help {
     Import-Module (Resolve-Path $config.Project.Modules.Root.Manifest) -Force
 
     <#HACK:
-      In order to generate a "Module page", I need to pass in `-WithModulePage`.  And if I want to add
+    In order to generate a "Module page", I need to pass in `-WithModulePage`.  And if I want to add
       the onlineversionurl I need to supply the `-Command`, However they cannot be used together.
       So, I'm running `New-MarkdownHelp` twice.  The first time to make the module page, and the second
       time for each command that has the `-Force` set to overwrite them
     #>
-    Write-Build DarkBlue " - Generating markdown help pages and a module page"
+    Write-Build DarkBlue ' - Generating markdown help pages and a module page'
     New-MarkdownHelp -Module infraspective -WithModulePage -OutputFolder $config.Docs.Help -Force
 
     foreach ($cmd in (Get-Command -Module Infraspective | Select-Object -ExpandProperty Name)) {
@@ -158,7 +158,7 @@ task new_markdown_help {
             AlphabeticParamsOrder = $true
             ExcludeDontShow       = $true
             OnlineVersionUrl      = 'https://github.com/aldrichtr/infraspective/blob/main/docs/help/'
-            Encoding              = [System.Text.Encoding]::UTF8NoBOM
+            Encoding              = [System.Text.Encoding]::UTF8
         }
         $doc_options.Command = $cmd
         $doc_options.OnlineVersionUrl += "$cmd.md"
@@ -170,26 +170,59 @@ task new_markdown_help {
 
 task update_markdown_help {
     $config = Get-BuildConfiguration
-    if (-not(Test-Path $config.Docs.Help)) { mkdir $config.Docs.Help -Force | Out-Null }
-    $doc_options = @{
-        Path                  = $config.Docs.Help
-        RefreshModulePage     = $true
-        AlphabeticParamsOrder = $true
-        UpdateInputOutput     = $true
-        ExcludeDontShow       = $true
-        LogPath               = (Join-Path $config.Artifact.Path "platyps_$(Get-Date -Format 'yyyy.MM.dd.HH.mm').log")
-        Encoding              = [System.Text.Encoding]::UTF8NoBOM
+    if (-not(Test-Path $config.Docs.Help)) {
+        Write-Build DarkRed "Markdown help folder '$($config.Docs.Help) does not exist!"
     }
+
     Import-Module (Resolve-Path $config.Project.Modules.Root.Manifest) -Force
-    Write-Build DarkBlue "Updating help"
-    Update-MarkdownHelpModule @doc_options
+
+    foreach ($cmd in (Get-Command -Module Infraspective | Select-Object -ExpandProperty Name)) {
+        $doc_options = @{
+            Path                  = (Join-Path $config.Docs.Help "$cmd.md")
+            AlphabeticParamsOrder = $true
+            UpdateInputOutput     = $true
+            ExcludeDontShow       = $true
+            LogPath               = (Join-Path $config.Artifact.Path "platyps_$(Get-Date -Format 'yyyy.MM.dd.HH.mm').log")
+            Encoding              = [System.Text.Encoding]::UTF8
+        }
+
+        Write-Build DarkBlue "Updating help for $cmd"
+        Update-MarkdownHelp @doc_options
+    }
+}
+
+task update_psdoc_help {
+    $config = Get-BuildConfiguration
+    Import-Module PSDocs
+    Import-Module (Resolve-Path $config.Project.Modules.Root.Manifest) -Force
+
+    if (-not(Test-Path $config.Docs.New)) { mkdir $config.Docs.New -Force | Out-Null }
+
+
+
+    foreach ($name in (Get-Command -Module Infraspective | Select-Object -ExpandProperty Name)) {
+        $cmd = (Get-Command $name | Select-Object -Property *)
+        $help = (Get-Help $name -Full)
+
+        $help | Add-Member -NotePropertyName 'ParameterSets' -NotePropertyValue $cmd.ParameterSets
+
+        $doc_options = @{
+            Path         = $config.Docs.Source
+            InputObject  = $help
+            OutputPath   = $config.Docs.New
+            InstanceName = $name
+        }
+
+        Write-Build DarkBlue "Updating help for $name"
+        Invoke-PSDocument @doc_options | Out-Null
+    }
 }
 
 
 task stage_external_help {
     $config = Get-BuildConfiguration
     Write-Build DarkBlue "Generating the external help from the docs in $($config.Docs.Help) folder"
-    New-ExternalHelp $config.Docs.Help -OutputPath (Join-Path $config.Staging.Path "infraspective\en-US") -Force | Out-Null
+    New-ExternalHelp $config.Docs.Help -OutputPath (Join-Path $config.Staging.Path 'infraspective\en-US') -Force | Out-Null
 }
 
 task update_stage_manifest_version {
@@ -200,7 +233,7 @@ task update_stage_manifest_version {
 
     $previous_version = $man.Version
     $current_version = $version_info.MajorMinorPatch
-    $stage_man = Join-Path $config.Staging.Path -ChildPath "infraspective" -AdditionalChildPath "infraspective.psd1"
+    $stage_man = Join-Path $config.Staging.Path -ChildPath 'infraspective' -AdditionalChildPath 'infraspective.psd1'
 
     Write-Build DarkBlue "Updating staged module from $previous_version to version $current_version"
     Update-Metadata -Path $stage_man -PropertyName 'ModuleVersion' -Value $current_version
@@ -224,29 +257,29 @@ task update_doc_help_version {
     $version_info = dotnet-gitversion | ConvertFrom-Json
     $current_version = $version_info.MajorMinorPatch
 
-    Get-ChildItem $config.Docs.Help -Filter "*.md" | % {
+    Get-ChildItem $config.Docs.Help -Filter '*.md' | ForEach-Object {
         if (Select-String -Path $_ -Pattern '^Help Version:') {
             Write-Build DarkBlue "Updating help $($_.Name) to version $current_version"
             (Get-Content $_) -replace '^Help Version: .*' , "Help Version: $current_version" |
                 Set-Content -Path $_ -Encoding UTF8NoBOM
+            }
         }
     }
-}
 
-task update_readme_version {
-    $config = Get-BuildConfiguration
-    $version_info = dotnet-gitversion | ConvertFrom-Json
-    $current_version = $version_info.MajorMinorPatch
-    $readme = Join-Path $config.Project.Path "README.md"
+    task update_readme_version {
+        $config = Get-BuildConfiguration
+        $version_info = dotnet-gitversion | ConvertFrom-Json
+        $current_version = $version_info.MajorMinorPatch
+        $readme = Join-Path $config.Project.Path 'README.md'
 
-    Write-Build DarkBlue "Updating Readme to version $current_version"
+        Write-Build DarkBlue "Updating Readme to version $current_version"
     (Get-Content $readme) -replace '^Version: .*', "Version: $current_version" |
-        Set-Content -Path $readme -Encoding UTF8NoBOM
+            Set-Content -Path $readme -Encoding UTF8NoBOM
 }
 
 
 task bump_version {
-    Write-Build DarkBlue "Incrementing version based on git tags"
+    Write-Build DarkBlue 'Incrementing version based on git tags'
 }, update_source_manifest_version,
 update_doc_help_version,
 update_readme_version

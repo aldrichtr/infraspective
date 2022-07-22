@@ -1,31 +1,56 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Build the module",
-            "type": "shell",
-            "command": "Invoke-Build Build"
-        },
-        {
-            "label": "Run tests",
-            "type":"shell",
-            "command": "Invoke-Build Test -TestTag ${input:TestTag}",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "Clean generated files",
-            "type": "shell",
-            "command":"Invoke-Build Clean"
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build the module",
+      "type": "shell",
+      "command": "Invoke-Build Build"
+    },
+    {
+      "label": "Run tests",
+      "type": "shell",
+      "command": "Invoke-Build Test -TestTag ${input:TestTag}",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Clean generated files",
+      "type": "shell",
+      "command": "Invoke-Build Clean"
+    },
+    {
+      "label": "Invoke Build",
+      "type": "shell",
+      "command": "Invoke-Build ${input:InvokeBuildTask}"
+    },
+    {
+        "label": "Build Docs",
+        "type": "shell",
+        "command": "Invoke-Build update_psdoc_help",
+        "group": {
+            "kind": "build",
+            "isDefault": true
         }
-    ],
-    "inputs": [
-        {
-            "id": "TestTag",
-            "description": "Pester test tags to include",
-            "type": "promptString"
-        }
-    ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "TestTag",
+      "description": "Pester test tags to include",
+      "type": "promptString"
+    },
+    {
+      "id": "InvokeBuildTask",
+      "type": "command",
+      "command": "shellCommand.execute",
+      "args": {
+        "command": "${workspaceFolder}/getTasks.ps1",
+        "cwd": "${workspaceFolder}",
+        "fieldSeparator": "|",
+        "description": "Select the build task to run"
+      }
+    }
+  ]
 }
