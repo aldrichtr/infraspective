@@ -216,6 +216,20 @@ Document 'MarkdownHelp' {
         }
     }
 
+    Section 'PARAMETERS' {
+        foreach ($param in $h.parameters) {
+            Section ('-{0} <{1}>' -f $param.Name, $param.ParameterValue) {
+                $param.description.Text
+                Metadata -Body @{
+                    Type = $param.Type.name
+                    Aliases =
+
+                }
+
+            }
+        }
+    }
+
     Section 'NOTES' {
         foreach ($alert in $h.alertSet) {
             $alert.Text
