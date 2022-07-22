@@ -51,25 +51,54 @@ Document 'MarkdownHelp' {
     }
 
     Section 'SYNTAX' {
+        $ENABLE_DEBUG_OUTPUT = $false
+
         for ($i = 0; $i -lt $h.ParameterSets.count; $i++) {
+            $debug_string = "DEBUG for Syntax $i $('-' * 20)`n"
             $set = $h.ParameterSets[$i]
-            $syntax_name = $set.Name
+            if ($set.Name -match '__AllParameterSets') {
+                $syntax_name = 'Default'
+            } else {
+                $syntax_name = $set.Name
+            }
+
             if ($set.IsDefault) { $syntax_name += ' (Default)' }
+
+            # The syntax string starts with the command name
             $syntax = $h.Name
-            foreach ($p in $set.Parameters) {
-                if (-not($common_params -contains $p.Name)) {
-                    if ($p.IsMandatory) {
-                        $syntax += ' -[{0}] <{1}>' -f $p.Name, $p.ParameterType.Name
-                    } else {
-                        $syntax += ' [[-{0}] <{1}>]' -f $p.Name, $p.ParameterType.Name
+
+            # we want to order the params according to their position if they have one
+            # so, make a copy of the params array, move the positional ones first, then
+            # add what's left to the end
+
+            $positional = @()
+
+            $positional += $set.Parameters |
+                Where-Object -Property 'Position' -GE 0 |
+                    Sort-Object -Property 'Position'
+                    $debug_string += "  found {0} positional parameters`n" -f $positional.Count
+
+            $positional += $set.Parameters |
+                    Where-Object -Property 'Position' -LT 0 |
+                    Where-Object {
+                        $common_params -notcontains $_.Name
                     }
+            $debug_string += "  found {0} total parameters`n" -f $positional.Count
+
+            foreach ($p in $positional) {
+                if ($p.IsMandatory) {
+                    $syntax += ' -[{0}] <{1}>' -f $p.Name, $p.ParameterType.Name
+                } else {
+                    $syntax += ' [[-{0}] <{1}>]' -f $p.Name, $p.ParameterType.Name
                 }
             }
             $syntax += ' [<CommonParameters>]'
             Section $syntax_name {
+                $ENABLE_DEBUG_OUTPUT ? $debug_string : $null
                 $syntax | Code -Info 'powershell'
             }
         }
+        $ENABLE_DEBUG_OUTPUT = $false
     }
 
     Section 'DESCRIPTION' { $h.Description.Text }
@@ -184,6 +213,12 @@ Document 'MarkdownHelp' {
 
                 $ENABLE_DEBUG_OUTPUT ? $debug_string : $null
             }
+        }
+    }
+
+    Section 'NOTES' {
+        foreach ($alert in $h.alertSet) {
+            $alert.Text
         }
     }
 }
