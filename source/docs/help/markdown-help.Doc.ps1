@@ -1,22 +1,31 @@
-# $Command.CommandType
-# $Command.Name
-# $Command.ModuleName
-# $Command.DefaultParameterSet
-# $Command.CmdletBinding
-# $ParameterSet in $Command.ParameterSets
-#     $ParameterSet.Name
-#     $ParameterSet.IsDefault
-#     $Parameter in $ParameterSet.Parameters
-#         $Parameter.Name
-#         $Parameter.IsMandatory
-#         $Parameter.Aliases
-#         $Parameter.HelpMessage
-#         $Parameter.Type
-#         $Parameter.ParameterType
-#            $Parameter.ParameterType.Name
-#            $Parameter.ParameterType.GenericTypeArguments.Name
-#            $Parameter.ParameterType.IsGenericType
-#            $Parameter.ParameterType.ToString() - we get that for free from expand
+<#
+in [PlatyPS.psm1](https://github.com/PowerShell/platyPS/blob/master/src/platyPS/platyPS.psm1)
+
+starting on line 1528
+
+```powershell
+
+    if ($IncludeModulePage)
+    {
+        $filter = '*.md'
+    }
+    else
+    {
+        $filter = '*-*.md'
+    }
+
+    $aboutFilePrefixPattern = 'about_*'
+
+Any md file that is not '*-*.md' is not going to be picked up by the filter
+
+
+
+The next issue I need to figure out is why the help system is still using the comment help instead of
+the markdown.  The Example titles are not being used.
+#>
+
+
+
 
 Document 'MarkdownHelp' {
     $ENABLE_DEBUG_OUTPUT = $false
@@ -36,11 +45,13 @@ Document 'MarkdownHelp' {
     )
 
     $h = $InputObject
-
+    <#------------------------------------------------------------------
+      Content starts here
+    ------------------------------------------------------------------#>
     Metadata @{
-        'external_help_file' = "$($h.ModuleName)-help.xml"
-        'Module_Name'        = $h.ModuleName
-        'online_version'     = "https://github.com/aldrichtr/infraspective/blob/main/docs/help/$($h.Name).md"
+        'external help file' = "$($h.ModuleName)-help.xml"
+        'Module Name'        = $h.ModuleName
+        'online version'     = "https://github.com/aldrichtr/infraspective/blob/main/docs/help/$($h.Name).md"
         'schema'             = '2.0.0'
     }
 
@@ -65,62 +76,37 @@ Document 'MarkdownHelp' {
             if ($set.IsDefault) { $syntax_name += ' (Default)' }
 
             # The syntax string starts with the command name
-            $syntax = $h.Name
+            $syntax = '{0} {1}' -f $h.Name, $set.ToString()
 
-            # we want to order the params according to their position if they have one
-            # so, make a copy of the params array, move the positional ones first, then
-            # add what's left to the end
-
-            $positional = @()
-
-            $positional += $set.Parameters |
-                Where-Object -Property 'Position' -GE 0 |
-                    Sort-Object -Property 'Position'
-                    $debug_string += "  found {0} positional parameters`n" -f $positional.Count
-
-            $positional += $set.Parameters |
-                    Where-Object -Property 'Position' -LT 0 |
-                    Where-Object {
-                        $common_params -notcontains $_.Name
-                    }
-            $debug_string += "  found {0} total parameters`n" -f $positional.Count
-
-            foreach ($p in $positional) {
-                if ($p.IsMandatory) {
-                    $syntax += ' -[{0}] <{1}>' -f $p.Name, $p.ParameterType.Name
-                } else {
-                    $syntax += ' [[-{0}] <{1}>]' -f $p.Name, $p.ParameterType.Name
-                }
-            }
-            $syntax += ' [<CommonParameters>]'
             Section $syntax_name {
                 $ENABLE_DEBUG_OUTPUT ? $debug_string : $null
                 $syntax | Code -Info 'powershell'
             }
         }
+        #>
         $ENABLE_DEBUG_OUTPUT = $false
     }
 
     Section 'DESCRIPTION' { $h.Description.Text }
 
-    # each EXAMPLE section consists of:
-    # 1 or more non-blank lines is interpreted as the actual example code == .code property
-    #
-    # all lines of text are split by blank lines into the .remarks array property
-    #  note that two consecutive blank lines will create a .remarks entry with a blank line.
-    ##
-    # My conventions for Example text
-    # Place the actual example on the first line, continuing on to as many contiguous lines
-    # as necessary
-    # leave one blank line after the code
-    # if output should be on a separate line, mark it with '```Output' line
-    # every line up to the next ``` is considered "Output Code block"
-    # leave one blank line after the output
-    # To add a title to the Example, write a line with 'Title:' at the start
-    # leave one blank line after the Title
-    # Add anything you want after that
-
     Section 'EXAMPLES' {
+        # each EXAMPLE section consists of:
+        # 1 or more non-blank lines is interpreted as the actual example code == .code property
+        #
+        # all lines of text are split by blank lines into the .remarks array property
+        #  note that two consecutive blank lines will create a .remarks entry with a blank line.
+        ##
+        # My conventions for Example text
+        # Place the actual example on the first line, continuing on to as many contiguous lines
+        # as necessary
+        # leave one blank line after the code
+        # if output should be on a separate line, mark it with '```Output' line
+        # every line up to the next ``` is considered "Output Code block"
+        # leave one blank line after the output
+        # To add a title to the Example, write a line with 'Title:' at the start
+        # leave one blank line after the Title
+        # Add anything you want after that
+
         :example foreach ($example in $h.examples.example) {
             $null = $example.Title -match 'EXAMPLE (\d+)'
             $num = $Matches.1
@@ -197,9 +183,9 @@ Document 'MarkdownHelp' {
             }
 
             if ($null -ne $title) {
-                $new_title = 'EXAMPLE {0} - {1}' -f $num, $title
+                $new_title = 'Example {0}: {1}' -f $num, $title
             } else {
-                $new_title = 'EXAMPLE {0}' -f $num
+                $new_title = 'Example {0}' -f $num
             }
 
             # we have all the components of the original example parsed now
@@ -217,22 +203,71 @@ Document 'MarkdownHelp' {
     }
 
     Section 'PARAMETERS' {
-        foreach ($param in $h.parameters) {
-            Section ('-{0} <{1}>' -f $param.Name, $param.ParameterValue) {
-                $param.description.Text
-                Metadata -Body @{
-                    Type = $param.Type.name
-                    Aliases =
+        # get all the ParameterSet names:
+        # if there is only one, and it's name is '__AllParameterSets', then
+        # Make a pretty-printing name for the Parameter Sets field
+        #
+        foreach ($key in $h.CommandParameters.Keys) {
+            if ($common_params -notcontains $key) {
+                $cmd_param = $h.CommandParameters[$key]
+                $hlp_param = $h.parameters.parameter | Where-Object -Property 'name' -EQ -Value $key
+                $sets = @($cmd_param.ParameterSets.Keys)
+                $sets = $sets -replace '__AllParameterSets', '(all)'
 
+                Section ('-{0}' -f $hlp_param.Name) {
+                    $hlp_param.description.Text
+
+                    @( "Type:  $($hlp_param.type.name)",
+                        "Parameter Sets: $($sets -join ', ')",
+                        "Aliases: $($cmd_param.Aliases)",
+                        "Required: $($hlp_param.Required)",
+                        "Position: $($hlp_param.Position)",
+                        "Default value: $($hlp_param.defaultValue ?? 'none')",
+                        "Accept pipeline input: $($hlp_param.pipelineInput)",
+                        "Accept wildcard characters: $($hlp_param.globbing)"
+                    ) -join "`n" | Code -Info 'yaml'
                 }
-
             }
         }
     }
 
+    Section 'INPUTS' {
+        foreach ($t in $h.inputTypes) {
+            $t.type.name
+        }
+    }
+
+    Section 'OUTPUTS' {
+        foreach ($t in $h.returnValues) {
+            $t.type.name
+        }
+    }
+
     Section 'NOTES' {
-        foreach ($alert in $h.alertSet) {
-            $alert.Text
+        foreach ($set in $h.alertSet) {
+            $set.alert.Text
+        }
+    }
+
+    Section 'RELATED LINKS' {
+        <#
+        The content of the .LINK section will be interpreted as either a uri or a
+        "local link", handle both
+        #>
+        foreach ($link in $h.relatedLinks.navigationLink) {
+            if ($link.uri) {
+                '[{0}]({0})' -f $link.uri
+            }
+            elseif ($link.linkText) {
+                if ($link.linkText -match '\[.*\]\(.*\)') {
+                    # this is already formatted as a markdown link, just drop it
+                    # in unchanged
+                    $link.linkText
+                } else {
+                    '[{0}]({0}.md)' -f $link.linkText
+                }
+
+            }
         }
     }
 }
