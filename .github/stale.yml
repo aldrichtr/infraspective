@@ -1,17 +1,29 @@
+## Since I am the only contributor at the moment, I'm setting the threshold
+## a little high.  3 months until there's a warning, and another 2 before
+## it gets closed.  I can revisit if the pace changes.
+
 # Number of days of inactivity before an issue becomes stale
-daysUntilStale: 60
+daysUntilStale: 90
 # Number of days of inactivity before a stale issue is closed
-daysUntilClose: 30
+daysUntilClose: 60
 # Issues with these labels will never be considered stale
 exemptLabels:
-  - 'state:pinned'
-  - 'type:security'
+    # a pinned issue is one that we want to keep around for reference, such as
+    # a roadmap or large epic.
+  - 'flag.pinned'
+    # No security issue should ever be automatically closed
+  - 'flag.security'
+    # if the issue is waiting for something, then it should not be considered
+    # inactive
+  - 'wf.contributor'
+  - 'wf.discussion'
+  - 'wf.review'
 # Label to use when marking an issue as stale
-staleLabel: 'state:wontfix'
+staleLabel: 'closed.wontfix'
 # Comment to post when marking an issue as stale. Set to `false` to disable
 markComment: >
   This issue has been automatically marked as stale because it has not had
-  any activity in the last 60 days. It will be closed in 30 days if no
+  any activity in the last 90 days. It will be closed in 60 days if no
   further activity occurs. Thank you for your contributions.
 # Comment to post when closing a stale issue. Set to `false` to disable
 closeComment: >
