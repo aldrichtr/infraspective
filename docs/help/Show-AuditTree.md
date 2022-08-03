@@ -8,30 +8,33 @@ schema: 2.0.0
 # Show-AuditTree
 
 ## SYNOPSIS
+
 Pretty print an Audit AST
 
 ## SYNTAX
 
-```
+```powershell
 Show-AuditTree [[-Tree] <Object>] [[-Level] <Int32>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-An Audit AST is a representation of the "Parent-Child" relationship of Checklists, Controls, etc.
-Show-AuditTree prints a graphical representation as an indented list
+
+An Audit AST is a representation of the "Parent-Child" relationship of
+Checklists, Controls, etc. Show-AuditTree prints a graphical representation as
+an indented list
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
-```
+### EXAMPLE 1
 
-{{ Add example description here }}
+```powershell
+Invoke-Infraspective | Show-AuditTree
+```
 
 ## PARAMETERS
 
 ### -Tree
+
 The tree to print
 
 ```yaml
@@ -47,6 +50,7 @@ Accept wildcard characters: False
 ```
 
 ### -Level
+
 Current depth
 
 ```yaml
@@ -62,7 +66,12 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

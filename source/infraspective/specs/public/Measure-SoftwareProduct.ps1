@@ -1,36 +1,41 @@
 
 function Measure-SoftwareProduct {
     <#
-    .SYNOPSIS
-        Test the installed Software Packages.
-    .DESCRIPTION
-        Test the Existance of a Software Package or the Value of a given Property.
-    .EXAMPLE
-        SoftwareProduct 'Microsoft .NET Framework 4.6.1' { Should -Exist }
-    .EXAMPLE
-        SoftwareProduct 'Microsoft SQL Server 2016' DisplayVersion { Should -Be 13.0.1100.286  }
-    .EXAMPLE
-        SoftwareProduct 'IIS 10.0 Express' InstallLocation { Should -Match 'C:\Program Files (x86)' }
-    .NOTES
-        Assertions: Be, BeExactly, Exist, Match, MatchExactly
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('SoftwareProduct')]
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param(
-        # Specifies the path to an item.
-        [Parameter(Mandatory, Position = 1, ParameterSetName = "Default")]
-        [Parameter(Mandatory, Position = 1, ParameterSetName = "Property")]
+        [Parameter(
+            ParameterSetName = "Default",
+            Position = 1,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 1,
+            Mandatory
+        )]
         [Alias("Path")]
         [string]$Target,
 
-        # Specifies a property at the specified Path.
-        [Parameter(Position = 2, ParameterSetName = "Property")]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 2
+        )]
         [ValidateSet("DisplayVersion", "InstallLocation", "EstimatedSize")]
         [string]$Property,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2, ParameterSetName = "Default")]
-        [Parameter(Mandatory, Position = 3, ParameterSetName = "Property")]
+        [Parameter(
+            ParameterSetName = "Default",
+            Position = 2,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 3,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
 

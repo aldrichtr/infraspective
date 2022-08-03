@@ -8,38 +8,45 @@ schema: 2.0.0
 # Measure-LocalUser
 
 ## SYNOPSIS
+
 Test if a local user exists and is enabled.
 
 ## SYNTAX
 
 ### Default (Default)
-```
+
+```powershell
 Measure-LocalUser [-Target] <String> [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ### Property
-```
+
+```powershell
 Measure-LocalUser [-Target] <String> [[-Property] <String>] [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Test if a local user exists and is enabled.
 
 ## EXAMPLES
 
-### EXAMPLE 1
-```
+### EXAMPLE 1: Test if the account exists
+
+```powershell
 LocalUser 'Guest' { should -Not -BeNullOrEmpty }
 ```
 
-### EXAMPLE 2
-```
+### EXAMPLE 2: Test if the account is enabled
+
+```powershell
 LocalUser 'Guest' Disabled { should -Be $true }
 ```
 
 ## PARAMETERS
 
 ### -Target
+
 The local user name to test for.
 Eg 'Guest'
 
@@ -56,6 +63,7 @@ Accept wildcard characters: False
 ```
 
 ### -Property
+
 The property of the account to test
 
 ```yaml
@@ -71,6 +79,7 @@ Accept wildcard characters: False
 ```
 
 ### -Should
+
 A Script Block defining a Pester Assertion.
 
 ```yaml
@@ -86,13 +95,19 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
+
 Assertions: Be, BeExactly, BeNullOrEmpty, Match, MatchExactly
 
 ## RELATED LINKS

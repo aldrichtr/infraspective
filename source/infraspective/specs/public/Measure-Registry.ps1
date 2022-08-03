@@ -1,37 +1,39 @@
 function Measure-Registry {
     <#
-    .SYNOPSIS
-        Test a Registry Key.
-    .DESCRIPTION
-        Test the Existance of a Key or the Value of a given Property.
-    .PARAMETER Target
-        Specifies the path to an item.
-    .PARAMETER Property
-        Specifies a property at the specified Path.
-    .PARAMETER Should
-        A Script Block defining a Pester Assertion.
-    .EXAMPLE
-        Registry HKLM:\SOFTWARE\Microsoft\Rpc\ClientProtocols { Should Exist }
-    .EXAMPLE
-        Registry HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\ "NV Domain" { Should Be mybiz.local  }
-    .EXAMPLE
-        Registry 'HKLM:\SOFTWARE\Callahan Auto\' { Should Not Exist }
-    .NOTES
-        Assertions: Be, BeExactly, Exist, Match, MatchExactly
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('Registry')]
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param(
-        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Default')]
-        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Property')]
+        [Parameter(
+            ParameterSetName = 'Default',
+            Position = 1,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = 'Property',
+            Position = 1,
+            Mandatory
+        )]
         [Alias('Path')]
         [string]$Target,
 
-        [Parameter(Position = 2, ParameterSetName = 'Property')]
+        [Parameter(
+            ParameterSetName = 'Property',
+            Position = 2
+        )]
         [string]$Property,
 
-        [Parameter(Mandatory, Position = 2, ParameterSetName = 'Default')]
-        [Parameter(Mandatory, Position = 3, ParameterSetName = 'Property')]
+        [Parameter(
+            ParameterSetName = 'Default',
+            Position = 2,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = 'Property',
+            Position = 3,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
 

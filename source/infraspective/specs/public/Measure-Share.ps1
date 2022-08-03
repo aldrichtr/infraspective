@@ -1,27 +1,22 @@
 
 function Measure-Share {
     <#
-    .SYNOPSIS
-        Test if a share exists.
-    .DESCRIPTION
-        Test if a share exists.
-    .EXAMPLE
-        Share 'MyShare' { should -Not -BeNullOrEmpty }
-    .EXAMPLE
-        Share 'BadShare' { should -BeNullOrEmpty }
-    .NOTES
-        Assertions: BeNullOrEmpty
+    .EXERNALHELP infraspective-help.xml
     #>
     [Alias('Share')]
     [CmdletBinding()]
     param(
-        # The share name to test for. Eg 'C$' or 'MyShare'
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias('Name')]
         [string]$Target,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2)]
+        [Parameter(
+            Position = 2,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
     begin {

@@ -1,51 +1,7 @@
 
 function Measure-AppPool {
     <#
-    .SYNOPSIS
-        Test an Application Pool
-    .DESCRIPTION
-        `AppPool` will test IIS Application Pool status and validate various properties.  Nested properties are
-        supported and can be accessed by using a '.' as the separator such as `property.subproperty`
-
-    .EXAMPLE
-        AppPool TestSite { Should -Be Started } | Foreach-Object {
-            "Hello second line of code"
-        }
-
-        ```Output
-        true
-        ```
-
-        Title: Test the status of the AppPool
-
-        This is additional text about example number 1
-
-        But this is even more text about example number 1, and there should be a blank line before
-        it, but not in the middle here
-    .EXAMPLE
-        Test a property of the AppPool
-
-        AppPool TestSite ManagedPipelineMode { Should -Be 'Integrated' }
-
-    .EXAMPLE
-        AppPool TestSite ProcessModel.IdentityType { Should -Be 'ApplicationPoolIdentity'}
-
-        Title: Test a nested property of the AppPool
-
-    .INPUTS
-        [System.String]
-
-    .NOTES
-        Assertions: Be
-
-    .LINK
-        A related link
-    .LINK
-        [Invoke-Infraspective](Invoke-Infraspective.md)
-    .FUNCTIONALITY
-        Testing,WebServer
-    .COMPONENT
-        Specification
+    .EXTERNALHELP infraspective-help.xml
     #>
     [OutputType([System.String])]
     [Alias('AppPool')]

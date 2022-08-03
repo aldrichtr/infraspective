@@ -8,30 +8,39 @@ schema: 2.0.0
 # Write-CustomLog
 
 ## SYNOPSIS
+
 Wrap the Write-Log function
 
 ## SYNTAX
 
-```
+```powershell
 Write-CustomLog [[-Scope] <String>] [[-Level] <String>] [[-Message] <String>] [[-Arguments] <Array>]
  [-Body <Object>] [-ExceptionInfo <ErrorRecord>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Check the Configuration prior to writing to the log
+
+A wrapper around `Write-Log` to allow for additional configuration options such
+as setting logging levels by component.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
-```
+### EXAMPLE 1
 
-{{ Add example description here }}
+```powershell
+$log_option = @{
+            Scope     = 'Audit'
+            Level     = 'INFO'
+            Message   = ''
+            Arguments = ''
+        }
+Write-CustomLog @log_option -Message "Logging initialized"
+```
 
 ## PARAMETERS
 
 ### -Scope
+
 The module that the caller is logging from
 
 ```yaml
@@ -47,6 +56,7 @@ Accept wildcard characters: False
 ```
 
 ### -Level
+
 The Logging Level
 
 ```yaml
@@ -62,6 +72,7 @@ Accept wildcard characters: False
 ```
 
 ### -Message
+
 The Message
 
 ```yaml
@@ -77,7 +88,8 @@ Accept wildcard characters: False
 ```
 
 ### -Arguments
-{{ Fill Arguments Description }}
+
+Arguments supplied to the message format
 
 ```yaml
 Type: Array
@@ -92,7 +104,8 @@ Accept wildcard characters: False
 ```
 
 ### -Body
-{{ Fill Body Description }}
+
+An object that can contain additional log metadata
 
 ```yaml
 Type: Object
@@ -107,7 +120,8 @@ Accept wildcard characters: False
 ```
 
 ### -ExceptionInfo
-{{ Fill ExceptionInfo Description }}
+
+An optional ErrorRecord
 
 ```yaml
 Type: ErrorRecord
@@ -122,7 +136,12 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

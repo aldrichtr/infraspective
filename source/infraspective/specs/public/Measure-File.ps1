@@ -1,27 +1,22 @@
 
 function Measure-File {
-<#
-    .SYNOPSIS
-    Test a File.
-    .DESCRIPTION
-    Test the Existance or Contents of a File..
-    .EXAMPLE
-    File C:\inetpub\wwwroot\iisstart.htm { Should Exist }
-    .EXAMPLE
-    File C:\inetpub\wwwroot\iisstart.htm { Should Contain 'text-align:center' }
-    .NOTES
-    Assertions: Exist and Contain
+    <#
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('File')]
     [CmdletBinding()]
     param(
-        # Specifies the path to an item.
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias("Path")]
         [string]$Target,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2)]
+        [Parameter(
+            Position = 2,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
     begin {

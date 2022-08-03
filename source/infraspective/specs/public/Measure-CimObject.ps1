@@ -1,32 +1,28 @@
 
 function Measure-CimObject {
     <#
-    .SYNOPSIS
-    Test the value of a CimObject Property.
-    .DESCRIPTION
-    Test the value of a CimObject Property. The Class can be provided with the Namespace. See Example.
-    .EXAMPLE
-    CimObject Win32_OperatingSystem SystemDirectory { Should -Be C:\WINDOWS\system32 }
-    .EXAMPLE
-    CimObject root/StandardCimv2/MSFT_NetOffloadGlobalSetting ReceiveSideScaling { Should -Be Enabled }
-    .NOTES
-    Assertions: Be, BeExactly, Match, MatchExactly
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('CimObject')]
     [CmdletBinding()]
     param(
-        # Specifies the name of the CIM class for which to retrieve the CIM instances. Can be just the ClassName
-        # in the default namespace or in the form of namespace/className to access other namespaces.
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias("ClassName")]
         [string]$Target,
 
-        # Specifies an instance property to retrieve.
-        [Parameter(Mandatory, Position = 2)]
+        [Parameter(
+            Position = 2,
+            Mandatory
+        )]
         [string]$Property,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 3)]
+        [Parameter(
+            Position = 3,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
 

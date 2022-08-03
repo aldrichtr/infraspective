@@ -8,38 +8,45 @@ schema: 2.0.0
 # Measure-Service
 
 ## SYNOPSIS
+
 Test a Service.
 
 ## SYNTAX
 
-### prop (Default)
-```
+### Default
+
+```powershell
 Measure-Service [-Target] <String> [[-Property] <String>] [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
-### noprop
-```
+### NoProperty
+
+```powershell
 Measure-Service [-Target] <String> [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Test the Status of a given Service.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 Service w32time { Should -Be Running }
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 Service bits { Should -Be Stopped }
 ```
 
 ## PARAMETERS
 
 ### -Target
+
 Specifies the service names of service.
 
 ```yaml
@@ -55,7 +62,8 @@ Accept wildcard characters: False
 ```
 
 ### -Property
-Specifies the Property of the Service to test. 
+
+Specifies the Property of the Service to test.
 Defaults to 'Status'
 
 ```yaml
@@ -71,6 +79,7 @@ Accept wildcard characters: False
 ```
 
 ### -Should
+
 A Script Block defining a Pester Assertion.
 
 ```yaml
@@ -86,13 +95,19 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
+
 Only validates the Status property.
 Assertions: Be
 

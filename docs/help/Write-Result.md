@@ -8,32 +8,35 @@ schema: 2.0.0
 # Write-Result
 
 ## SYNOPSIS
+
 Write the results to the screen
 
 ## SYNTAX
 
-```
+```powershell
 Write-Result [-Scope] <ResultScope> [-Type] <String> [-Data <Hashtable>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-\`Write-Result\` sends formatted output to the Information stream (6). 
-The format
-of the output is controlled by the 'Output' key in the Configuration settings.
+
+`Write-Result` sends formatted output to the Information stream (6).
+The format of the output is controlled by the 'Output' key in the Configuration
+settings.
 
 ## EXAMPLES
 
-### Example 1
+### EXAMPLE 1
+
 ```powershell
-PS C:\> {{ Add example code here }}
+Write-Result Audit 'Start' -Data @{Time = Get-Date -format 'yyyy MMM dd HH:mm'}
 ```
 
-{{ Add example description here }}
 
 ## PARAMETERS
 
 ### -Scope
-Scope of result. 
+
+Scope of result.
 'File', 'Checklist', etc.
 See also: about_infraspective_output
 
@@ -51,6 +54,7 @@ Accept wildcard characters: False
 ```
 
 ### -Type
+
 Type of Event.
 'Start', 'End', 'Pass', 'Fail', 'Skip', etc.
 See also: about_infraspective_configuration
@@ -68,10 +72,11 @@ Accept wildcard characters: False
 ```
 
 ### -Data
+
 Each Element passes their Parameters, Statistics and other Metadata in a HashTable
-so that it can be used in the Output template. 
+so that it can be used in the Output template.
 For example:
-Data.Impact = 1 would be available as \<%= $Impact %\>
+Data.Impact = 1 would be available as `<%= $Impact %>`
 
 ```yaml
 Type: Hashtable
@@ -86,13 +91,22 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ### System.String
+
 ## NOTES
 
 ## RELATED LINKS
+
+[about_infraspective_output](about_infraspective_output.md)
+[about_infraspective_output_templates](about_infraspective_output_templates.md)

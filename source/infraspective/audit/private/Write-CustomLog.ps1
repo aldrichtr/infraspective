@@ -1,29 +1,23 @@
 
 function Write-CustomLog {
     <#
-    .SYNOPSIS
-        Wrap the Write-Log function
-    .DESCRIPTION
-        Check the Configuration prior to writing to the log
+    .EXTERNALHELP infraspective-help.xml
     #>
 
     [CmdletBinding()]
     param(
 
-        # The module that the caller is logging from
         [Parameter(
             Position = 0
         )]
         [string]$Scope,
 
-        # The Logging Level
         [Parameter(
             Position = 1
         )]
         [string]$Level,
 
-        # The Message
-        [Parameter(
+       [Parameter(
             Position = 2
         )]
         [string]$Message,

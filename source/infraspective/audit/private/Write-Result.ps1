@@ -1,34 +1,23 @@
 
 function Write-Result {
     <#
-    .SYNOPSIS
-        Write the results to the screen
-    .DESCRIPTION
-        `Write-Result` sends formatted output to the Information stream (6).  The format
-        of the output is controlled by the 'Output' key in the Configuration settings.
+    .EXTERNALHELP infraspective-help.xml
     #>
     [OutputType([string])]
     [CmdletBinding()]
     param(
-        # Scope of result.  'File', 'Checklist', etc.
-        # See also: about_infraspective_output
         [Parameter(
-            Mandatory,
-            Position = 0
+            Position = 1,
+            Mandatory
         )]
         [ResultScope]$Scope,
 
-        # Type of Event. 'Start', 'End', 'Pass', 'Fail', 'Skip', etc.
-        # See also: about_infraspective_configuration
         [Parameter(
-            Mandatory,
-            Position = 1
+            Position = 2,
+            Mandatory
         )]
         [string]$Type,
 
-        # Each Element passes their Parameters, Statistics and other Metadata in a HashTable
-        # so that it can be used in the Output template.  For example:
-        # Data.Impact = 1 would be available as <%= $Impact %>
         [Parameter()]
         [hashtable]$Data
 

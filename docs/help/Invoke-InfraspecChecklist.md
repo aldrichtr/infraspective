@@ -8,30 +8,34 @@ schema: 2.0.0
 # Invoke-InfraspecChecklist
 
 ## SYNOPSIS
+
 A collection of security controls to check against one or more systems.
 
 ## SYNTAX
 
-```
+```powershell
 Invoke-InfraspecChecklist [-Name] <String> [-Body] <ScriptBlock> [-Title <String>] [-Version <Version>]
  [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 A collection of Groupings, and or Controls.
 
 ## EXAMPLES
 
 ### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
-```
 
-{{ Add example description here }}
+```powershell
+Invoke-InfraspecChecklist 'Win10-STIG' -Title 'Windows 10 STIG' {
+    # Groupings, Controls, etc
+}
+```
 
 ## PARAMETERS
 
 ### -Name
+
 A unique name for this checklist
 
 ```yaml
@@ -47,6 +51,7 @@ Accept wildcard characters: False
 ```
 
 ### -Body
+
 The checklist body containing controls
 
 ```yaml
@@ -62,6 +67,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
+
 A descriptive title for this checklist
 
 ```yaml
@@ -77,6 +83,7 @@ Accept wildcard characters: False
 ```
 
 ### -Version
+
 A unique version for this checklist
 
 ```yaml
@@ -92,13 +99,19 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ### Infraspective.Checklist.ResultInfo
+
 ## NOTES
 
 ## RELATED LINKS

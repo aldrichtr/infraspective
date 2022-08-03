@@ -1,37 +1,40 @@
 
 function Measure-Interface {
     <#
-    .SYNOPSIS
-        Test a local network interface.
-    .DESCRIPTION
-        Test a local network interface and optionally and specific property.
-    .EXAMPLE
-        interface ethernet0 { Should -Not -BeNullOrEmpty }
-    .EXAMPLE
-        interface ethernet0 status { Should -Be 'up' }
-    .EXAMPLE
-        Interface Ethernet0 linkspeed { Should -Be '1 gbps' }
-    .EXAMPLE
-        Interface Ethernet0 macaddress { Should -Be '00-0C-29-F2-69-DD' }
-    .NOTES
-        Assertions: Be, BeNullOrEmpty
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('Interface')]
-    [CmdletBinding(DefaultParameterSetName="Default")]
+    [CmdletBinding(DefaultParameterSetName = "Default")]
     param(
-        # Specifies the name of the network adapter to search for.
-        [Parameter(Mandatory, Position = 1, ParameterSetName = "Default")]
-        [Parameter(Mandatory, Position=1,ParameterSetName="Property")]
+        [Parameter(
+            ParameterSetName = "Default",
+            Position = 1,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 1,
+            Mandatory
+        )]
         [Alias('Name')]
         [string]$Target,
 
-        # Specifies an optional property to test for on the adapter.
-        [Parameter(Position=2,ParameterSetName="Property")]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 2
+        )]
         [string]$Property,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position=2,ParameterSetName="Default")]
-        [Parameter(Mandatory, Position=3,ParameterSetName="Property")]
+        [Parameter(
+            Mandatory,
+            Position = 2,
+            ParameterSetName = "Default"
+        )]
+        [Parameter(
+            ParameterSetName="Property",
+            Position = 3,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
    begin {

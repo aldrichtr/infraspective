@@ -3,34 +3,26 @@ Set-Alias -Name Grouping -Value 'Invoke-InfraspecGroup' -Description 'A collecti
 
 function Invoke-InfraspecGroup {
     <#
-    .SYNOPSIS
-        A collection of security controls.
-    .DESCRIPTION
-        This function is aliased by the `Grouping` keyword and maps to the concept of a collection of Controls.
-
+    .EXTERNALHELP infraspective-help.xml
     #>
     [CmdletBinding()]
     param(
-        # The name of the Grouping
         [Parameter(
-            Mandatory,
-            Position = 0
+            Position = 1,
+            Mandatory
         )]
         [string]$Name,
 
-        # The controls associated with this Grouping
         [Parameter(
-            Position = 1
+            Position = 2
         )]
         [ValidateNotNull()]
         [scriptblock]$Body,
 
-        # The title of the Grouping
         [Parameter(
         )]
         [string]$Title,
 
-        # The description of the Grouping
         [Parameter(
         )]
         [string]$Description

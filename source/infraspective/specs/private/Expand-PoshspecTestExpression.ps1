@@ -1,10 +1,7 @@
 
 function Expand-PoshspecTestExpression {
     <#
-    .SYNOPSIS
-        Expand the given expression into a scriptblock
-    .DESCRIPTION
-        Expand the input object into a scriptblock that can be executed by Pester
+    .EXTERNALHELP infraspective-help.xml
     #>
     [CmdletBinding()]
     param(
@@ -20,7 +17,7 @@ function Expand-PoshspecTestExpression {
     begin {
     }
     process {
-        Write-Debug "Expanding  ObjectExpression $ObjectExpression PropertyExpression $PropertyExpression"
+        Write-Debug "Expanding ObjectExpression $ObjectExpression PropertyExpression $PropertyExpression"
         $cmd = [scriptblock]::Create('(' + $ObjectExpression + ')' + '.' + $PropertyExpression)
         Write-Debug "To $($cmd.ToString())"
     }

@@ -8,62 +8,55 @@ schema: 2.0.0
 # Measure-AppPool
 
 ## SYNOPSIS
-Test an Application Pool
+
+Test an IIS Application Pool
 
 ## SYNTAX
 
 ### Default (Default)
-```
+
+```powershell
 Measure-AppPool [-Target] <String> [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ### Property
-```
+
+```powershell
 Measure-AppPool [-Target] <String> [[-Property] <String>] [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-\`AppPool\` will test IIS Application Pool status and validate various properties. 
-Nested properties are
-supported and can be accessed by using a '.' as the separator such as \`property.subproperty\`
+
+`Measure-AppPool` will test IIS Application Pool status and validate various
+properties. Nested properties are supported and can be accessed by using a '.'
+as the separator such as `property.subproperty`.
+
+`Measure-AppPool` is aliased as `AppPool`
 
 ## EXAMPLES
 
-### EXAMPLE 1
-```
-AppPool TestSite { Should -Be Started } | Foreach-Object {
-    "Hello second line of code"
-}
-```
+### EXAMPLE 1: Test the status of the AppPool
 
-\`\`\`Output
-true
-\`\`\`
-
-Title: Test the status of the AppPool
-
-This is additional text about example number 1
-
-But this is even more text about example number 1, and there should be a blank line before
-it, but not in the middle here
-
-### EXAMPLE 2
-```
-Test a property of the AppPool
+```powershell
+Measure-AppPool 'TestSite' { Should -Be Started }
 ```
 
-AppPool TestSite ManagedPipelineMode { Should -Be 'Integrated' }
+### EXAMPLE 2: Test a property of the AppPool
 
-### EXAMPLE 3
-```
-AppPool TestSite ProcessModel.IdentityType { Should -Be 'ApplicationPoolIdentity'}
+```powershell
+Measure-AppPool 'TestSite' 'ManagedPipelineMode' { Should -Be 'Integrated' }
 ```
 
-Title: Test a nested property of the AppPool
+### EXAMPLE 3: Test a nested property of the AppPool
+
+```powershell
+Measure-AppPool 'TestSite' 'ProcessModel.IdentityType' { Should -Be 'ApplicationPoolIdentity'}
+```
 
 ## PARAMETERS
 
 ### -Target
+
 The name of the App Pool to be Tested
 
 ```yaml
@@ -79,8 +72,8 @@ Accept wildcard characters: False
 ```
 
 ### -Property
-The Property to be expanded.
-If Ommitted, Property Will Default to Status.
+
+The Property to be expanded. If omitted, property will default to status.
 Can handle nested objects within properties
 
 ```yaml
@@ -96,6 +89,7 @@ Accept wildcard characters: False
 ```
 
 ### -Should
+
 A Script Block defining a Pester Assertion.
 
 ```yaml
@@ -111,20 +105,18 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ### [System.String]
+
 ## OUTPUTS
 
 ### System.String
+
 ## NOTES
-Assertions: Be
 
+Assertions: -Be
 ## RELATED LINKS
-
-[A related link]()
-
-[[Invoke-Infraspective](Invoke-Infraspective.md)]()
-

@@ -1,10 +1,7 @@
 
 function New-InfraspecAuditState {
     <#
-    .SYNOPSIS
-        Create a new State object to keep track of the current state of an Audit.
-    .DESCRIPTION
-        The state object is used to store and track the current audit variables and values
+    .EXTERNALHELP infraspective-help.xml
     #>
     [CmdletBinding(
         SupportsShouldProcess,

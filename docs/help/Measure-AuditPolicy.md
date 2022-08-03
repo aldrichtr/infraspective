@@ -8,37 +8,43 @@ schema: 2.0.0
 # Measure-AuditPolicy
 
 ## SYNOPSIS
+
 Test an Audit Policy.
 
 ## SYNTAX
 
-```
+```powershell
 Measure-AuditPolicy [-Qualifier] <String> [-Target] <String> [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Test the setting of a particular audit policy .
+
+Test the setting of a particular audit policy
 
 ## EXAMPLES
 
-### EXAMPLE 1
-```
+### EXAMPLE 1: Test that OS generates 'success' audit events
+
+```powershell
 AuditPolicy System "Security System Extension" { Should -Be Success }
 ```
 
-### EXAMPLE 2
-```
+### EXAMPLE 2: Test that OS generates events on success of failure of logon/off
+
+```powershell
 AuditPolicy "Logon/Logoff" Logon { Should -Be "Success and Failure"  }
 ```
 
-### EXAMPLE 3
-```
+### EXAMPLE 3: Test that Auditing is enabled for a given event
+
+```powershell
 AuditPolicy "Account Management" "User Account Management" { Should -Not -Be "No Auditing" }
 ```
 
 ## PARAMETERS
 
 ### -Qualifier
+
 Specifies the category of the Audit Policy.
 
 ```yaml
@@ -54,6 +60,7 @@ Accept wildcard characters: False
 ```
 
 ### -Target
+
 Specifies the subcategory of the Audit policy.
 
 ```yaml
@@ -69,6 +76,7 @@ Accept wildcard characters: False
 ```
 
 ### -Should
+
 A Script Block defining a Pester Assertion.
 
 ```yaml
@@ -84,13 +92,19 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
+
 Assertions: Be, BeExactly, Match, MatchExactly
 
 ## RELATED LINKS

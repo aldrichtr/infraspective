@@ -1,19 +1,18 @@
 function SearchAd {
     <#
-    .SYNOPSIS
-        Search Active Directory for the object
-    .DESCRIPTION
-        Search ActiveDirectory using ADSI searcher
-    .EXAMPLE
-        SearchAd -Name 'taldrich' -ObjectType 'User'
+    .EXTERNALHELP infraspective-help.xml
     #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)]
+        [Parameter(
+            Mandatory
+        )]
         [ValidateNotNullOrEmpty()]
         [string]$Name,
 
-        [Parameter(Mandatory)]
+        [Parameter(
+            Mandatory
+        )]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('User', 'Group', 'OrganizationalUnit')]
         [string]$ObjectType

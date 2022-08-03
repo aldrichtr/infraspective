@@ -8,27 +8,30 @@ schema: 2.0.0
 # Measure-CimObject
 
 ## SYNOPSIS
+
 Test the value of a CimObject Property.
 
 ## SYNTAX
 
-```
+```powershell
 Measure-CimObject [-Target] <String> [-Property] <String> [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Test the value of a CimObject Property.
-The Class can be provided with the Namespace.
-See Example.
+
+Test the value of a CimObject Property.  The Class can be provided with the
+Namespace.  See Example.
 
 ## EXAMPLES
 
-### EXAMPLE 1
-```
+### EXAMPLE 1: Get the windows system directory
+
+```powershell
 CimObject Win32_OperatingSystem SystemDirectory { Should -Be C:\WINDOWS\system32 }
 ```
 
-### EXAMPLE 2
+### EXAMPLE 2: Get a value using a path and property
+
 ```
 CimObject root/StandardCimv2/MSFT_NetOffloadGlobalSetting ReceiveSideScaling { Should -Be Enabled }
 ```
@@ -36,6 +39,7 @@ CimObject root/StandardCimv2/MSFT_NetOffloadGlobalSetting ReceiveSideScaling { S
 ## PARAMETERS
 
 ### -Target
+
 Specifies the name of the CIM class for which to retrieve the CIM instances.
 Can be just the ClassName
 in the default namespace or in the form of namespace/className to access other namespaces.
@@ -53,6 +57,7 @@ Accept wildcard characters: False
 ```
 
 ### -Property
+
 Specifies an instance property to retrieve.
 
 ```yaml
@@ -68,6 +73,7 @@ Accept wildcard characters: False
 ```
 
 ### -Should
+
 A Script Block defining a Pester Assertion.
 
 ```yaml
@@ -83,13 +89,19 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
+
 Assertions: Be, BeExactly, Match, MatchExactly
 
 ## RELATED LINKS

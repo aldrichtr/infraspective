@@ -8,32 +8,37 @@ schema: 2.0.0
 # Measure-Hotfix
 
 ## SYNOPSIS
-Test if a Hotfix is installed.
+
+Test if a Hotfix is installed
 
 ## SYNTAX
 
-```
+```powershell
 Measure-Hotfix [-Target] <String> [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Test if a Hotfix is installed.
+
+Test if a Hotfix is installed
 
 ## EXAMPLES
 
-### EXAMPLE 1
-```
+### EXAMPLE 1: Test that a hotfix is installed
+
+```powershell
 Hotfix KB3116900 { Should -Not -BeNullOrEmpty}
 ```
 
-### EXAMPLE 2
-```
+### EXAMPLE 2: Test that a hotfix is absent
+
+```powershell
 Hotfix KB1112233 { Should -BeNullOrEmpty}
 ```
 
 ## PARAMETERS
 
 ### -Target
+
 The Hotfix ID.
 Eg KB1112233
 
@@ -50,6 +55,7 @@ Accept wildcard characters: False
 ```
 
 ### -Should
+
 A Script Block defining a Pester Assertion.
 
 ```yaml
@@ -65,13 +71,19 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
+
 Assertions: BeNullOrEmpty
 
 ## RELATED LINKS

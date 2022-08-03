@@ -1,40 +1,43 @@
 
 function Measure-TcpPort {
     <#
-    .SYNOPSIS
-        Test a a Tcp Port.
-    .DESCRIPTION
-        Test that a Tcp Port is listening and optionally validate any TestNetConnectionResult property.
-    .EXAMPLE
-        TcpPort localhost 80 PingSucceeded  { Should Be $true }
-    .EXAMPLE
-        TcpPort localhost 80 TcpTestSucceeded { Should Be $true }
-    .NOTES
-        Assertions: Be, BeExactly, Match, MatchExactly
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('TcpPort')]
     [CmdletBinding()]
     param(
-        # Specifies the Domain Name System (DNS) name or IP address of the target computer.
-        [Parameter(Mandatory, Position=1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias("ComputerName")]
         [string]$Target,
 
-        # Specifies the TCP port number on the remote computer.
-        [Parameter(Mandatory, Position=2)]
+        [Parameter(
+            Position = 2,
+            Mandatory
+        )]
         [Alias("Port")]
         [string]$Qualifier,
 
-        # Specifies a property of the TestNetConnectionResult object to test.
-        [Parameter(Mandatory, Position=3)]
-        [ValidateSet("AllNameResolutionResults", "BasicNameResolution", "ComputerName", "Detailed", "DNSOnlyRecords", "InterfaceAlias",
-        "InterfaceDescription", "InterfaceIndex", "IsAdmin", "LLMNRNetbiosRecords", "MatchingIPsecRules", "NameResolutionSucceeded",
-        "NetAdapter", "NetRoute", "NetworkIsolationContext", "PingReplyDetails", "PingSucceeded", "RemoteAddress", "RemotePort",
-        "SourceAddress", "TcpClientSocket", "TcpTestSucceeded", "TraceRoute")]
+        [Parameter(
+            Position = 3,
+            Mandatory
+        )]
+        [ValidateSet(
+            "AllNameResolutionResults", "BasicNameResolution", "ComputerName",
+            "Detailed", "DNSOnlyRecords", "InterfaceAlias", "InterfaceDescription",
+            "InterfaceIndex", "IsAdmin", "LLMNRNetbiosRecords", "MatchingIPsecRules",
+            "NameResolutionSucceeded", "NetAdapter", "NetRoute", "NetworkIsolationContext",
+            "PingReplyDetails", "PingSucceeded", "RemoteAddress", "RemotePort",
+            "SourceAddress", "TcpClientSocket", "TcpTestSucceeded", "TraceRoute"
+        )]
         [string]$Property,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position=4)]
+        [Parameter(
+            Position = 4,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
     begin {

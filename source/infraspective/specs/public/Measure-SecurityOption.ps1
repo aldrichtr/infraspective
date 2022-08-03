@@ -1,24 +1,16 @@
 
 function Measure-SecurityOption {
     <#
-    .SYNOPSIS
-        Test a Security Option.
-    .DESCRIPTION
-        Test the setting of a particular security option.
-    .EXAMPLE
-        SecurityOption 'Accounts: Administrator account status' { Should -Be Disabled }
-    .EXAMPLE
-        SecurityOption 'Domain member: Maximum machine account password age' { Should -Be 30 }
-    .EXAMPLE
-        SecurityOption 'Accounts: Block Microsoft accounts' { Should -Be $null }
-    .NOTES
-        Assertions: Be, BeExactly, Match, MatchExactly
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('SecurityOption')]
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param(
         # Specifies the category of the security option.
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias("Category")]
         [ValidateSet(
             "Accounts: Administrator account status",
@@ -120,13 +112,15 @@ function Measure-SecurityOption {
         )]
         [string]$Target,
 
-        #A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2)]
+        [Parameter(
+            Position = 2,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
 
     begin {
-        function Get-PolicyOptionData {
+        function getPolicyOptionData {
             <#
             .SYNOPSIS
                 Load the Policy option data
@@ -136,29 +130,33 @@ function Measure-SecurityOption {
             [OutputType([hashtable])]
             [CmdletBinding()]
             param(
-                [Parameter(Mandatory = $true)]
+                [Parameter(
+                    Mandatory
+                )]
                 [Microsoft.PowerShell.DesiredStateConfiguration.ArgumentToConfigurationDataTransformation()]
                 [hashtable]$FilePath
             )
             return $FilePath
         }
 
-        function GetSecurityPolicy {
+        function getSecurityPolicy {
             <#
             .SYNOPSIS
                 Get the Security Policy of the given Category
-            .DESCRIPTION
-                Get the Security Policy of the given Category.
+            .NOTES
+                uses the SecurityOptionData.psd1 file in the module root
             #>
             [CmdletBinding()]
             [OutputType([System.Collections.Array])]
             param(
                 # The category of the security policy to lookup
-                [Parameter(Mandatory = $true)]
+                [Parameter(
+                    Mandatory
+                )]
                 [string]$Category
             )
             begin {
-                $securityOptionData = Get-PolicyOptionData -FilePath $("$PSScriptRoot\SecurityOptionData.psd1").Normalize()
+                $securityOptionData = getPolicyOptionData -FilePath $("$PSScriptRoot\SecurityOptionData.psd1").Normalize()
             }
             process {
                 $SecurityOption = $securityOptionData[$Category]
@@ -214,7 +212,7 @@ function Measure-SecurityOption {
     process {
         # Modify the target string to match what is in the SecurityOptionData.psd1 file
         $Category = $Target.Replace(':', '').Replace(' ', '_')
-        $Expression = { GetSecurityPolicy -Category '$Category' }
+        $Expression = { getSecurityPolicy -Category '$Category' }
         $params = Get-PoshspecParam -TestName SecurityOption -TestExpression $Expression @PSBoundParameters
     }
     end {

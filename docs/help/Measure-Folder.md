@@ -8,32 +8,37 @@ schema: 2.0.0
 # Measure-Folder
 
 ## SYNOPSIS
+
 Test if a folder exists.
 
 ## SYNTAX
 
-```
+```powershell
 Measure-Folder [-Target] <String> [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Test if a folder exists.
 
 ## EXAMPLES
 
-### EXAMPLE 1
-```
-folder $env:ProgramData { Should -Exist }
+### EXAMPLE 1: Test for the existence of a folder
+
+```powershell
+Folder $env:ProgramData { Should -Exist }
 ```
 
-### EXAMPLE 2
-```
-folder C:\badfolder { Should -Not -Exist }
+### EXAMPLE 2: Test that a folder does not exist
+
+```powershell
+Folder C:\badfolder { Should -Not -Exist }
 ```
 
 ## PARAMETERS
 
 ### -Target
+
 The path of the folder to search for.
 
 ```yaml
@@ -49,6 +54,7 @@ Accept wildcard characters: False
 ```
 
 ### -Should
+
 A Script Block defining a Pester Assertion.
 
 ```yaml
@@ -64,13 +70,19 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
+
 Assertions: Exist
 
 ## RELATED LINKS

@@ -1,27 +1,22 @@
 
 function Measure-Hotfix {
     <#
-    .SYNOPSIS
-    Test if a Hotfix is installed.
-    .DESCRIPTION
-    Test if a Hotfix is installed.
-    .EXAMPLE
-    Hotfix KB3116900 { Should -Not -BeNullOrEmpty}
-    .EXAMPLE
-    Hotfix KB1112233 { Should -BeNullOrEmpty}
-    .NOTES
-    Assertions: BeNullOrEmpty
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('Hotfix')]
     [CmdletBinding()]
     param(
-        # The Hotfix ID. Eg KB1112233
-        [Parameter(Mandatory,Position=1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias("Id")]
         [string]$Target,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position=2)]
+        [Parameter(
+            Position = 2,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
      begin {

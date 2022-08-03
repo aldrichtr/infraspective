@@ -1,21 +1,15 @@
 
 function Show-AuditTree {
     <#
-    .SYNOPSIS
-        Pretty print an Audit AST
-    .DESCRIPTION
-        An Audit AST is a representation of the "Parent-Child" relationship of Checklists, Controls, etc.
-        Show-AuditTree prints a graphical representation as an indented list
+    .EXTERNALHELP infraspective-help.xml
     #>
     [CmdletBinding()]
     param(
-        # The tree to print
         [Parameter(
             ValueFromPipeline
         )]
         [Object]$Tree,
 
-        # Current depth
         [Parameter(
         )]
         [int]$Level

@@ -8,30 +8,38 @@ schema: 2.0.0
 # Invoke-InfraspecInclude
 
 ## SYNOPSIS
+
 Include the contents of the given files.
 
 ## SYNTAX
 
-```
+```powershell
 Invoke-InfraspecInclude [-Path] <String[]> [-Filter <String>] [-Include <String[]>] [-Exclude <String[]>]
  [-FollowSymlink] [-Recurse] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Include the contents of the given file and execute the tests.
 
 ## EXAMPLES
 
-### Example 1
+### EXAMPLE 1: Include a file
+
 ```powershell
-PS C:\> {{ Add example code here }}
+    Include 'Controls/dns-services.Control.ps1'
 ```
 
-{{ Add example description here }}
+### EXAMPLE 2: Include a directory of files with filters
+
+```powershell
+Include 'Controls/' -Filter "*.Control.ps1" -Recurse
+```
 
 ## PARAMETERS
 
 ### -Path
+
 Specifies a path to one or more locations.
 Wildcards are accepted.
 
@@ -48,6 +56,7 @@ Accept wildcard characters: False
 ```
 
 ### -Filter
+
 Specifies a filter to qualify the Path parameter
 
 ```yaml
@@ -63,7 +72,9 @@ Accept wildcard characters: False
 ```
 
 ### -Include
-Specifies an array of one or more string patterns to be matched as the cmdlet gets child items
+
+Specifies an array of one or more string patterns to be matched as the cmdlet
+gets child items
 
 ```yaml
 Type: String[]
@@ -78,7 +89,9 @@ Accept wildcard characters: False
 ```
 
 ### -Exclude
-Specifies an array of one or more string patterns to be matched as the cmdlet gets child items
+
+Specifies an array of one or more string patterns to be matched as the cmdlet
+gets child items
 
 ```yaml
 Type: String[]
@@ -93,7 +106,9 @@ Accept wildcard characters: False
 ```
 
 ### -FollowSymlink
-Use the FollowSymlink parameter to search the directories that target those symbolic links
+
+Use the FollowSymlink parameter to search the directories that target those
+symbolic links
 
 ```yaml
 Type: SwitchParameter
@@ -108,7 +123,9 @@ Accept wildcard characters: False
 ```
 
 ### -Recurse
-Gets the items in the specified locations and in all child items of the locations
+
+Gets the items in the specified locations and in all child items of the
+locations
 
 ```yaml
 Type: SwitchParameter
@@ -123,7 +140,12 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

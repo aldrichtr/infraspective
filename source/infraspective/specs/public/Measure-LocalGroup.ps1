@@ -1,27 +1,22 @@
 
 function Measure-LocalGroup {
     <#
-    .SYNOPSIS
-        Test if a local group exists.
-    .DESCRIPTION
-        Test if a local group exists.
-    .EXAMPLE
-        LocalGroup 'Administrators' { Should -Not -BeNullOrEmpty }
-    .EXAMPLE
-        LocalGroup 'BadGroup' { Should -BeNullOrEmpty }
-    .NOTES
-        Assertions: BeNullOrEmpty
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('LocalGroup')]
     [CmdletBinding()]
     param(
-        # The local group name to test for. Eg 'Administrators'
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias('Name')]
         [string]$Target,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2)]
+        [Parameter(
+            Position = 2,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
     begin {

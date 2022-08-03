@@ -4,35 +4,29 @@ Set-Alias -Name Checklist -Value 'Invoke-InfraspecChecklist' -Description 'Execu
 
 function Invoke-InfraspecChecklist {
     <#
-    .SYNOPSIS
-        A collection of security controls to check against one or more systems.
-    .DESCRIPTION
-        A collection of Groupings, and or Controls.
+    .EXTERNALHELP infraspective-help.xml
     #>
     [OutputType('Infraspective.Checklist.ResultInfo')]
     [CmdletBinding()]
     param(
-        # A unique name for this checklist
-        [Parameter(
-            Mandatory,
-            Position = 0
-        )]
-        [string]$Name,
-
-        # The checklist body containing controls
         [Parameter(
             Mandatory,
             Position = 1
         )]
+        [string]$Name,
+
+        [Parameter(
+            Mandatory,
+            Position = 2
+        )]
         [scriptblock]$Body,
 
-        # A descriptive title for this checklist
         [Parameter(
         )]
         [string]$Title,
 
-        # A unique version for this checklist
-        [Parameter()]
+        [Parameter(
+        )]
         [version]$Version
     )
 

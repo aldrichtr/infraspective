@@ -8,30 +8,38 @@ schema: 2.0.0
 # Invoke-Infraspective
 
 ## SYNOPSIS
+
 Perform an audit on the specified hosts
 
 ## SYNTAX
 
-```
+```powershell
 Invoke-Infraspective [[-Path] <String[]>] [[-Configuration] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Run checklists, groupings and controls in files specified in the configuration.
 
 ## EXAMPLES
 
-### Example 1
+### EXAMPLE 1: Run an audit using the defaults
+
 ```powershell
-PS C:\> {{ Add example code here }}
+Invoke-Infraspective
 ```
 
-{{ Add example description here }}
+### EXAMPLE 2: Run an audit using a specific configuration
+
+```powershell
+Invoke-Infraspective -Configuration './audit.psd1'
+```
 
 ## PARAMETERS
 
 ### -Path
-{{ Fill Path Description }}
+
+Specify a path to the files containing the checklists, controls, etc.
 
 ```yaml
 Type: String[]
@@ -46,6 +54,7 @@ Accept wildcard characters: False
 ```
 
 ### -Configuration
+
 Alternate configuration file
 
 ```yaml
@@ -61,6 +70,7 @@ Accept wildcard characters: False
 ```
 
 ### -WhatIf
+
 Shows what would happen if the cmdlet runs.
 The cmdlet is not run.
 
@@ -77,6 +87,7 @@ Accept wildcard characters: False
 ```
 
 ### -Confirm
+
 Prompts you for confirmation before running the cmdlet.
 
 ```yaml
@@ -92,7 +103,12 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

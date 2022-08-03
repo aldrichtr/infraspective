@@ -8,28 +8,32 @@ schema: 2.0.0
 # SearchAd
 
 ## SYNOPSIS
+
 Search Active Directory for the object
 
 ## SYNTAX
 
-```
+```powershell
 SearchAd [-Name] <String> [-ObjectType] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Search ActiveDirectory using ADSI searcher
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 SearchAd -Name 'taldrich' -ObjectType 'User'
 ```
 
 ## PARAMETERS
 
 ### -Name
-{{ Fill Name Description }}
+
+The property name to search
 
 ```yaml
 Type: String
@@ -44,7 +48,9 @@ Accept wildcard characters: False
 ```
 
 ### -ObjectType
-{{ Fill ObjectType Description }}
+
+The type of ADSI object. Accepted values are `User`, `Group`, and
+`OrganizationalUnit`
 
 ```yaml
 Type: String
@@ -59,7 +65,12 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

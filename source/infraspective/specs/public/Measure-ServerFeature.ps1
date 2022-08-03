@@ -1,51 +1,55 @@
 
 function Measure-ServerFeature {
     <#
-    .SYNOPSIS
-        Test if a Windows feature is installed.
-    .DESCRIPTION
-        Test if a Windows feature is installed.
-
-        Note that this function uses 'Get-WindowsFeature' to retrieve the list of features installed.
-        This cmdlet does not work on a desktop operating system to retieve the list of locally installed
-        features and as such is not supported on the desktop.
-    .EXAMPLE
-        ServerFeature Web-Server { Should -Be $true }
-    .EXAMPLE
-        ServerFeature TelnetClient { Should -Be $false }
-    .EXAMPLE
-        ServerFeature Web-Server InstallState { Should -Be 'Installed' }
-    .EXAMPLE
-        ServerFeature Remote-Access InstallState { Should -Be 'Available' }
-    .NOTES
-        Assertions: Be, BeNullOrEmpty
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('ServerFeature')]
-    [CmdletBinding(DefaultParameterSetName = 'prop')]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param(
-        # The Windows feature name to test for
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [string]$Target,
 
-        # The optional property on the feature to test for. If not specified, will default to the 'Installed' property.
-        [Parameter(Position = 2, ParameterSetName = 'prop')]
-        [ValidateSet('BestPracticesModelId', 'DependsOn', 'Depth', 'DisplayName', 'FeatureType', 'Installed', 'InstallState',
-        'Name', 'Notification', 'Parent', 'Path', 'ServerComponentDescriptor', 'SubFeatures', 'SystemService')]
+        [Parameter(
+            ParameterSetName = 'Default',
+            Position = 2
+        )]
+        [ValidateSet(
+            'BestPracticesModelId', 'DependsOn', 'Depth',
+            'DisplayName', 'FeatureType', 'Installed', 'InstallState',
+            'Name', 'Notification', 'Parent', 'Path', 'ServerComponentDescriptor',
+            'SubFeatures', 'SystemService'
+        )]
         [string]$Property = 'Installed',
 
         # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2, ParameterSetName = 'noprop')]
-        [Parameter(Mandatory, Position = 3, ParameterSetName = 'prop')]
+        [Parameter(
+            ParameterSetName = 'NoProperty',
+            Position = 2,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = 'Default',
+            Position = 3,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
     begin {
-        function GetFeature([string]$Name) {
+        function getFeature {
             <#
             .SYNOPSIS
-            Wrap Get-WindowsFeature
+                Wrap Get-WindowsFeature
             .DESCRIPTION
-                Wrap 'Get-WindowsFeature' in a function so the progress bar can be supressed
+                Wrap 'Get-WindowsFeature' in a function mainly so the progress bar can be supressed
             #>
+            param(
+                [Parameter(
+                )]
+                [string]$Name
+            )
 
             $progPref = $ProgressPreference
             $ProgressPreference = 'SilentlyContinue'
@@ -61,7 +65,7 @@ function Measure-ServerFeature {
             $PSBoundParameters.Add('Property', $Property)
         }
 
-        $expression = { GetFeature -Name $Target }
+        $expression = { getFeature -Name $Target }
 
         $params = Get-PoshspecParam -TestName ServerFeature -TestExpression $expression @PSBoundParameters
     }

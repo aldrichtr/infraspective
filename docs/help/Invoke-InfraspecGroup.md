@@ -8,30 +8,35 @@ schema: 2.0.0
 # Invoke-InfraspecGroup
 
 ## SYNOPSIS
+
 A collection of security controls.
 
 ## SYNTAX
 
-```
+```powershell
 Invoke-InfraspecGroup [-Name] <String> [[-Body] <ScriptBlock>] [-Title <String>] [-Description <String>]
  [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-This function is aliased by the \`Grouping\` keyword and maps to the concept of a collection of Controls.
+
+This function is aliased by the `Grouping` keyword and maps to the concept of a
+collection of Controls.
 
 ## EXAMPLES
 
 ### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
-```
 
-{{ Add example description here }}
+```powershell
+Grouping 'Windows client' -Title 'Tests for Windows clients' {
+    # Groupings, Controls, etc
+}
+```
 
 ## PARAMETERS
 
 ### -Name
+
 The name of the Grouping
 
 ```yaml
@@ -47,6 +52,7 @@ Accept wildcard characters: False
 ```
 
 ### -Body
+
 The controls associated with this Grouping
 
 ```yaml
@@ -62,6 +68,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
+
 The title of the Grouping
 
 ```yaml
@@ -77,6 +84,7 @@ Accept wildcard characters: False
 ```
 
 ### -Description
+
 The description of the Grouping
 
 ```yaml
@@ -92,7 +100,12 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

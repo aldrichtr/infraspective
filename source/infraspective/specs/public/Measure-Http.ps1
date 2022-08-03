@@ -1,35 +1,31 @@
 
 function Measure-Http {
     <#
-    .SYNOPSIS
-        Test a Web Service.
-    .DESCRIPTION
-        Test that a Web Service is reachable and optionally returns specific content.
-    .EXAMPLE
-        Http http://localhost StatusCode { Should -Be 200 }
-    .EXAMPLE
-        Http http://localhost RawContent { Should -Match 'X-Powered-By: ASP.NET' }
-    .EXAMPLE
-        Http http://localhost RawContent { Should -Not -Match 'X-Powered-By: Cobal' }
-    .NOTES
-        Assertions: Be, BeExactly, Match, MatchExactly
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('Http')]
     [CmdletBinding()]
     param(
-        # Specifies the Uniform Resource Identifier (URI) of the Internet resource to which the web request is sent.
-        [Parameter(Mandatory, Position = 1)]
+
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias("Uri")]
         [string]$Target,
 
-        # Specifies a property of the WebResponseObject object to test.
-        [Parameter(Mandatory, Position=2)]
+        [Parameter(
+            Position=2,
+            Mandatory
+        )]
         [ValidateSet("BaseResponse", "Content", "Headers", "RawContent",
          "RawContentLength", "RawContentStream", "StatusCode", "StatusDescription")]
         [string]$Property,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position=3)]
+        [Parameter(
+            Position=3,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
     begin {

@@ -1,44 +1,55 @@
 
 function Measure-Volume {
     <#
-    .SYNOPSIS
-        Test the volume specified
-    .DESCRIPTION
-        Can be specified to target a specific volume for testing
-    .EXAMPLE
-        Volume C HealthStatus { Should -Be 'Healthy' }
-    .EXAMPLE
-        Volume C FileSystem { Should -Be 'NTFS' }
-    .EXAMPLE
-        Volume D AllocationUnitSize { Should -Cbe 64K }
-    .EXAMPLE
-        Volume MyFileSystemLabel SizeRemaining { Should -BeGreaterThan 1GB }
-    .NOTES
-        Assertions: Be
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('Volume')]
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param(
-        # Specifies the drive letter or file system label of the volume to test
-        [Parameter(Mandatory, Position = 1, ParameterSetName = "Default")]
-        [Parameter(Mandatory, Position = 1, ParameterSetName = "Property")]
+        [Parameter(
+            ParameterSetName = "Default",
+            Position = 1,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 1,
+            Mandatory
+        )]
         [Alias('Name')]
         [string]$Target,
 
-        # Specifies an optional property to test for on the volume
-        [Parameter(Position = 2, ParameterSetName = "Property")]
-        [ValidateSet('AllocationUnitSize', 'DedupMode', 'DriveLetter', 'DriveType', 'FileSystem', 'FileSystemLabel',
-        'FileSystemType', 'HealthStatus', 'ObjectId', 'OperationalStatus', 'Path', 'Size', 'SizeRemaining')]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 2
+        )]
+        [ValidateSet(
+            'AllocationUnitSize', 'DedupMode', 'DriveLetter', 'DriveType', 'FileSystem',
+            'FileSystemLabel', 'FileSystemType', 'HealthStatus', 'ObjectId', 'OperationalStatus',
+            'Path', 'Size', 'SizeRemaining'
+        )]
         [string]$Property,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2, ParameterSetName = "Default")]
-        [Parameter(Mandatory, Position = 3, ParameterSetName = "Property")]
+        [Parameter(
+            ParameterSetName = "Default",
+            Position = 2,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 3,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
 
     begin {
-        function GetVolume([string]$Name) {
+        function getVolume {
+            param(
+                [Parameter(
+                )]
+                [string]$Name
+            )
             <#
             .SYNOPSIS
                 Lookup the volume by drive letter or label

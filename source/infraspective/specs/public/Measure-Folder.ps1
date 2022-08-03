@@ -1,27 +1,22 @@
 
 function Measure-Folder {
     <#
-    .SYNOPSIS
-    Test if a folder exists.
-    .DESCRIPTION
-    Test if a folder exists.
-    .EXAMPLE
-    folder $env:ProgramData { Should -Exist }
-    .EXAMPLE
-    folder C:\badfolder { Should -Not -Exist }
-    .NOTES
-    Assertions: Exist
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('Folder')]
     [CmdletBinding()]
     param(
-        # The path of the folder to search for.
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias('Path')]
         [string]$Target,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position=2)]
+        [Parameter(
+            Position=2,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
     begin {

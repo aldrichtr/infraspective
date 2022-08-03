@@ -8,29 +8,52 @@ schema: 2.0.0
 # Expand-PoshspecTestExpression
 
 ## SYNOPSIS
-Expand the given expression into a scriptblock
+
+Expand the given expression into a scriptblock containing a well formed function
+to be used in a Pester test
 
 ## SYNTAX
 
-```
+```powershell
 Expand-PoshspecTestExpression [-ObjectExpression] <String> [-PropertyExpression] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Expand the input object into a scriptblock that can be executed by Pester
+
+`Expand-PoshspecTestExpression` converts the `ObjectExpression` and the
+`PropertyExpression into an executable statement within a scriptblock.  When a
+given poshspec function is testing a property (or nested property), the
+scriptblock body needs to:
+
+1. Call the underlying function
+
+2. Get the requested property of the object returned by the function.
 
 ## EXAMPLES
 
-### Example 1
+### EXAMPLE 1: Expand a test expression with a property
+
+
 ```powershell
-PS C:\> {{ Add example code here }}
+$expression = { Get-IISAppPool -Name 'TestSite' }
+$exp_string = Expand-PoshspecTestExpression $expression 'ProcessModel.IdentityType'
+
+# result:
+"(Get-IISAppPool -Name 'TestSite').ProcessModel.IdentityType"
 ```
 
-{{ Add example description here }}
+For this example, the test has the following syntax that we want to expand:
+
+`AppPool TestSite ProcessModel.IdentityType { Should -Be 'ApplicationPoolIdentity' }`
+
+Get-PoshspecParam needs to expand the function `Get-IISAppPool` and get the
+Property `ProcessModel.IdentityType`
+
 
 ## PARAMETERS
 
 ### -ObjectExpression
+
 The expression string
 
 ```yaml
@@ -46,6 +69,7 @@ Accept wildcard characters: False
 ```
 
 ### -PropertyExpression
+
 The property string
 
 ```yaml
@@ -61,6 +85,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -70,3 +95,5 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
+
+[Get-PoshspecParam](Get-PoshspecParam.md)

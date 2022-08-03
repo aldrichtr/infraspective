@@ -1,33 +1,40 @@
 
 function Measure-LocalUser {
     <#
-    .SYNOPSIS
-        Test if a local user exists and is enabled.
-    .DESCRIPTION
-        Test if a local user exists and is enabled.
-    .EXAMPLE
-        LocalUser 'Guest' { should -Not -BeNullOrEmpty }
-    .EXAMPLE
-        LocalUser 'Guest' Disabled { should -Be $true }
-    .NOTES
-        Assertions: Be, BeExactly, BeNullOrEmpty, Match, MatchExactly
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('LocalUser')]
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param(
-        # The local user name to test for. Eg 'Guest'
-        [Parameter(Mandatory, Position = 1, ParameterSetName = "Default")]
-        [Parameter(Mandatory, Position = 1, ParameterSetName = "Property")]
+        [Parameter(
+            ParameterSetName = "Default",
+            Position = 1,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 1,
+            Mandatory
+        )]
         [Alias('Name')]
         [string]$Target,
 
-        # The property of the account to test
-        [Parameter(Position = 2, ParameterSetName = "Property")]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 2
+        )]
         [string]$Property,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2, ParameterSetName = "Default")]
-        [Parameter(Mandatory, Position = 3, ParameterSetName = "Property")]
+        [Parameter(
+            ParameterSetName = "Default",
+            Position = 2,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = "Property",
+            Position = 3,
+            Mandatory
+            )]
         [scriptblock]$Should
     )
     begin {

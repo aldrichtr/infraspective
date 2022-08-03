@@ -1,27 +1,22 @@
 
 function Measure-DnsHost {
     <#
-    .SYNOPSIS
-    Test DNS resolution to a host.
-    .DESCRIPTION
-    Test DNS resolution to a host.
-    .EXAMPLE
-    dnshost nonexistenthost.mymadeupdomain.tld { Should -Be $null }
-    .EXAMPLE
-    dnshost www.google.com { Should -Not -Be $null }
-    .NOTES
-    Assertions: be
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('DnsHost')]
     [CmdletBinding()]
     param(
-        # The hostname to resolve in DNS.
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias('Name')]
         [string]$Target,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2)]
+        [Parameter(
+            Position = 2,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
     begin {

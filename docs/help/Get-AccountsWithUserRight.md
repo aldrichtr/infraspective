@@ -8,42 +8,43 @@ schema: 2.0.0
 # Get-AccountsWithUserRight
 
 ## SYNOPSIS
+
 Gets all accounts that are assigned a specified privilege
 
 ## SYNTAX
 
-```
+```powershell
 Get-AccountsWithUserRight [-Right] <Rights[]> [-ComputerName <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Retrieves a list of all accounts that hold a specified right (privilege).
-The accounts returned are those
-that hold the specified privilege directly through the user account, not as part of membership to a group.
+
+Retrieves a list of all accounts that hold a specified right (privilege).  The
+accounts returned are those that hold the specified privilege directly through
+the user account, not as part of membership to a group.
 
 ## EXAMPLES
 
-### EXAMPLE 1
-```
-# Return a list of all accounts that hold the "Log on as a service" right.
+### EXAMPLE 1: Get all accounts that hold the "Log on as a service" right
+
+```powershell
 Get-AccountsWithUserRight SeServiceLogonRight
 ```
 
-### EXAMPLE 2
-```
-powershell
-# Returns a list of accounts that hold the "Log on as a service" right, and a list of accounts that hold
-# the "Debug programs" right, on the TESTPC system.
+### EXAMPLE 2: Get all accounts that hold a list of rights on a specific computer
+
+```powershell
 Get-AccountsWithUserRight -Right SeServiceLogonRight,SeDebugPrivilege -ComputerName TESTPC
 ```
 
 ## PARAMETERS
 
 ### -Right
-Name of the right to query.
-More than one right may be listed.
+
+Name of the right to query.  More than one right may be listed.
 Possible values:
 
+```
 Right                             |   Description
 ----------------------------------|---------------------------------------------------------------
 SeTrustedCredManAccessPrivilege   |  Access Credential Manager as a trusted caller
@@ -84,13 +85,14 @@ SeSystemEnvironmentPrivilege      |  Modify firmware environment values
 SeManageVolumePrivilege           |  Perform volume maintenance tasks
 SeProfileSingleProcessPrivilege   |  Profile single process
 SeSystemProfilePrivilege          |  Profile system performance
-SeUnsolicitedInputPrivilege       |  "Read unsolicited input from a terminal device"
+SeUnsolicitedInputPrivilege       |  Read unsolicited input from a terminal device
 SeUndockPrivilege                 |  Remove computer from docking station
 SeAssignPrimaryTokenPrivilege     |  Replace a process level token
 SeRestorePrivilege                |  Restore files and directories
 SeShutdownPrivilege               |  Shut down the system
 SeSyncAgentPrivilege              |  Synchronize directory service data
 SeTakeOwnershipPrivilege          |  Take ownership of files or other objects
+```
 
 ```yaml
 Type: Rights[]
@@ -106,6 +108,7 @@ Accept wildcard characters: False
 ```
 
 ### -ComputerName
+
 Specifies the name of the computer on which to run this cmdlet.
 If the input for this parameter is
 omitted, then the cmdlet runs on the local computer.
@@ -123,23 +126,25 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ### [string] Account
+
 ### [string] Right
+
 ## NOTES
 
 ## RELATED LINKS
 
-[http://msdn.microsoft.com/en-us/library/ms721792.aspx](http://msdn.microsoft.com/en-us/library/ms721792.aspx)
+[Enumerate accounts](http://msdn.microsoft.com/en-us/library/ms721792.aspx)
 
-[http://msdn.microsoft.com/en-us/library/bb530716.aspx](http://msdn.microsoft.com/en-us/library/bb530716.aspx)
-
-[UserRightsAssignment]()
-
-[about_Specifications]()
-
+[Privilege constants](http://msdn.microsoft.com/en-us/library/bb530716.aspx)

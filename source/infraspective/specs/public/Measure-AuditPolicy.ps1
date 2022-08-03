@@ -1,24 +1,15 @@
 
 function Measure-AuditPolicy {
     <#
-    .SYNOPSIS
-    Test an Audit Policy.
-    .DESCRIPTION
-    Test the setting of a particular audit policy .
-    .EXAMPLE
-    AuditPolicy System "Security System Extension" { Should -Be Success }
-    .EXAMPLE
-    AuditPolicy "Logon/Logoff" Logon { Should -Be "Success and Failure"  }
-    .EXAMPLE
-    AuditPolicy "Account Management" "User Account Management" { Should -Not -Be "No Auditing" }
-    .NOTES
-    Assertions: Be, BeExactly, Match, MatchExactly
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('AuditPolicy')]
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param(
-        # Specifies the category of the Audit Policy.
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [Alias("Category")]
         [ValidateSet(
             "System", "Logon/Logoff", "Object Access", "Privilege Use",
@@ -26,8 +17,10 @@ function Measure-AuditPolicy {
         )]
         [string]$Qualifier,
 
-        # Specifies the subcategory of the Audit policy.
-        [Parameter(Mandatory, Position = 2)]
+        [Parameter(
+            Position = 2,
+            Mandatory
+        )]
         [Alias("Subcategory")]
         [ValidateSet(
             "Security System Extension", "System Integrity", "IPsec Driver", "Other System Events",
@@ -51,17 +44,20 @@ function Measure-AuditPolicy {
         )]
         [string]$Target,
 
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 3)]
+        [Parameter(
+            Position = 3,
+            Mandatory
+        )]
         [scriptblock]$Should
     )
     begin {
-        function GetAuditPolicy {
+        function getAuditPolicy {
             <#
             .SYNOPSIS
                 Retrieve the given audit policy
             .DESCRIPTION
-                A wrapper around auditpol
+                A wrapper around auditpol command that tests for elevated privileges first
+                and throws an exception if not.
             #>
             [CmdletBinding()]
             param(
@@ -97,7 +93,7 @@ function Measure-AuditPolicy {
         }
     }
     process {
-        $expression = { GetAuditPolicy -Category '$Qualifier' -Subcategory '$Target' }
+        $expression = { getAuditPolicy -Category '$Qualifier' -Subcategory '$Target' }
         $params = Get-PoshspecParam -TestName AuditPolicy -TestExpression $expression @PSBoundParameters
     }
     end {

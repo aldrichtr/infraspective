@@ -1,40 +1,48 @@
 
 function Measure-WebSite {
     <#
-    .SYNOPSIS
-        Test a Web Site
-    .DESCRIPTION
-        Used To Determine if Web Site is Running and Validate Various Properties
-    .EXAMPLE
-        WebSite TestSite { Should -Be Started }
-    .EXAMPLE
-        WebSite TestSite 'Applications["/"].Path' { Should -Be '/' }
-    .EXAMPLE
-      WebSite TestSite ProcessModel.IdentityType { Should -Be 'ApplicationPoolIdentity'}
-    .NOTES
-        Assertions: Be
+    .EXTERNALHELP infraspective-help.xml
     #>
     [Alias('WebSite')]
     [CmdletBinding(DefaultParameterSetName = 'Default')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('Measure-RequiresModules\Measure-RequiresModules', '')]
     param(
-        #The name of the Web Site to be Tested
-        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Default')]
-        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Property')]
+        [Parameter(
+            ParameterSetName = 'Default',
+            Position = 1,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = 'Property',
+            Position = 1,
+            Mandatory
+        )]
         [Alias('Path')]
         [string]$Target,
 
-        # The Property to be expanded. If Ommitted, Property Will Default to Status. Can handle nested objects
-        # within properties
-        [Parameter(Position = 2, ParameterSetName = 'Property')]
-        [Parameter(Position = 2, ParameterSetName = 'Index')]
+        [Parameter(
+            ParameterSetName = 'Property',
+            Position = 2
+            )]
+        [Parameter(
+            ParameterSetName = 'Index',
+            Position = 2
+            )]
         [string]$Property,
 
-        [Parameter(Position = 3, ParameterSetName = 'Index')]
-
-        # A Script Block defining a Pester Assertion.
-        [Parameter(Mandatory, Position = 2, ParameterSetName = 'Default')]
-        [Parameter(Mandatory, Position = 3, ParameterSetName = 'Property')]
+        [Parameter(
+            ParameterSetName = 'Default',
+            Position = 2,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = 'Property',
+            Position = 3,
+            Mandatory
+        )]
+        [Parameter(
+            ParameterSetName = 'Index',
+            Position = 3
+        )]
         [scriptblock]$Should
     )
 

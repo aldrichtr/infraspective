@@ -8,32 +8,37 @@ schema: 2.0.0
 # Measure-File
 
 ## SYNOPSIS
+
 Test a File.
 
 ## SYNTAX
 
-```
+```powershell
 Measure-File [-Target] <String> [-Should] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Test the Existance or Contents of a File..
+
+Test the Existence or Contents of a File
 
 ## EXAMPLES
 
-### EXAMPLE 1
-```
-File C:\inetpub\wwwroot\iisstart.htm { Should Exist }
+### EXAMPLE 1: Test that a file exists
+
+```powershell
+File C:\inetpub\wwwroot\iisstart.htm { Should -Exist }
 ```
 
-### EXAMPLE 2
-```
-File C:\inetpub\wwwroot\iisstart.htm { Should Contain 'text-align:center' }
+### EXAMPLE 2: Test that the file has given content
+
+```powershell
+File C:\inetpub\wwwroot\iisstart.htm { Should -Contain 'text-align:center' }
 ```
 
 ## PARAMETERS
 
 ### -Target
+
 Specifies the path to an item.
 
 ```yaml
@@ -49,6 +54,7 @@ Accept wildcard characters: False
 ```
 
 ### -Should
+
 A Script Block defining a Pester Assertion.
 
 ```yaml
@@ -64,13 +70,19 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
+
 Assertions: Exist and Contain
 
 ## RELATED LINKS

@@ -8,33 +8,39 @@ schema: 2.0.0
 # Measure-TcpPort
 
 ## SYNOPSIS
+
 Test a a Tcp Port.
 
 ## SYNTAX
 
-```
+```powershell
 Measure-TcpPort [-Target] <String> [-Qualifier] <String> [-Property] <String> [-Should] <ScriptBlock>
  [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Test that a Tcp Port is listening and optionally validate any TestNetConnectionResult property.
+
+Test that a Tcp Port is listening and optionally validate any
+TestNetConnectionResult property.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 TcpPort localhost 80 PingSucceeded  { Should Be $true }
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 TcpPort localhost 80 TcpTestSucceeded { Should Be $true }
 ```
 
 ## PARAMETERS
 
 ### -Target
+
 Specifies the Domain Name System (DNS) name or IP address of the target computer.
 
 ```yaml
@@ -50,6 +56,7 @@ Accept wildcard characters: False
 ```
 
 ### -Qualifier
+
 Specifies the TCP port number on the remote computer.
 
 ```yaml
@@ -65,6 +72,7 @@ Accept wildcard characters: False
 ```
 
 ### -Property
+
 Specifies a property of the TestNetConnectionResult object to test.
 
 ```yaml
@@ -80,6 +88,7 @@ Accept wildcard characters: False
 ```
 
 ### -Should
+
 A Script Block defining a Pester Assertion.
 
 ```yaml
@@ -95,13 +104,19 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction,
+-ErrorVariable, -InformationAction, -InformationVariable, -OutVariable,
+-OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
+
 Assertions: Be, BeExactly, Match, MatchExactly
 
 ## RELATED LINKS
