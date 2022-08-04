@@ -13,38 +13,34 @@ function Measure-AppPool {
     )]
 
     param(
-        # The name of the App Pool to be Tested
         [Parameter(
-            ParameterSetName='Default',
+            ParameterSetName = 'Default',
             Mandatory,
-            Position = 0
-            )]
+            Position = 1
+        )]
         [Parameter(
-            ParameterSetName='Property',
+            ParameterSetName = 'Property',
             Mandatory,
-            Position = 0
+            Position = 1
         )]
         [Alias('Path')]
         [string]$Target,
 
-        # The Property to be expanded. If Ommitted, Property Will Default to Status.
-        # Can handle nested objects within properties
         [Parameter(
             ParameterSetName = 'Property',
-            Position = 1
+            Position = 2
         )]
         [string]$Property,
 
-        # A Script Block defining a Pester Assertion.
         [Parameter(
-            ParameterSetName='Default',
-            Mandatory,
-            Position = 1
-        )]
-        [Parameter(
-            ParameterSetName='Property',
+            ParameterSetName = 'Default',
             Mandatory,
             Position = 2
+        )]
+        [Parameter(
+            ParameterSetName = 'Property',
+            Mandatory,
+            Position = 3
         )]
         [scriptblock]$Should
     )
@@ -53,24 +49,13 @@ function Measure-AppPool {
         if ($IISAdmin) {
             Import-Module IISAdministration
         } else {
-            function Get-IISSite {
-                <#
-        .SYNOPSIS
-            Get the IIS Site from the localhost using the ServerManager
-        .DESCRIPTION
-            If the IISAdministration module is not installed, this function can be used to retrieve the IIS site
-            using ServerManager.  This function will clash with the IISAdministration module function if it exists,
-            so only load it if it isn't.
-        .EXAMPLE
-            Get-IISSite -Name "default"
-        #>
+            function Get-IisAppPool {
                 [CmdletBinding()]
                 param(
                     [Parameter(Mandatory = $true,
-                        Position = 0)]
+                        Position = 1)]
                     [string]$Name
                 )
-
                 begin {
                     [System.Reflection.Assembly]::LoadFrom("$($Env:windir)\system32\inetsrv\Microsoft.Web.Administration.dll") | Out-Null
                     $ServerManager = [Microsoft.Web.Administration.ServerManager]::OpenRemote('localhost')
@@ -78,15 +63,13 @@ function Measure-AppPool {
 
                 process {
                     try {
-                        Write-Verbose "Getting site $Name"
-                        Write-Output $ServerManager.Sites[$Name]
+                        Write-Verbose "Getting application pool $Name"
+                        Write-Output $ServerManager.ApplicationPools[$Name]
                     }
-
                     catch {
                         Write-Warning $Error[0]
                     }
                 }
-
                 end {
                     $ServerManager.Dispose()
                 }
