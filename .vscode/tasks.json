@@ -20,12 +20,23 @@
             "type": "shell",
             "command":"Invoke-Build Clean"
         }
-    ],
-    "inputs": [
-        {
-            "id": "TestTag",
-            "description": "Pester test tags to include",
-            "type": "promptString"
-        }
-    ]
+  ],
+  "inputs": [
+    {
+      "id": "TestTag",
+      "description": "Pester test tags to include",
+      "type": "promptString"
+    },
+    {
+      "id": "InvokeBuildTask",
+      "type": "command",
+      "command": "shellCommand.execute",
+      "args": {
+        "command": "${workspaceFolder}/getTasks.cmd",
+        "cwd": "${workspaceFolder}",
+        "fieldSeparator": "|",
+        "description": "Select the build task to run"
+      }
+    }
+  ]
 }

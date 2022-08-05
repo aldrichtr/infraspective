@@ -13,46 +13,46 @@ glyphs.
 
 Each `infraspective` Element has five event types;
 
-- **Start** : At the beginning of the element body, but prior to processing any
+- **Start** At the beginning of the element body, but prior to processing any
   content
-- **End** : At the end of the element body, after all sub-elements have
+- **End** At the end of the element body, after all sub-elements have
   completed
-- **Passed** : When an element's status is set to `Passed`
-- **Failed** : When an element's status is set to `Failed`
-- **Skipped** : When an element's status is set to `Skipped`
+- **Passed** When an element's status is set to `Passed`
+- **Failed** When an element's status is set to `Failed`
+- **Skipped** When an element's status is set to `Skipped`
 
 When an element event occurs, `infraspective` checks the `Output` section of the
 configuration, and outputs the status of the event based on the settings.
 
 The Output section of the configuration has two main sections:
 
-- **Scope** : Controls which elements send output to the console
-- **StatusMap** : Controls the format of the status messages
+- **Scope** Controls which elements send output to the console
+- **StatusMap** Controls the format of the status messages
 
 
 ### Scope
 
 Currently, there are nine options for the `Scope` Setting
 
-- **None** : No information is sent to Output.
-- **Audit** : the `infraspective` audit start and the final status, with totals
-- **File** : Each file specified in the `Audit` section of the Configuration
-- **Checklist** : Each `Checklist` including the final status and totals
-- **Grouping** : Each `Grouping` including the final status and totals
-- **Control** : Each `Control` including the final status and totals
-- **Block** : Each `Pester` block, such as `Describe` and `Context`
-- **Test** : Each individual `Pester` Test.
+- **None** No information is sent to Output.
+- **Audit** the `infraspective` audit start and the final status, with totals
+- **File** Each file specified in the `Audit` section of the Configuration
+- **Checklist** Each `Checklist` including the final status and totals
+- **Grouping** Each `Grouping` including the final status and totals
+- **Control** Each `Control` including the final status and totals
+- **Block** Each `Pester` block, such as `Describe` and `Context`
+- **Test** Each individual `Pester` Test.
 
 
 ### StatusMap
 
 There are several components of the status output that can be configured:
 
-- **Leader**: A set of characters used as "indentation markers"
-- **Default**: Set the formatting defaults for all status Event Types
-- **Passed** , **Failed**, **Skipped** : Set the formatting details for a
+- **Leader** A set of characters used as "indentation markers"
+- **Default** Set the formatting defaults for all status Event Types
+- **Passed** , **Failed**, **Skipped** Set the formatting details for a
   specific result
-- **Start**, **End** : Set the formatting details for elements as they begin and
+- **Start**, **End** Set the formatting details for elements as they begin and
   end
 
 Additionally, if you want to set unique format settings per `Scope`, you can add
@@ -63,11 +63,11 @@ Any value that is not explicitly set will use the `Default` setting
 
 Each event type can have the following keys:
 
-- **Foreground** : The color of the text
-- **Background** : The color behind the text
-- **Render** : Whether or not to render symbols in the template
-- **Reset** : Whether or not to reset the colors at the end of the line of text
-- **Format** : A template used for formatting the information sent to the
+- **Foreground** The color of the text
+- **Background** The color behind the text
+- **Render** Whether or not to render symbols in the template
+- **Reset** Whether or not to reset the colors at the end of the line of text
+- **Format** A template used for formatting the information sent to the
   console
 
 ## Format

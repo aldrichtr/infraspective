@@ -1,3 +1,6 @@
 # Don't check in the staging or publishing directories
 out/
 stage/
+
+# Ignore the repository's wiki when it gets checked out (under docs)
+docs/wiki/

@@ -3,64 +3,45 @@ Set-Alias -Name Control -Value 'Invoke-InfraspecControl' -Description 'Execute a
 
 Function Invoke-InfraspecControl {
     <#
-.SYNOPSIS
-    A security control consisting of one or more tests and metadata about the test.
-.DESCRIPTION
-    This function is aliased by the `Control` keyword, and maps directly to the concept of a Security Control found
-    in many frameworks such as CIS, STIG, HIPAA, etc.  A control consists of one or more tests, such as the
-    existence of a file permission, or the status of a service and maps that to a recommended setting for that test
-    found in one of those frameworks, or your corporate or personal security policy.
-
-    A passing test(s) means that the system under test complies with the given control, while a failing test means
-    that the system is not in compliance
-    The tests are regular Pester tests, using the standard "Describe/Context/It/Should" keywords.  These tests are
-    passed directly to Pester (Invoke-Pester) and the results are returned.
-
-.EXAMPLE
-    ``` powershell
-    Control "xccdf_blah" -Resource "Windows" -Impact 1 -Reference 'CVE:123' {
-        Describe "cis control 123" {
-            It "Should have foo set to bar" {
-                $p.foo | Should -Be "bar"
-            }
-        }
-    }
-    ```
+    .EXTERNALHELP infraspective-help.xml
     #>
     [CmdletBinding()]
     param(
-        # The unique ID for this control
-        [Parameter(Mandatory = $true, Position = 0)]
+        [Parameter(
+            Position = 1,
+            Mandatory
+        )]
         [string]$Name,
 
-        # The tests associated with this control
-        [Parameter(Position = 1)]
+        [Parameter(
+            Position = 2
+        )]
         [ValidateNotNull()]
         [scriptblock]$Body,
 
-        # The criticality, if this control fails
         [Parameter(
         )]
         [string]$Impact,
 
-        # The human readable title
-        [Parameter()]
+        [Parameter(
+        )]
         [string]$Title,
 
-        # References to external tools and databases
-        [Parameter()]
+        [Parameter(
+        )]
         [string[]]$Reference,
 
-        # Tags associated with this control
-        [Parameter()]
+        [Parameter(
+        )]
         [string[]]$Tags,
 
-        # The type of resource to test
-        [Parameter()]
+        [Parameter(
+        )]
         [string]$Resource,
 
         # An optional description of the test
-        [Parameter()]
+        [Parameter(
+        )]
         [string[]]$Description
     )
     begin {

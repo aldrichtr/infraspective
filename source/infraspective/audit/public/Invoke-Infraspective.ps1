@@ -2,10 +2,7 @@
 
 function Invoke-Infraspective {
     <#
-    .SYNOPSIS
-        Perform an audit on the specified hosts
-    .DESCRIPTION
-        Run checklists, groupings and controls in files specified in the configuration.
+    .EXTERNALHELP infraspective-help.xml
     #>
     [CmdletBinding(
         SupportsShouldProcess,

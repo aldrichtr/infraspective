@@ -21,10 +21,9 @@ console to indicate the current status of the program, the individual Elements
 are familiar with `Pester` already, then you know that there is both an Output
 and a Result object.  `infraspective` divides output into three types:
 
-- **Pipeline** : This is the `ResultInfo` objects on the pipeline
-- **Output** : This is text based output on the commandline based on Result
-  `Events`
-- **Logging** : `infraspective` functional status messages, such as processes
+- Pipeline: This is the `ResultInfo` objects on the pipeline
+- Output: This is text based output on the commandline based on event types
+- Logging: `infraspective` functional status messages, such as processes
   being started or stopped, environmental conditions, etc.
 
 ### The Pipeline
@@ -47,7 +46,7 @@ So infraspective offers a text-based output system that is separate from the
 pipeline. It has it's own custom template syntax and a rich set of porcelain
 features including colors, html entities, emojis and nerd-font options.
 
-**NOTE:** Output is **_not_** stdout!!.
+  **NOTE:** Output is not stdout!!.
 
 #### Output Streams
 
@@ -58,10 +57,10 @@ output on the screen, like:
 
 ```powershell
 Invoke-Infraspective | ConvertTo-Json |
-Invoke-RestMethod -Method POST -Uri 'https://my.ws.com/result_import' -Headers $headers
+Invoke-RestMethod -Method POST -Uri $ws_uri -Headers $headers
 ```
 
-```output
+```Output
 +- {Audit} - Started at 2022 Jul 15 17:03 on MYPC by Domain\User
 ...
 ```
@@ -98,12 +97,12 @@ session information, errors, warnings and significant actions.
 
 There are four levels of logging, each level provides increasing verbosity:
 
-- **ERROR**: Events that have a negative impact on the functionality of the
+- **ERROR** Events that have a negative impact on the functionality of the
   program.
-- **WARNING**: Events that may impact the results, but the program can continue
-- **INFO**: Events that provide information about the current state, environment
+- **WARNING** Events that may impact the results, but the program can continue
+- **INFO** Events that provide information about the current state, environment
   or results of the program
-- **DEBUG**: Events that provide diagnostic information to aide in
+- **DEBUG** Events that provide diagnostic information to aide in
   troubleshooting
 
 #### Targets
@@ -156,25 +155,34 @@ The default value is: `[%{timestamp}] [%{level:-7}] %{message}`
 The Log object has a number of attributes that are replaced in the format string
 to produce the message:
 
-| Format         | Description |
-| -------------- | ----------- |
-| `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (_2016-04-20 14:22:45+02_). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available `[DateTimeFormatInfo]` |
-| `%{timestamputc}` | UTC Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (_2016-04-20 12:22:45+02_). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available `[DateTimeFormatInfo]` |
-| `%{level}`     | Text logging level for the message (_DEBUG_, _INFO_, _WARNING_, _ERROR_) |
-| `%{levelno}`   | Number logging level for the message (_10_, _20_, _30_, _40_) |
-| `%{lineno}`    | The line number on wich the write occured |
-| `%{pathname}`  | The path of the caller |
-| `%{filename}`  | The file name part of the caller |
-| `%{caller}`    | The caller function name |
-| `%{message}`   | The logged message |
-| `%{body}`      | The logged body (json format not pretty printed) |
-| `%{execinfo}`  | The ErrorRecord catched in a try/catch statement |
-| `%{pid}`       | The process id of the currently running powershellprocess ($PID) |
+| Format            | Description                                             |
+|-------------------|---------------------------------------------------------|
+| `%{timestamp}`    | Time when the log message was created. Defaults to      |
+|                   | `%Y-%m-%d %T%Z` (_2016-04-20 14:22:45+02_). See note #1 |
+| `%{timestamputc}` | UTC Time when the log message was created. Defaults to  |
+|                   | `%Y-%m-%d %T%Z` (_2016-04-20 12:22:45+02_).             |
+| `%{level}`        | Text logging level for the message (_DEBUG_, _INFO_,    |
+|                   | _WARNING_, _ERROR_)                                     |
+| `%{levelno}`      | Number logging level for the message (_10_, _20_,       |
+|                   | _30_, _40_)                                             |
+| `%{lineno}`       | The line number on which the write occurred             |
+| `%{pathname}`     | The path of the caller                                  |
+| `%{filename}`     | The file name part of the caller                        |
+| `%{caller}`       | The caller function name                                |
+| `%{message}`      | The logged message                                      |
+| `%{body}`         | The logged body (json format not pretty printed)        |
+| `%{execinfo}`     | The ErrorRecord catched in a try/catch statement        |
+| `%{pid}`          | The process id of the currently running powershell      |
+|                   | process ($PID)                                          |
 
-After the placeholder name you can pass a padding or a date format string
-separated by a colon (`:`):
+- Note 1
+  [Technet](https://technet.microsoft.com/en-us/library/hh849887.aspx)
+  [Technet](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx)
 
-**Note**: A format string starting with a percent symbol (%) will use the
+  After the placeholder name you can pass a padding or a date format string
+  separated by a colon (`:`):
+
+**Note** A format string starting with a percent symbol (%) will use the
 `UFormat` parameter of `Get-Date`
 
 #### Components

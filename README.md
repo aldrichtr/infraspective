@@ -1,9 +1,10 @@
-# infraspective : Infrastructure Testing with PowerShell
-```yaml
+---
 Status: "Under Development (Pre-release)"
 Location: https://github.com/aldrichtr/infraspective
 Version: 0.4.1
-```
+---
+# infraspective : Infrastructure Testing with PowerShell
+
 ## Current status
 
 [![PSScriptAnalyzer
