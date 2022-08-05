@@ -27,12 +27,12 @@ function Measure-Package {
 
         [Parameter(
             ParameterSetName = "Default",
-            , Position = 2,
+            Position = 2,
             Mandatory
             )]
         [Parameter(
             ParameterSetName = "Property",
-            , Position = 3,
+            Position = 3,
             Mandatory
             )]
         [scriptblock]$Should
