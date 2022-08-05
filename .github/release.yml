@@ -1,23 +1,24 @@
 changelog:
   exclude:
     labels:
-      - 'state:exclude-from-release'
+      - 'flag.exclude-from-release'
   categories:
     - title: Breaking Changes
       labels:
-        - 'type:breaking-change'
+        - 'flag.breaking-change'
 
-    - title: Bug fixes
+    - title: Security and Bug fixes
       labels:
-        - 'type:bug'
+        - 'is.bug'
+        - 'flag.security'
 
     - title: New Features
       labels:
-        - 'type:feature'
+        - 'is.feature'
 
     - title: Notable Improvements
       labels:
-        - 'type:enhancement'
+        - 'is.enhancement'
 
     - title: Other Changes
       labels:
