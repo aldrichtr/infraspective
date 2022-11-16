@@ -1,7 +1,6 @@
 # Security Policy for infraspective
 
 ---
-version: 0.4.0
 url: https://github.com/aldrichtr/infraspective
 ---
 
@@ -12,7 +11,7 @@ project. As I am currently the only developer on the project, the process below 
 
 - If the vulnerability exists in PowerShell, please submit the report to [The PowerShell Team](https://github.com/PowerShell/PowerShell/security/policy)
 - If the vulnerability exists in a module, service or application used by infraspective, please follow the security
-  reporting guidlines for that project first
+  reporting guidelines for that project first
 - If the vulnerability exists in infraspective (regardless of version), please report it using the process below
 
 ## Vulnerability reporting process
