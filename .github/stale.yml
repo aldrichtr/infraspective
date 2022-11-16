@@ -4,8 +4,11 @@
 
 # Number of days of inactivity before an issue becomes stale
 daysUntilStale: 90
+
 # Number of days of inactivity before a stale issue is closed
-daysUntilClose: 60
+# false means the issue will not be automatically closed
+daysUntilClose: false
+
 # Issues with these labels will never be considered stale
 exemptLabels:
     # a pinned issue is one that we want to keep around for reference, such as
@@ -18,13 +21,23 @@ exemptLabels:
   - 'wf.contributor'
   - 'wf.discussion'
   - 'wf.review'
+
+# Set to true to ignore issues in a milestone
+exemptMilestones: false
+
+# Set to true to ignore issues with an assignee
+exemptAssignees: false
 # Label to use when marking an issue as stale
-staleLabel: 'closed.wontfix'
+staleLabel: 'flag.stale'
 # Comment to post when marking an issue as stale. Set to `false` to disable
-markComment: >
+markComment: |
   This issue has been automatically marked as stale because it has not had
-  any activity in the last 90 days. It will be closed in 60 days if no
-  further activity occurs. Thank you for your contributions.
+  any activity in the last 90 days. Please review the issue and take the
+  appropriate action.
+
+  **Note** marking the issue as 'pinned', 'security', or any of the 'wf'
+  (waiting for) labels will be ignored.
+
 # Comment to post when closing a stale issue. Set to `false` to disable
 closeComment: >
   This issue has been automatically closed due to inactivity.
