@@ -1,10 +1,15 @@
-# Github action workflow to run the Pester tests tagged 'unit'
+# Github action workflow to run the Pester tests in the Unit directory
 
 name: Run unit tests
+run-name: Running unit tests for ${{ github.ref_name }} by @${{ github.actor }}
 
 on:
-  push:
-  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
 
 jobs:
   UnitTest:
@@ -17,18 +22,12 @@ jobs:
           # Ensure we checkout the buildtools git submodule
           submodules: recursive
 
-        # PSDepend2 reads modules from 'requirements.psd1' and installs them
-        # according to the options in the file and/or the command line.
       - name: Install PSDepend2 from PSGallery
         run: |
-          $current_user_mod_path = ($env:PSModulePath -split ';')[0]
-          Write-Host "PowerShell Modules in $current_user_mod_path"
-
           Set-PSRepository psgallery -InstallationPolicy trusted
-          Write-Host -ForegroundColor Green "Installing PSDepend2"
           Install-Module PSDepend2 -Scope CurrentUser -Confirm:$false -Force
 
-      - name: Cache the required modules
+      - name: Configure the module cache
         id: cache-modules
         uses: actions/cache@v3
         with:
@@ -37,20 +36,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-psdepend-
 
-      - if: ${{ steps.cache-modules.outputs.cache-hit == false }}
-        name: List the installed modules
-        continue-on-error: true
-        run: |
-          Get-InstalledModule
-
       - name: Call PSDepend to install modules
         run: |
-          Write-Host -ForegroundColor Green "Now using PSDepend2 to install the rest of the required Modules"
           Import-Module PSDepend2
           Invoke-PSDepend -Path "." -Recurse:$true -Tags 'ci' -Test | Format-Table DependencyName, Version, DependencyType
 
           Invoke-PSDepend -Path "." -Recurse:$true -Confirm:$false -Target 'CurrentUser' -Tags 'ci'
 
+      - name: Install BuildTool
+        # I don't want to publish BuildTool to the PSGallery yet, and I haven't figured out how
+        # to use the Github nuget feed from powershell yet, so for the time being, I'm going to
+        # include the .nupkg in the .build directory and install it from there....
+        # gross? yes, but I don't know another way yet.
+        run: |
+          $buildtool = Get-InstalledModule -Name BuildTool
+          if ($null -eq $buildtool) {
+            Register-PSRepository -Name 'Local' -SourceLocation '.\build\requirements' -InstallationPolicy Trusted
+            Install-Module BuildTool -Repository Local
+            UnRegister-PSRepository -Name 'Local'
+          }
 
       # The Configure task ensures that directories, files and variables
       # are present before the other tasks are run.
@@ -59,11 +63,11 @@ jobs:
 
       # Run Pester Tests on files in source directory
       - name: Run UnitTests
-        run: Invoke-Build UnitTest
+        run: Invoke-Build UnitTest -CodeCov
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
           name: unit-test-report
-          path: out/*.xml
+          path: 'out/tests/pester.Unit*.xml'
           retention-days: 7
