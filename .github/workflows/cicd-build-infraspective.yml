@@ -1,12 +1,12 @@
-# Github action workflow to build the infraspective module
-
-name: Build the source files into a PowerShell module
+name: Create a release of the PowerShell module
+# This workflow creates a .nupkg file and publishes it to the repository's package feed
+# feed url is <repository_url>/pkgs/nuget/<repository_name>
 
 on:
-  push:
-    tags:
-      - '*'
   workflow_dispatch:
+
+env:
+  gh_token: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   Build:
@@ -15,9 +15,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          # Ensure we checkout the buildtools git submodule
-          submodules: recursive
 
       - name: Check the Cache for required modules
         id: cache-modules
@@ -93,5 +90,5 @@ jobs:
         run: |
           Invoke-Build Package
 
-          dotnet tool install --global gpr --version 0.1.281
+          dotnet tool install --global gpr
           gpr push -k $env:GITHUB_TOKEN .\out\infraspective\*.nupkg -r https://github.com/${{github.repository}}

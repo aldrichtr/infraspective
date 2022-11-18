@@ -1,0 +1,28 @@
+mode: Mainline
+commit-message-incrementing: MergeMessageOnly
+
+# AssemblySemVer
+assembly-versioning-format: '{Major}.{Minor}.{Patch}.{PreReleaseNumber}'
+assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{PreReleaseNumber}'
+# InformationalVersion
+assembly-informational-format: '{Major}.{Minor}.{Patch}{PreReleaseTagwithDash}'
+commit-date-format: yyyyMMddTHHmmss
+
+branches:
+  main:
+    increment: Patch
+    is-release-branch: true
+  pull-request:
+    tag: rc
+    increment: Patch
+  feature:
+    regex: feature/
+    tag: useBranchName
+    increment: Patch
+    source-branches: ['main', 'feature']
+    track-merge-target: true
+  release:
+    tag: ''
+    regex: releases?[/-]\d+\.\d+\.\d+
+    increment: Patch
+    is-release-branch: true

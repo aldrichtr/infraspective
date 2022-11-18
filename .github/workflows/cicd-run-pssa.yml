@@ -1,7 +1,13 @@
 name: Analyze PowerShell source code
+run-name: Analyzing source code for ${{ github.ref_name }} by @${{ github.actor }}
 
 on:
-  push:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
 
 jobs:
   Analyze:
@@ -10,11 +16,9 @@ jobs:
    steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-       submodules: recursive
 
     - name: Run PSScriptAnalyzer
-      uses: microsoft/psscriptanalyzer-action@v1.0
+      uses: microsoft/psscriptanalyzer-action@v1.1
       with:
        path: '.\source'
        recurse: true
