@@ -18,7 +18,6 @@ the [Pester Testing Module](https://pester.dev)
 
 ## Description
 
-
 `infraspective` reads tests (written in [BDD style](https://www.agilealliance.org/glossary/bdd/) , like Pester) and
 produces output that reports on compliance of your infrastructure to those tests.
 
@@ -32,6 +31,7 @@ Pester tests organized in particular directories in your module.
 concepts from other tools to create a Policy as Code tool.
 
 Starting with a test like:
+
 ``` powershell
 Describe "Services" {
     It "DNS Service should be running" {
@@ -60,7 +60,6 @@ At this time `infraspective` adds four new structures to organize and classify t
 - Grouping
 - Checklist
 - Include
-
 
 ### Control
 
@@ -181,4 +180,80 @@ named `*.Audit.ps1`
 Import-Module infraspective
 Invoke-Infraspective
 ```
+
 ![infraspective output](docs/images/infraspective-output-1.png)
+
+## Getting Started
+
+`infraspective` is currently not published to the gallery, but you can still try it out!  head over to the
+[releases](https://github.com/aldrichtr/infraspective/releases) page.  Expand `Assets` in the latest version.  The
+package is listed as `infraspective.< version >.nupkg`.  Download this file to your computer, and install it
+
+```powershell
+# ensure the prerequisites are installed
+Install-Module -Name @(
+    'Pester', 'Configuration', 'Logging', 'EPS', 'Pansies'
+) -AllowClobber -AllowPrerelease -Scope CurrentUser
+
+# create a temporary PSRepository
+
+$psRepoPath = (Join-Path $env:USERPROFILE 'PSRepo')
+
+if (-not(Test-Path $psRepoPath)) {
+    New-Item -Path $psRepoPath -ItemType Directory -Force
+}
+
+$localRepo = @{
+            Name               = 'Local'
+            SourceLocation     = $psRepoPath
+            PublishLocation    = $psRepoPath
+            InstallationPolicy = 'trusted'
+}
+Register-PSRepository @localRepo
+
+# Move the package from the download location to the local repository
+Get-Childitem -Path "$env:USERPROFILE\Downloads" -Filter "infraspective*.nupkg" | Move-Item -Destination $psRepoPath
+
+# Confirm that the package is available
+Find-Module -Repository Local
+
+# Install the module
+Install-Module -Name 'infraspective' -Repository 'Local' -AllowPrerelease -Scope CurrentUser
+
+# Optionally, clean up the repository and package
+UnRegister-PSRepository -Name 'Local'
+Get-Item -Path $psRepoPath | Remove-Item -Recurse
+```
+
+Now you are ready to run infraspective.  First, create a directory for your project:
+
+```powershell
+New-Item "$env:USERPROFILE\infraspective" -ItemType Directory
+cd "~\infraspective"
+```
+
+Create a file in this directory called `Simple.audit.ps1` with the following content:
+
+```powershell
+Checklist "Simple Security Audit" -Version "1.0.0" -Title "A simple Audit" {
+    Control "xccdf_onetwothree" -Resource "Windows" -Impact 1 -Reference 'CVE:123' {
+        Describe "cis control 123" {
+            It "Should have foo set to bar" {
+                $p.foo | Should -Be "bar"
+            }
+        }
+    }
+    Control "xccdf_hostfile" -Resource "Windows" -Impact 1 -Reference 'CVE:123' {
+        Describe "cis control 124" {
+            File "C:\windows\system32\drivers\etc\hosts" { Should -Exist }
+            File "C:\windows\system32\drivers\etc\hosts" { Should -FileContentMatch 'localhost' }
+        }
+    }
+}
+```
+
+Finally, run the audit:
+
+```powershell
+$result = Invoke-Infraspective -Path '.\Simple.audit.ps1'
+```
